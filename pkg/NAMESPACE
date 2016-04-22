@@ -1,1 +1,8 @@
+useDynLib(countMatrixFactor)
 exportPattern("^[[:alpha:]]+")
+import(
+	Rcpp,
+	RcppEigen,
+	MASS,
+	DescTools
+)
