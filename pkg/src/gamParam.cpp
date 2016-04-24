@@ -96,7 +96,7 @@ namespace countMatrixFactor {
     /*!
     * \brief setter for param1
     *
-    * @param[out] rows x cols, matrix of param1
+    * @param[in] rows x cols, matrix of param1
     */
     void gamParam::setParam1(MatrixXd &param1) {
         m_param1 = param1;
@@ -104,7 +104,7 @@ namespace countMatrixFactor {
     /*!
     * \brief setter for param2
     *
-    * @param[out] rows x cols, matrix of param2
+    * @param[in] rows x cols, matrix of param2
     */
     void gamParam::setParam2(MatrixXd &param2) {
         m_param2 = param2;

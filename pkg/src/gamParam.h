@@ -34,11 +34,11 @@
 using Eigen::MatrixXd;              // variable size matrix, double precision
 
 namespace countMatrixFactor {
+
     /*!
     * \class gamParam
     * \brief class to define Gamma distribution parameters
     */
-
     class gamParam {
     protected:
         // dimensions
@@ -112,3 +112,5 @@ namespace countMatrixFactor {
     double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2);
 
 }
+
+#endif
