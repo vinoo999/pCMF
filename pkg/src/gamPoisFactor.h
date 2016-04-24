@@ -30,6 +30,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include "gamDistrib.h"
+#include "loglikelihood.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -58,7 +59,7 @@ namespace countMatrixFactor {
      *  V_{jk} ~ Gamma(theta_{jk})
      */
 
-    class gamPoisFactor {
+    class gamPoisFactor : public loglikelihood {
     protected:
         // dimensions
         int m_N;      /*!< number of observations (rows) */
@@ -101,15 +102,10 @@ namespace countMatrixFactor {
         MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} xi_{ijk} = \sum_j E[Z_{ijk}] */
 
         // prior parameter
-        gamParam m_alpha1;         /*!< n x K, values of first parameter of Gamma prior on U */
-        gamParam m_beta1;         /*!< p x K, values of first parameter of prior Gamma prior on V */
+        gamParam m_alpha;       /*!< n x K, values of first parameter of Gamma prior on U */
+        gamParam m_beta;        /*!< p x K, values of first parameter of prior Gamma prior on V */
 
         // criterion
-        VectorXd m_margLogLike;       /*!< marginal log-likelihood of the data */
-        VectorXd m_condLogLike;       /*!< conditional log-likelihood of the data */
-        VectorXd m_priorLogLike;      /*!< log-likelihood of factor priors */
-        VectorXd m_postLogLike;       /*!< log-likelihood of factor posterior */
-        VectorXd m_compLogLike;       /*!< complete log-likelihood of the model */
 
         VectorXd m_deviance;          /*!< deviance between estimated and saturated model */
         VectorXd m_normGap;           /*!< normalized gap between two iterates (to assess convergence) */
