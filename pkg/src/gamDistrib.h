@@ -79,11 +79,30 @@ namespace countMatrixFactor {
         ~gamDistrib();
 
     public:
+        // getter
+        void getParam1(MatrixXd &param1);
+        void getParam2(MatrixXd &param2);
+        void getExpectation(MatrixXd &Egam);
+        void getLogExpectation(MatrixXd &Elgam);
+        void getEntropy(MatrixXd &entropy);
+
+        // setter
+        void setParam1(MatrixXd &param1);
+        void setParam2(MatrixXd &param2);
+
         // member functions: documented in src
 
+        // expectation
         void expectation();
+
+        // log-expectation
         void logexpectation();
+
+        // entropy
         void entropy();
+
+        // parameter norm
+        double parameterNorm();
     };
 
 }
