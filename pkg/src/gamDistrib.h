@@ -29,6 +29,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include "gamParam.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -39,15 +40,8 @@ namespace countMatrixFactor {
      * \brief class to define Gamma prior for latent factors
      */
 
-    class gamDistrib {
+    class gamDistrib : public gamParam {
     protected:
-        // dimensions
-        int m_rows;         /*!< number of rows (dimension of observation or variable space) */
-        int m_cols;         /*!< number of factors */
-
-        // hyper-parameters
-        MatrixXd m_param1;  /*!< rows x cols, shape parameter (called alpha) */
-        MatrixXd m_param2;  /*!< rows x cols, rate parameter (called beta) */
 
         // sufficient statistics
         MatrixXd m_Egam;    /*!< rows x cols, expectation, alpha/beta */
@@ -69,7 +63,8 @@ namespace countMatrixFactor {
          *
          * Constructor of the class gamDistrib with initialization
          */
-        gamDistrib(int rows, int cols, const MatrixXd &param1, const MatrixXd &param2);
+        gamDistrib(int rows, int cols,
+                   const MatrixXd &param1, const MatrixXd &param2);
 
         /*!
          * \brief Destructor
@@ -80,29 +75,20 @@ namespace countMatrixFactor {
 
     public:
         // getter
-        void getParam1(MatrixXd &param1);
-        void getParam2(MatrixXd &param2);
-        void getExpectation(MatrixXd &Egam);
-        void getLogExpectation(MatrixXd &Elgam);
+        void getE(MatrixXd &Egam);
+        void getElog(MatrixXd &Elgam);
         void getEntropy(MatrixXd &entropy);
-
-        // setter
-        void setParam1(MatrixXd &param1);
-        void setParam2(MatrixXd &param2);
 
         // member functions: documented in src
 
         // expectation
-        void expectation();
+        void E();
 
         // log-expectation
-        void logexpectation();
+        void Elog();
 
         // entropy
         void entropy();
-
-        // parameter norm
-        double parameterNorm();
     };
 
 }
