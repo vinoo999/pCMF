@@ -59,7 +59,8 @@ namespace countMatrixFactor {
         m_param2 = MatrixXd::Zero(rows,cols);
     }
 
-    gamParam::gamParam(int rows, int cols, const MatrixXd &param1, const MatrixXd &param2) {
+    gamParam::gamParam(int rows, int cols,
+                       const MatrixXd &param1, const MatrixXd &param2) {
         // dimensions
         m_rows = rows;
         m_cols = cols;
@@ -150,7 +151,8 @@ namespace countMatrixFactor {
      * of parameters
      */
     void gamParam::entropy(MatrixXd &res) {
-        res = (1-m_param1.array()) * m_param1.digamma().array() + m_param1.array()
+        res = (1-m_param1.array()) * m_param1.digamma().array()
+                + m_param1.array()
                 + m_param1.lgamma().array() - m_param2.log().array();
     }
 

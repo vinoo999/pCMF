@@ -31,7 +31,7 @@
 #include <RcppEigen.h>
 
 // [[Rcpp::depends(RcppEigen)]]
-using Eigen::MatrixXd;                  // variable size matrix, double precision
+using Eigen::MatrixXd;              // variable size matrix, double precision
 
 namespace countMatrixFactor {
     /*!
@@ -42,7 +42,8 @@ namespace countMatrixFactor {
     class gamParam {
     protected:
         // dimensions
-        int m_rows;         /*!< number of rows (dimension of observation or variable space) */
+        int m_rows;         /*!< number of rows (dimension
+                            of observation or variable space) */
         int m_cols;         /*!< number of factors */
 
         // hyper-parameters
@@ -62,7 +63,8 @@ namespace countMatrixFactor {
         *
         * Constructor of the class gamParam with initialization
         */
-        gamParam(int rows, int cols, const MatrixXd &param1, const MatrixXd &param2);
+        gamParam(int rows, int cols,
+                 const MatrixXd &param1, const MatrixXd &param2);
 
         /*!
         * \brief Destructor
