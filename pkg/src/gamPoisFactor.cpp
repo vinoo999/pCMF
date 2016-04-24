@@ -34,6 +34,8 @@ using namespace Rcpp;
 #define coeffExp() unaryExpr(std::ptr_fun<double,double>(exp))
 #define coeffSum(X) unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(scalsum),X))
 #define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
+#define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
+#define log() unaryExpr(std::ptr_fun<double,double>(log))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
@@ -67,6 +69,9 @@ namespace countMatrixFactor {
         m_stabRange = stabRange;
         m_epsilon = epsilon;
         m_verbose = verbose;
+
+        m_converged = false;
+        m_nbIter = 0;
 
         // data
         m_X = MatrixXi(X);
@@ -137,13 +142,18 @@ namespace countMatrixFactor {
     //-------------------//
 
     // Expectation gamma
-    void Egamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res) {
-
+    /*!
+     * \brief compute the expectation of a Gamma distribution
+     *
+     * From matrices of parameters, element wise
+     */
+    void gamPoisFactor::Egamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res) {
+        res = alpha.array() / beta.array();
     }
 
     // Expectation log gamma
-    void Elgamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res) {
-
+    void gamPoisFactor::Elgamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res) {
+        res = alpha.digamma().array() - beta.log().array();
     }
 
     //-------------------//
@@ -151,21 +161,23 @@ namespace countMatrixFactor {
     //-------------------//
 
     // parameter norm
-    double parameterNorm(const MatrixXd &phi1, const MatrixXd &phi2,
-                         const MatrixXd &theta1, const MatrixXd &theta2) {
-
+    double gamPoisFactor::parameterNorm() {
+        double res = sqrt( m_phi1old.square().sum() + m_phi2old.square().sum()
+                               + m_theta1old.square().sum() + m_theta2old.square().sum() );
+        return(res);
     }
 
     // difference norm (on parameters)
-    double differenceNorm(const MatrixXd &phi1old, const MatrixXd &phi2old,
-                          const MatrixXd &theta1old, const MatrixXd &theta2old,
-                          const MatrixXd &phi1new, const MatrixXd &phi2new,
-                          const MatrixXd &theta1new, const MatrixXd &theta2new) {
-
+    double gamPoisFactor::differenceNorm() {
+        double res = sqrt( (m_phi1old.array() - m_phi1cur.array()).square().sum()
+                               + (m_phi2old.array() - m_phi2cur.array()).square().sum()
+                               + (m_theta1old.array() - m_theta1cur.array()).square().sum()
+                               + (m_theta2old.array() - m_theta2cur.array()).square().sum() );
+        return(res);
     }
 
     // convergence condition
-    double convCondition(int order, const VectorXd &normGap, int iter, int drift) {
+    double gamPoisFactor::convCondition(int iter, int drift) {
 
     }
 
@@ -174,21 +186,13 @@ namespace countMatrixFactor {
     //-------------------//
 
     // Poisson intensity
-    void poisRate(int n, int p, int K,
-                  MatrixXd &EZ_i, MatrixXd &EZ_j,
-                  const MatrixXd &ElogU, const MatrixXd &ElogV);
+    void gamPoisFactor::poisRate();
 
     // local parameters: phi (factor U)
-    void localParam(int n, int p, int K,
-                    MatrixXd &phi1cur, MatrixXd &phi2cur,
-                    const MatrixXd &EZ_j, const MatrixXi &X, const MatrixXd &EV,
-                    const MatrixXd &alpha1, const MatrixXd &alpha2);
+    void gamPoisFactor::localParam();
 
     // global parameters: theta (factor V)
-    void globalParam(int n, int p, int K,
-                     MatrixXd &theta1cur, MatrixXd &theta2cur,
-                     const MatrixXd &EZ_j, const MatrixXi &X, const MatrixXd &EU,
-                     const MatrixXd &beta1, const MatrixXd &beta2);
+    void gamPoisFactor::globalParam();
 
 
 

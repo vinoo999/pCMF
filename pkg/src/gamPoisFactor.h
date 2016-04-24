@@ -29,6 +29,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include "gamDistrib.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -65,43 +66,43 @@ namespace countMatrixFactor {
         int m_K;      /*!< dimension of the latent subspace */
 
         // parameters
-        int m_iterMax;        /*!< maximum number of iterations */
-        int m_order;          /*!< derivative order on normalized gap to assess convergence
+        int m_iterMax;          /*!< maximum number of iterations */
+        int m_order;            /*!< derivative order on normalized gap to assess convergence
                                 (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative) */
-        int m_stabRange;      /*!< range of stability (number of iterations where parameter values are stable to confirm convergence) */
-        double m_epsilon;     /*!< precision for comparison when assessing convergence */
-        bool m_verbose;       /*!< boolean indicating verbosity in the output */
+        int m_stabRange;        /*!< range of stability (number of iterations where parameter values are stable to confirm convergence) */
+        double m_epsilon;       /*!< precision for comparison when assessing convergence */
+        bool m_verbose;         /*!< boolean indicating verbosity in the output */
+
+        bool m_converged;       /*!< status of convergence */
+        int m_nbIter;           /*!< number of effective iterations */
 
         // data
         MatrixXi m_X;         /*!< n x p, count data matrix */
 
         // variational parameters
-        MatrixXd m_phi1cur;       /*!< n x K, current values of first parameter of Gamma distribution on U */
-        MatrixXd m_phi2cur;       /*!< n x K, current values of second parameter of Gamma distribution on U */
+        gamDistrib m_UvarCur;    /*!< n x K x 2, current values
+                                of parameters (phi1, phi2)
+                                of Gamma distribution on U */
 
-        MatrixXd m_phi1old;       /*!< n x K, previous values of first parameter of Gamma distribution on U */
-        MatrixXd m_phi2old;       /*!< n x K, previous values of second parameter of Gamma distribution on U */
+        gamParam m_UvarOld;      /*!< n x K x 2, previous values
+                                of parameters (phi1, phi2)
+                                of Gamma distribution on U */
 
-        MatrixXd m_theta1cur;     /*!< p x K, current values of first parameter of Gamma distribution on V */
-        MatrixXd m_theta2cur;     /*!< p x K, current values of second parameter of Gamma distribution on V */
+        gamDistrib m_VvarCur;  /*!< p x K x 2, current values
+                                of parameters (theta1, theta2)
+                                of Gamma distribution on V */
 
-        MatrixXd m_theta1old;     /*!< p x K, previous values of first parameter of Gamma distribution on V */
-        MatrixXd m_theta2old;     /*!< p x K, previous values of second parameter of Gamma distribution on V */
+        gamParam m_VvarOld;    /*!< p x K, previous values
+                                of parameters (theta1, theta2)
+                                of Gamma distribution on V */
 
         // sufficient statistics
-        MatrixXd m_EU;            /*!< n x K, Expectation of U */
-        MatrixXd m_ElogU;         /*!< n x K, Expectation of log U */
-        MatrixXd m_EV;            /*!< p x K, Expectation of V */
-        MatrixXd m_ElogV;         /*!< p x K, Expectation of log V */
-
         MatrixXd m_EZ_i;          /*!< p x k, \sum_i X_{ij} xi_{ijk} = \sum_i E[Z_{ijk}] */
         MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} xi_{ijk} = \sum_j E[Z_{ijk}] */
 
         // prior parameter
-        MatrixXd m_alpha1;         /*!< n x K, values of first parameter of Gamma prior on U */
-        MatrixXd m_alpha2;        /*!< n x K, values of second parameter of prior Gamma prior on U */
-        MatrixXd m_beta1;         /*!< p x K, values of first parameter of prior Gamma prior on V */
-        MatrixXd m_beta2;         /*!< p x K, values of second parameter of prior Gamma prior on V */
+        gamParam m_alpha1;         /*!< n x K, values of first parameter of Gamma prior on U */
+        gamParam m_beta1;         /*!< p x K, values of first parameter of prior Gamma prior on V */
 
         // criterion
         VectorXd m_margLogLike;       /*!< marginal log-likelihood of the data */
@@ -177,38 +178,26 @@ namespace countMatrixFactor {
         //-------------------//
 
         // parameter norm
-        double parameterNorm(const MatrixXd &phi1, const MatrixXd &phi2,
-                             const MatrixXd &theta1, const MatrixXd &theta2);
+        double parameterNorm();
 
         // difference norm (on parameters)
-        double differenceNorm(const MatrixXd &phi1old, const MatrixXd &phi2old,
-                              const MatrixXd &theta1old, const MatrixXd &theta2old,
-                              const MatrixXd &phi1new, const MatrixXd &phi2new,
-                              const MatrixXd &theta1new, const MatrixXd &theta2new);
+        double differenceNorm();
 
         // convergence condition
-        double convCondition(int order, const VectorXd &normGap, int iter, int drift);
+        double convCondition(int iter, int drift);
 
         //-------------------//
         // parameter updates //
         //-------------------//
 
         // Poisson intensity
-        void poisRate(int n, int p, int K,
-                      MatrixXd &EZ_i, MatrixXd &EZ_j,
-                      const MatrixXd &ElogU, const MatrixXd &ElogV);
+        void poisRate();
 
         // local parameters: phi (factor U)
-        void localParam(int n, int p, int K,
-                        MatrixXd &phi1cur, MatrixXd &phi2cur,
-                        const MatrixXd &EZ_j, const MatrixXi &X, const MatrixXd &EV,
-                        const MatrixXd &alpha1, const MatrixXd &alpha2);
+        void localParam();
 
         // global parameters: theta (factor V)
-        void globalParam(int n, int p, int K,
-                         MatrixXd &theta1cur, MatrixXd &theta2cur,
-                         const MatrixXd &EZ_j, const MatrixXi &X, const MatrixXd &EU,
-                         const MatrixXd &beta1, const MatrixXd &beta2);
+        void globalParam();
 
 
     };
