@@ -66,8 +66,7 @@ namespace countMatrixFactor {
     }
 
     // MEMBER FUNCTIONS
-    void computeLogLike() {}
-
+    void loglikelihood::computeLogLike() {}
 }
 
 
