@@ -49,6 +49,7 @@ namespace countMatrixFactor {
         VectorXd m_postLogLike;     /*!< log-likelihood of factor posterior */
         VectorXd m_compLogLike;     /*!< complete log-likelihood of the model */
         VectorXd m_elbo;            /*!< Evidence lower bound of the model */
+        VectorXd m_deviance;        /*!< deviance between estimated and saturated model */
 
         public:
             /*!
@@ -67,12 +68,13 @@ namespace countMatrixFactor {
 
         public:
             // getter
-            void getMarginal(VectorXd &res);
-            void getConditional(VectorXd &res);
-            void getPrior(VectorXd &res);
-            void getPosterior(VectorXd &res);
-            void getComplete(VectorXd &res);
-            void getElbo(VectorXd &res);
+            void getMarginal(VectorXd &res, int size);
+            void getConditional(VectorXd &res, int size);
+            void getPrior(VectorXd &res, int size);
+            void getPosterior(VectorXd &res, int size);
+            void getComplete(VectorXd &res, int size);
+            void getELBO(VectorXd &res, int size);
+            void getDeviance(VectorXd &res, int size);
 
             // member functions: doc in src
             /*!
@@ -88,6 +90,13 @@ namespace countMatrixFactor {
              * Pure virtual member function, to be implemented, depending on the model
              */
             virtual void ELBO() = 0;
+
+            /*!
+             * \brief compute deviance between estimated and saturated model
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void deviance() = 0;
         };
 
     // FUNCTIONS
@@ -97,6 +106,12 @@ namespace countMatrixFactor {
     double poisLogLike(const MatrixXi &X, const MatrixXd &lambda);
 
     double ZIpoisLogLike(const MatrixXi &X, const MatrixXd &lambda, const MatrixXd &pi);
+
+    // Saturated Poisson log-likelihood for deviance
+    double poisLoglikeSaturated(const MatrixXi &X, const MatrixXd &lambda);
+
+    // deviance between estimated Poisson and saturated Poisson models
+    double poisDeviance(const MatrixXi &X, const MatrixXd &lambda, const MatrixXd &lambda0);
 
 }
 
