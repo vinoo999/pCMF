@@ -37,7 +37,6 @@
 using boost::math::digamma;
 
 // [[Rcpp::depends(RcppEigen)]]
-using Eigen::Map;                       // 'maps' rather than copies
 using Eigen::MatrixXd;                  // variable size matrix, double precision
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
