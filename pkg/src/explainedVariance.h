@@ -42,9 +42,7 @@ namespace countMatrixFactor {
     */
     class explainedVariance {
     protected:
-        int m_iterMax;
-
-        VectorXd m_expVar0;           /*!< proportion of explained variance as residuals sum of squares */
+        VectorXd m_expVar0;           /*!< proportion of explained variance as residual sum of squares */
         VectorXd m_expVarU;           /*!< proportion of variance explained by columns of U (as the ratio between variance of the projection over total variance) */
         VectorXd m_expVarV;           /*!< proportion of variance explained by columns of V (as the ratio between variance of the projection over total variance) */
 
@@ -54,14 +52,14 @@ namespace countMatrixFactor {
         *
         * Constructor of the class explained variance
         */
-        explainedVariance(int iterMax);
+        explainedVariance(int size);
 
         /*!
         * \brief Destructor
         *
         * Destructor of the class explained variance
         */
-        ~explainedVariance();
+        virtual ~explainedVariance();
 
     public:
         // getter
@@ -70,10 +68,21 @@ namespace countMatrixFactor {
         void getExpVarV(VectorXd &res);
 
         // member functions: doc in src
-        double expVar0();
-        double expVarU();
-        double expVarV();
+        virtual double computeExpVar() = 0;
     };
+
+    // functions, documented in src
+
+    // explained variance as sum_{i,j} (X_{i,j} - (UtV)_{i,j})^2 / sum_{i,j} X_{i,j}^2
+    double expVar0(const MatrixXi &X, const MatrixXd &U, const MatrixXd &V);
+
+    // explained variance as t(X.proj) %*% X.proj / t(X) %*% X, where X.proj is the projection of X onto the new components
+    // Xproj = U %*% ginv(t(U) %*% U) %*% t(U) %*% X
+    double expVarU(const MatrixXi &X, const MatrixXd &U);
+
+    // explained variance as t(X.proj) %*% X.proj / t(X) %*% X, where X.proj is the projection of X onto the new components
+    // Xproj = X %*% V %*% ginv(t(V) %*% V) %*% t(V)
+    double expVarV(const MatrixXi &X, const MatrixXd &V);
 }
 
 #endif
