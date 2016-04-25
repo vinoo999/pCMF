@@ -46,6 +46,9 @@ namespace countMatrixFactor {
         VectorXd m_expVarV = VectorXd::Zero(size);
     }
 
+    // DESTRCTOR
+    explainedVariance::~explainedVariance() {}
+
     //------------------------------------------------------------------------//
     // GETTER
 

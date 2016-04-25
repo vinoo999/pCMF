@@ -59,7 +59,7 @@ namespace countMatrixFactor {
         *
         * Destructor of the class explained variance
         */
-        virtual ~explainedVariance();
+        ~explainedVariance();
 
     public:
         // getter
