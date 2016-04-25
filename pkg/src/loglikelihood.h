@@ -31,6 +31,8 @@
 #include <RcppEigen.h>
 
 // [[Rcpp::depends(RcppEigen)]]
+using Eigen::MatrixXd;              // variable size matrix, double precision
+using Eigen::MatrixXi;              // variable size matrix, integer
 using Eigen::VectorXd;              // variable size matrix, double precision
 
 namespace countMatrixFactor {
@@ -40,14 +42,13 @@ namespace countMatrixFactor {
     */
     class loglikelihood {
     protected:
-        // dimensions
-        int m_iterMax;              /*!< maximum number of iterations */
 
         VectorXd m_margLogLike;     /*!< marginal log-likelihood of the data */
         VectorXd m_condLogLike;     /*!< conditional log-likelihood of the data */
         VectorXd m_priorLogLike;    /*!< log-likelihood of factor priors */
         VectorXd m_postLogLike;     /*!< log-likelihood of factor posterior */
         VectorXd m_compLogLike;     /*!< complete log-likelihood of the model */
+        VectorXd m_elbo;            /*!< Evidence lower bound of the model */
 
         public:
             /*!
@@ -55,7 +56,7 @@ namespace countMatrixFactor {
             *
             * Constructor of the class loglikelihood
             */
-            loglikelihood(int iterMax);
+            loglikelihood(int size);
 
             /*!
             * \brief Destructor
@@ -71,10 +72,32 @@ namespace countMatrixFactor {
             void getPrior(VectorXd &res);
             void getPosterior(VectorXd &res);
             void getComplete(VectorXd &res);
+            void getElbo(VectorXd &res);
 
             // member functions: doc in src
-            void computeLogLike();
+            /*!
+             * \brief compute log-likelihood
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void computeLogLike() = 0;
+
+            /*!
+             * \brief compute evidence lower bound
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void ELBO() = 0;
         };
+
+    // FUNCTIONS
+    // local log-likelihood function
+    double gammaLogLike(const MatrixXd &X, const MatrixXd &alpha, const MatrixXd &beta);
+
+    double poisLogLike(const MatrixXi &X, const MatrixXd &lambda);
+
+    double ZIpoisLogLike(const MatrixXi &X, const MatrixXd &lambda, const MatrixXd &pi);
+
 }
 
 #endif
