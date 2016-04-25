@@ -16,6 +16,7 @@ using Eigen::MatrixXd;                  // variable size matrix, double precisio
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
 using Eigen::VectorXi;                  // variable size vector, double precision
+using Eigen::PartialPivLU;              // for fast matrix inversion
 //using Eigen::JacobiSVD;                 // svd decomposition
 //using Eigen::ComputeThinU;              // svd decomposition: compute U
 //using Eigen::ComputeThinV;              // svd decomposition: compute V
