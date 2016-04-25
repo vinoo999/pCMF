@@ -36,6 +36,9 @@ namespace intermediate {
 
     // Dirac function in zero
     double dirac(double x);
+
+    // erase zero
+    void eraseZero(MatrixXd &X);
 }
 
 #endif

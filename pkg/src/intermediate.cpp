@@ -24,7 +24,11 @@
  * \date 25/04/2016
  */
 
+#include <RcppEigen.h>
 #include "intermediate.h"
+
+// [[Rcpp::depends(RcppEigen)]]
+using Eigen::MatrixXd;                  // variable size matrix, double precision
 
 namespace intermediate {
 
@@ -44,6 +48,25 @@ namespace intermediate {
             return 1;
         } else {
             return 0;
+        }
+    }
+
+
+    // erase zero
+    /*!
+     * \fn erase zeros in matrix
+     *
+     * @param[in,out] X matrix of data (count)
+     */
+    void eraseZero(MatrixXd &X) {
+        int n = X.rows();
+        int p = X.cols();
+        for(int i=0; i<n; i++) {
+            for(int j=0; j<n; j++) {
+                if(X(i,j) == 0) {
+                    X(i,j) = X(i,j) + 1;
+                }
+            }
         }
     }
 }
