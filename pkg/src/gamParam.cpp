@@ -113,7 +113,6 @@ namespace countMatrixFactor {
     //------------------------------------------------------------------------//
     // MEMBER FUNCTIONS
 
-    // expectation
     /*!
      * \brief Compute expection of Gamma distribution
      *
@@ -126,7 +125,6 @@ namespace countMatrixFactor {
         res = m_param1.array() / m_param2.array();
     }
 
-    // log-expectation
     /*!
      * \brief Compute expection of log of Gamma distribution
      *
@@ -139,7 +137,6 @@ namespace countMatrixFactor {
         res = m_param1.digamma().array() - m_param2.log().array();
     }
 
-    // entropy
     /*!
      * \brief Compute entropy of Gamma distribution
      *
@@ -156,7 +153,6 @@ namespace countMatrixFactor {
                 + m_param1.lgamma().array() - m_param2.log().array();
     }
 
-    // parameter norm
     /*!
      * \brief l2 squared norm of all parameters
      *
@@ -172,7 +168,6 @@ namespace countMatrixFactor {
     //------------------------------------------------------------------------//
     // FUNCTIONS
 
-    // expectation
     /*!
     * \brief Compute expection of Gamma distribution
     *
@@ -187,7 +182,6 @@ namespace countMatrixFactor {
         res = param1.array() / param2.array();
     }
 
-    // log-expectation
     /*!
     * \brief Compute expection of log of Gamma distribution
     *
@@ -202,7 +196,6 @@ namespace countMatrixFactor {
         res = param1.digamma().array() - param2.log().array();
     }
 
-    // entropy
     /*!
     * \brief Compute entropy of Gamma distribution
     *
@@ -220,7 +213,6 @@ namespace countMatrixFactor {
                 + param1.lgamma().array() - param2.log().array();
     }
 
-    // parameter norm
     /*!
      * \brief l2 squared norm of all parameters
      *
