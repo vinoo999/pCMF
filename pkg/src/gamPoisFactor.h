@@ -30,7 +30,9 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include "gamDistrib.h"
+#include "gamParam.h"
 #include "loglikelihood.h"
+#include "explainedVariance.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -59,7 +61,7 @@ namespace countMatrixFactor {
      *  V_{jk} ~ Gamma(theta_{jk})
      */
 
-    class gamPoisFactor : public loglikelihood {
+    class gamPoisFactor : public loglikelihood, public explainedVariance {
     protected:
         // dimensions
         int m_N;      /*!< number of observations (rows) */
@@ -81,20 +83,20 @@ namespace countMatrixFactor {
         MatrixXi m_X;         /*!< n x p, count data matrix */
 
         // variational parameters
-        gamDistrib m_UvarCur;    /*!< n x K x 2, current values
-                                of parameters (phi1, phi2)
+        gamDistrib m_UphiCur;    /*!< n x K x 2, current values
+                                of variational parameters (phi1, phi2)
                                 of Gamma distribution on U */
 
-        gamParam m_UvarOld;      /*!< n x K x 2, previous values
-                                of parameters (phi1, phi2)
+        gamParam m_UphiOld;      /*!< n x K x 2, previous values
+                                of variational parameters (phi1, phi2)
                                 of Gamma distribution on U */
 
-        gamDistrib m_VvarCur;  /*!< p x K x 2, current values
-                                of parameters (theta1, theta2)
+        gamDistrib m_VthetaCur;  /*!< p x K x 2, current values
+                                of variational parameters (theta1, theta2)
                                 of Gamma distribution on V */
 
-        gamParam m_VvarOld;    /*!< p x K, previous values
-                                of parameters (theta1, theta2)
+        gamParam m_VthetaOld;    /*!< p x K, previous values
+                                of variational parameters (theta1, theta2)
                                 of Gamma distribution on V */
 
         // sufficient statistics
@@ -106,12 +108,7 @@ namespace countMatrixFactor {
         gamParam m_beta;        /*!< p x K, values of first parameter of prior Gamma prior on V */
 
         // criterion
-
-        VectorXd m_deviance;          /*!< deviance between estimated and saturated model */
         VectorXd m_normGap;           /*!< normalized gap between two iterates (to assess convergence) */
-        VectorXd m_expVar0;           /*!< proportion of explained variance as residuals sum of squares */
-        VectorXd m_expVarU;           /*!< proportion of variance explained by columns of U (as the ratio between variance of the projection over total variance) */
-        VectorXd m_expVarV;           /*!< proportion of variance explained by columns of V (as the ratio between variance of the projection over total variance) */
 
     public:
         /*!
@@ -160,21 +157,8 @@ namespace countMatrixFactor {
         void Init();
 
         //-------------------//
-        // sufficient stats  //
-        //-------------------//
-
-        // Expectation gamma
-        void Egamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res);
-
-        // Expectation log gamma
-        void Elgamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res);
-
-        //-------------------//
         //   convergence     //
         //-------------------//
-
-        // parameter norm
-        double parameterNorm();
 
         // difference norm (on parameters)
         double differenceNorm();

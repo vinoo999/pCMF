@@ -56,11 +56,12 @@ namespace countMatrixFactor {
                                  const MatrixXd &phi1, const MatrixXd &phi2,
                                  const MatrixXd &theta1, const MatrixXd &theta2,
                                  const MatrixXd &alpha1, const MatrixXd &alpha2,
-                                 const MatrixXd &beta1, const MatrixXd &beta2) {
+                                 const MatrixXd &beta1, const MatrixXd &beta2) :
+                loglikelihood(iterMax), explainedVariance(iterMax) {
 
         // dimensions
-        m_N = X.rows();
-        m_P = X.cols();
+        m_N = n;
+        m_P = p;
         m_K = K;
 
         // parameters
@@ -77,45 +78,21 @@ namespace countMatrixFactor {
         m_X = MatrixXi(X);
 
         // variational parameters
-        m_phi1cur = MatrixXd::Zero(n,K);
-        m_phi2cur = MatrixXd::Zero(n,K);
+        m_UphiCur = gamDistrib(n, K, phi1, phi2);
+        m_UphiOld = gamParam(n, K, phi1, phi2);
+        m_VthetaCur = gamDistrib(p, K, theta1, theta2);
+        m_VthetaOld = gamParam(p, K, theta1, theta2);
 
-        m_phi1old = MatrixXd(phi1);
-        m_phi2old = MatrixXd(phi2);
-
-        m_theta1cur = MatrixXd::Zero(p,K);
-        m_theta2cur = MatrixXd::Zero(p,K);
-
-        m_theta1old = MatrixXd(theta1);
-        m_theta2old = MatrixXd(theta2);
-
-        // sufficient statistics
-        m_EU = MatrixXd::Zero(n,K);
-        m_ElogU = MatrixXd::Zero(n,K);
-        m_EV = MatrixXd::Zero(p,K);
-        m_ElogV = MatrixXd::Zero(p,K);
-
+        //sufficient statistics
         m_EZ_i = MatrixXd::Zero(p,K);
         m_EZ_j = MatrixXd::Zero(n,K);
 
         // prior parameter
-        m_alpha1 = MatrixXd(alpha1);
-        m_alpha2 = MatrixXd(alpha2);
-        m_beta1 = MatrixXd(beta1);
-        m_beta2 = MatrixXd(beta2);
+        m_alpha = gamDistrib(n, K, alpha1, alpha2);
+        m_beta = gamParam(p, K, beta1, beta2);
 
         // criterion
-        m_margLogLike = VectorXd::Zero(iterMax);
-        m_condLogLike = VectorXd::Zero(iterMax);
-        m_priorLogLike = VectorXd::Zero(iterMax);
-        m_postLogLike = VectorXd::Zero(iterMax);
-        m_compLogLike = VectorXd::Zero(iterMax);
-
-        m_deviance = VectorXd::Zero(iterMax);
         m_normGap = VectorXd::Zero(iterMax);
-        m_expVar0 = VectorXd::Zero(iterMax);
-        m_expVarU = VectorXd::Zero(iterMax);
-        m_expVarV = VectorXd::Zero(iterMax);
 
     }
 
