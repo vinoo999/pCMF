@@ -44,86 +44,63 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 // SRC
 namespace countMatrixFactor {
 
-    //------------------------------------------------------------------------//
-    // CONSTRUCTOR
-    gamDistrib::gamDistrib(int rows, int cols) : gamParam(rows, cols) {
-        m_Egam = MatrixXd::Zero(rows,cols);
-        m_Elgam = MatrixXd::Zero(rows,cols);
-        m_entropy = MatrixXd::Zero(rows,cols);
-    }
-
-    gamDistrib::gamDistrib(int rows, int cols, const MatrixXd &param1, const MatrixXd &param2)
-            : gamParam(rows, cols, param1, param2) {
-        m_Egam = MatrixXd::Zero(rows,cols);
-        m_Elgam = MatrixXd::Zero(rows,cols);
-        m_entropy = MatrixXd::Zero(rows,cols);
-    }
-
-    // DESTRUCTOR
-    gamDistrib::~gamDistrib() {}
-
-    //------------------------------------------------------------------------//
-    // GETTER
-    /*!
-     * \brief getter for expectation
-     *
-     * @param[out] Egam rows x cols, matrix of expectation
-     */
-    void gamDistrib::getE(MatrixXd &Egam) {
-        Egam = m_Egam;
-    }
-    /*!
-     * \brief getter for expectation of log
-     *
-     * @param[out] Elgam rows x cols, matrix of log-expectation
-     */
-    void gamDistrib::getElog(MatrixXd &Elgam) {
-        Elgam = m_Elgam;
-    }
-    /*!
-     * \brief getter for entropy
-     *
-     * @param[out] entropy rows x cols, matrix of entropy
-     */
-    void gamDistrib::getEntropy(MatrixXd &entropy) {
-        entropy = m_entropy;
-    }
-
-    //------------------------------------------------------------------------//
-    // member functions: documented in src
-
-    // expectation
     /*!
      * \brief Compute expection of Gamma distribution
      *
      * E[U] = alpha/beta when alpha=param1 and beta=param2
-     */
-    void gamDistrib::E() {
-        m_Egam = m_param1.array() / m_param2.array();
-    }
-
-    // log-expectation
-    /*!
-     * \brief Compute expection of log of Gamma distribution
      *
-     * E[log U] = digamma(alpha) - log(beta) when alpha=param1 and beta=param2
+     * @param[in] param1 rows x cols, matrix of first parameters
+     * @param[in] param2 rows x cols, matrix of second parameters
+     * @param[out] res rows x cols, matrix of expectation for each couple
+     * of parameters
      */
-    void gamDistrib::Elog() {
-        m_Elgam = m_param1.digamma().array() - m_param2.log().array();
+    void Egam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res) {
+        res = param1.array() / param2.array();
     }
 
-    // entropy
+    /*!
+    * \brief Compute expection of log of Gamma distribution
+    *
+    * E[log U] = digamma(alpha) - log(beta) when alpha=param1 and beta=param2
+    *
+    * @param[in] param1 rows x cols, matrix of first parameters
+    * @param[in] param2 rows x cols, matrix of second parameters
+    * @param[out] res rows x cols, matrix of expectation of log for each couple
+    * of parameters
+    */
+    void Elgam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res) {
+        res = param1.digamma().array() - param2.log().array();
+    }
+
     /*!
      * \brief Compute entropy of Gamma distribution
      *
      * E[-log p(U)] = (1-alpha)*digamma(alpha) + alpha - log(beta)
-     *                  + log(gamma(alpha))
+     *               + log(gamma(alpha))
      * when alpha=param1 and beta=param2
+     *
+     * @param[in] param1 rows x cols, matrix of first parameters
+     * @param[in] param2 rows x cols, matrix of second parameters
+     * @param[out] res rows x cols, matrix of entropy for each couple
+     * of parameters
      */
-    void gamDistrib::entropy() {
-        m_entropy = (1-m_param1.array()) * m_param1.digamma().array()
-                        + m_param1.array()
-                        + m_param1.lgamma().array() - m_param2.log().array();
+    void entropyGam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res) {
+        res = (1-param1.array()) * param1.digamma().array() + param1.array()
+        + param1.lgamma().array() - param2.log().array();
+    }
+
+    /*!
+     * \brief l2 squared norm of all parameters
+     *
+     * Computation of sum_{ij} param1_{ij}^2 + param2_{ij}^2
+     *
+     * @param[in] param1 rows x cols, matrix of first parameters
+     * @param[in] param2 rows x cols, matrix of second parameters
+     * @return res l2 squared norm
+     */
+    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
+        double res = param1.square().sum() + param2.square().sum();
+        return res;
     }
 
 }

@@ -21,7 +21,7 @@
 
 /*!
  * \file gamDistrib.h
- * \brief class definition for Gamma Prior
+ * \brief function definition for Gamma distribution
  * \author Ghislain Durif
  * \version 0.1
  * \date 22/04/2016
@@ -29,66 +29,22 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "gamParam.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
 
 namespace countMatrixFactor {
-    /*!
-     * \class gamPoisFactor
-     * \brief class to define Gamma prior for latent factors
-     */
 
-    class gamDistrib : public gamParam {
-    protected:
+    // expectation
+    void Egam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res);
 
-        // sufficient statistics
-        MatrixXd m_Egam;    /*!< rows x cols, expectation, alpha/beta */
-        MatrixXd m_Elgam;   /*!< rows x cols, log-expectation, digamma(alpha) - log(beta) */
+    // log-expectation
+    void Elgam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res);
 
-        MatrixXd m_entropy; /*!< rows x cols, entropy of the Gamma distribution,
-                                (1-alpha)*digamma(alpha) + alpha - log(beta) + log(gamma(alpha))*/
+    // entropy
+    void entropyGam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res);
 
-    public:
-        /*!
-         * \brief Constructor
-         *
-         * Constructor of the class gamDistrib without initialization
-         */
-        gamDistrib(int rows, int cols);
-
-        /*!
-         * \brief Constructor
-         *
-         * Constructor of the class gamDistrib with initialization
-         */
-        gamDistrib(int rows, int cols,
-                   const MatrixXd &param1, const MatrixXd &param2);
-
-        /*!
-         * \brief Destructor
-         *
-         * Destructor of the class gamDistrib
-         */
-        ~gamDistrib();
-
-    public:
-        // getter
-        void getE(MatrixXd &Egam);
-        void getElog(MatrixXd &Elgam);
-        void getEntropy(MatrixXd &entropy);
-
-        // member functions: documented in src
-
-        // expectation
-        void E();
-
-        // log-expectation
-        void Elog();
-
-        // entropy
-        void entropy();
-    };
+    // parameter norm
+    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2);
 
 }
