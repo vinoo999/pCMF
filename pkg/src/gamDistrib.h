@@ -44,7 +44,4 @@ namespace countMatrixFactor {
     // entropy
     void entropyGam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res);
 
-    // parameter norm
-    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2);
-
 }
