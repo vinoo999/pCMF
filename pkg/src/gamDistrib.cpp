@@ -30,8 +30,8 @@
 #include "gamDistrib.h"
 
 #define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
-#define log() unaryExpr(std::ptr_fun<double,double>(log))
 #define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
+#define log() unaryExpr(std::ptr_fun<double,double>(log))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
