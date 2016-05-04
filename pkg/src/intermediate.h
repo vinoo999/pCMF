@@ -39,6 +39,9 @@ namespace intermediate {
 
     // erase zero
     void eraseZero(MatrixXd &X);
+
+    // exponential that throw error when under or overflowing
+    double myExp(double x);
 }
 
 #endif

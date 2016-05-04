@@ -25,6 +25,7 @@
  */
 
 #include <RcppEigen.h>
+#include <math.h>
 #include "intermediate.h"
 
 // [[Rcpp::depends(RcppEigen)]]
@@ -51,8 +52,6 @@ namespace intermediate {
         }
     }
 
-
-    // erase zero
     /*!
      * \fn erase zeros in matrix
      *
@@ -67,6 +66,20 @@ namespace intermediate {
                     X(i,j) = X(i,j) + 1;
                 }
             }
+        }
+    }
+
+    /*!
+     * \fn exponential that throw error when under or overflowing
+     *
+     * @param[in] x real
+     */
+    double myExp(double x) {
+        if(std::abs(x) > 700) {
+            Rcpp::stop("under or overflow in exponential");
+            return(-1);
+        } else {
+            return exp(x);
         }
     }
 }
