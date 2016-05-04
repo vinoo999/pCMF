@@ -26,16 +26,14 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include <stdio>
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactorStandard.h"
 
-using namespace Rcpp;
-
-#define coeffExp() unaryExpr(std::ptr_fun<double,double>(exp))
-#define coeffSum(X) unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(scalsum),X))
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
+#define exp() unaryExpr(std::ptr_fun<double,double>(exp))
 #define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
 #define log() unaryExpr(std::ptr_fun<double,double>(log))
+#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
@@ -70,45 +68,161 @@ namespace countMatrixFactor {
     /*!
      * \brief Initialization of sufficient statistics
      */
-    void gamPoisFactor::Init() {}
+    void gamPoisFactorStandard::Init() {
+
+        // Gamma variational parameter
+        Egam(m_phi1cur, m_phi2cur, m_EU);
+        Elgam(m_phi1cur, m_phi2cur, m_ElogU);
+        Egam(m_theta1cur, m_theta2cur, m_EV);
+        Elgam(m_theta1cur, m_theta2cur, m_ElogV);
+
+        // Multinomial Z parameters
+        this->multinomParam();
+
+    }
+
+    //-------------------//
+    //      criteria     //
+    //-------------------//
+
+    /*!
+     * \brief compute log-likelihood
+     */
+    void gamPoisFactorStandard::computeLogLike(int iter) {
+        m_condLogLike(iter) = poisLogLike(m_X, m_lambda);
+        m_priorLogLike(iter) = gammaLogLike(m_EU, m_alpha1, m_alpha2) + gammaLogLike(m_EV, m_beta1, m_beta2);
+        m_postLogLike(iter) = gammaLogLike(m_EU, m_phi1cur, m_phi2cur) + gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
+        m_compLogLike(iter) = m_condLogLike(iter) + m_postLogLike(iter);
+        m_margLogLike(iter) = m_condLogLike(iter) + m_priorLogLike(iter) - m_postLogLike(iter);
+    }
+
+    /*!
+     * \brief compute evidence lower bound
+     */
+    void gamPoisFactorStandard::ELBO(int iter) {}
+
+    /*!
+     * \brief compute deviance between estimated and saturated model
+     */
+    void gamPoisFactorStandard::deviance(int iter) {}
 
     //-------------------//
     // parameter updates //
     //-------------------//
 
-    // Poisson intensity
-    void gamPoisFactor::poisRate() {
+    // poisson rate
+    void gamPoisFactorStandard::poissonRate() {
+        m_lambda = m_EU * m_EV.transpose();
+    }
 
+    // Poisson intensity
+    void gamPoisFactorStandard::multinomParam() {
+
+        intermediate::checkExp(m_ElogU);
+        intermediate::checkExp(m_ElogV);
+
+        m_EZ_j = m_ElogU.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix() * m_ElogV.exp() ).array();
+        m_EZ_j = m_ElogU.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix() * m_ElogV.exp() ).array();
     }
 
     // local parameters: phi (factor U)
-    void gamPoisFactor::localParam() {
-//         for(int i=0; i<n; i++) {
-//             for(int k=0; k<K; k++) {
-//                 // sum_j X[i,j] * omega[i,j,k]
-//                 double res=0;
-//                 for(int j=0; j<p; j++) {
-//                     res += (double) X(i,j) * omega[i][j][k];
-//                 }
-//                 phi1cur(i,k) = alpha1(i,k) + res;
-//                 phi2cur(i,k) = alpha2(i,k) + EV.col(k).sum();
-//             }
-//         }
+    void gamPoisFactorStandard::localParam() {
+        m_phi1cur = m_alpha1.array() + m_EZ_j.array();
+        m_phi2cur = m_alpha2.rowwise() + m_EV.colwise().sum();
     }
 
     // global parameters: theta (factor V)
-    void gamPoisFactor::globalParam() {
-
+    void gamPoisFactorStandard::globalParam() {
+        m_theta1cur = m_beta1.array() + m_EZ_i.array();
+        m_theta2cur = m_beta2.rowwise() + m_EU.colwise().sum();
     }
 
 
     //-------------------//
     //     algorithm     //
     //-------------------//
-    void algorithm() {
+    void gamPoisFactorStandard::algorithm() {
+
+        // Iteration
+
+        int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
+        int iter = 0;
+
+        while( (iter < m_iterMax) && (m_converged==false)) {
+
+            if(m_verbose==true) {
+                Rcpp::Rcout << "iter " << iter << std::endl;
+            }
+
+            // Multinomial parameters
+            this->multinomParam();
+
+            // local parameters
+            // U : param phi
+            this->localParam();
+
+            // expectation and log-expectation
+            Egam(m_phi1cur, m_phi2cur, m_EU);
+            Elgam(m_phi1cur, m_phi2cur, m_ElogU);
+
+            // global parameters
+            // V : param theta
+            this->globalParam();
+
+            // expectation and log-expectation
+            Egam(m_theta1cur, m_theta2cur, m_EV);
+            Elgam(m_theta1cur, m_theta2cur, m_ElogV);
+
+            // Poisson rate
+            this->poissonRate();
+
+            // log-likelihood
+            this->computeLogLike(iter);
+
+            // deviance
+            this->deviance(iter);
+
+
+            //// explained variance
+            explainedVar0(iter) = expVar0(X, EU, EV);
+            explainedVar1(iter) = expVar1(X, EU);
+            explainedVar2(iter) = expVar2(X, EV);
+
+
+            //// breaking condition: convergence or not
+            // Rcout << "convergence" << std::endl;
+            double paramNorm = parameterNorm(phi1old, phi2old, theta1old, theta2old);
+            double diffNorm = differenceNorm(phi1old, phi2old, theta1old, theta2old, phi1cur, phi2cur, theta1cur, theta2cur);
+
+            normGap(iter) = diffNorm / paramNorm;
+
+            // derivative order to consider
+            double condition = convCondition(order, normGap, iter, 0);
+
+            if(std::abs(condition) < epsilon) {
+                nstab++;
+            } else {
+                nstab=0;
+            }
+
+            if(nstab > rstab) {
+                converged=true;
+                nbIter=iter;
+            }
+
+
+            //// increment values of parameters
+            phi1old = phi1cur;
+            phi2old = phi2cur;
+
+            theta1old = theta1cur;
+            theta2old = theta2cur;
+
+            //// increment iteration
+            iter++;
+
+        }
 
     }
-
-
 
 }

@@ -30,6 +30,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include "gamPoisFactor.h"
+#include "intermediate.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -88,22 +89,38 @@ namespace countMatrixFactor {
         virtual void Init();
 
         //-------------------//
+        //      criteria     //
+        //-------------------//
+
+        // compute log-likelihood
+        void computeLogLike(int iter);
+
+        // compute evidence lower bound
+        void ELBO(int iter);
+
+        // compute deviance between estimated and saturated model
+        void deviance(int iter);
+
+        //-------------------//
         // parameter updates //
         //-------------------//
 
-        // Poisson intensity
-        virtual void poisRate()=0;
+        // poisson rate
+        void poissonRate();
+
+        // multinomial parameters
+        void multinomParam();
 
         // local parameters: phi (factor U)
-        virtual void localParam() = 0;
+        void localParam();
 
         // global parameters: theta (factor V)
-        virtual void globalParam() = 0;
+        void globalParam();
 
         //-------------------//
         //     algorithm     //
         //-------------------//
-        virtual void algorithm() = 0;
+        void algorithm();
 
     };
 
