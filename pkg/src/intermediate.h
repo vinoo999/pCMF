@@ -42,6 +42,9 @@ namespace intermediate {
 
     // exponential that throw error when under or overflowing
     double myExp(double x);
+
+    // check if exponential can be applied to a matrix
+    void checkExp(const MatrixXd &A);
 }
 
 #endif

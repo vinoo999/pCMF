@@ -82,4 +82,21 @@ namespace intermediate {
             return exp(x);
         }
     }
+
+    /*!
+     * \fn check if exponential can be applied to a matrix
+     *
+     * throw error when potential under or overflowing
+     *
+     * @param[in] A matrix to be checked
+     */
+    void checkExp(const MatrixXd &A) {
+        // check for 300 and -300 so a product of such elements does not exceed the limit
+        if( A.maxCoeff() > 300) {
+            Rcpp::stop("overflow in element-wise exponentiation of matrix");
+        }
+        if( A.minCoeff() < - 300) {
+            Rcpp::stop("underflow in element-wise exponentiation of matrix");
+        }
+    }
 }
