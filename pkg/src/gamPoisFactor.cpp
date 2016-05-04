@@ -28,6 +28,7 @@
 #include <RcppEigen.h>
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactor.h"
+#include "intermediate.h"
 
 #define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
 
@@ -70,6 +71,9 @@ namespace countMatrixFactor {
 
         // data
         m_X = MatrixXi(X);
+        m_lambda0 = X.cast<double>();
+        intermediate::eraseZero(m_lambda0);
+        m_lambda = MatrixXd::Zero(n, p);
 
         // variational parameters
         m_phi1cur = MatrixXd(phi1);
@@ -86,14 +90,10 @@ namespace countMatrixFactor {
 
         // sufficient statistics
         m_EU = MatrixXd::Zero(n,K);
-        Egam(phi1, phi2, m_EU);
         m_ElogU = MatrixXd::Zero(n,K);
-        Elgam(phi1, phi2, m_ElogU);
 
         m_EV = MatrixXd::Zero(p,K);
-        Egam(theta1, theta2, m_EV);
         m_ElogV = MatrixXd::Zero(p,K);
-        Elgam(theta1, theta2, m_ElogV);
 
         m_EZ_i = MatrixXd::Zero(p,K);
         m_EZ_j = MatrixXd::Zero(n,K);

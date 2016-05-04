@@ -82,7 +82,9 @@ namespace countMatrixFactor {
         int m_nbIter;           /*!< number of effective iterations */
 
         // data
-        MatrixXi m_X;         /*!< n x p, count data matrix */
+        MatrixXi m_X;           /*!< n x p, count data matrix */
+        MatrixXd m_lambda0;     /*!< n x p, Poisson rate for saturated model (X without zeros) */
+        MatrixXd m_lambda;      /*!< n x p, Poisson rate */
 
         // variational parameters
         MatrixXd m_phi1cur;       /*!< n x K, current values of first parameter of Gamma distribution on U */
@@ -156,18 +158,47 @@ namespace countMatrixFactor {
          */
         ~gamPoisFactor();
 
-    // member functions: documented in src
     protected:
 
-        // initialization
+        /*!
+         * \brief Initialization of sufficient statistics
+         */
         virtual void Init() = 0;
+
+        //-------------------//
+        //      criteria     //
+        //-------------------//
+
+        /*!
+        * \brief compute all different log-likelihood
+        *
+        * Pure virtual member function, to be implemented, depending on the model
+        */
+        virtual void computeLogLike() = 0;
+
+        /*!
+         * \brief compute evidence lower bound
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         */
+        virtual void ELBO() = 0;
+
+        /*!
+         * \brief compute deviance between estimated and saturated model
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         */
+        virtual void deviance() = 0;
 
         //-------------------//
         // parameter updates //
         //-------------------//
 
-        // Poisson intensity
-        virtual void poisRate()=0;
+        // poisson rate
+        virtual void poissonRate() = 0;
+
+        // multinomial parameters
+        virtual void multinomParam() = 0;
 
         // local parameters: phi (factor U)
         virtual void localParam() = 0;
@@ -179,7 +210,6 @@ namespace countMatrixFactor {
         //     algorithm     //
         //-------------------//
         virtual void algorithm() = 0;
-
 
     };
 
