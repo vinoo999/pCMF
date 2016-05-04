@@ -21,7 +21,7 @@
 
 /*!
  * \file gamPoisFactor.h
- * \brief class definition for Gamma Poisson Factor Model
+ * \brief class definition for Gamma Poisson Factor Model (abstract class)
  * \author Ghislain Durif
  * \version 0.1
  * \date 22/04/2016
@@ -59,6 +59,8 @@ namespace countMatrixFactor {
      *  Z_{ijk} | X,U,V ~ Multinom(omega_{ijk})
      *  U_{ik} ~ Gamma(phi_{ik})
      *  V_{jk} ~ Gamma(theta_{jk})
+     *
+     *  Abstract class: skeleton for the different implementations
      */
 
     class gamPoisFactor : public loglikelihood, public explainedVariance {

@@ -18,7 +18,7 @@
 
 /*!
  * \file gamPoisFactor.cpp
- * \brief class definition for Gamma Poisson Factor Model
+ * \brief class definition for Gamma Poisson Factor Model  (abstract class)
  * \author Ghislain Durif
  * \version 0.1
  * \date 22/04/2016
@@ -29,13 +29,7 @@
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactor.h"
 
-using namespace Rcpp;
-
-#define coeffExp() unaryExpr(std::ptr_fun<double,double>(exp))
-#define coeffSum(X) unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(scalsum),X))
 #define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
-#define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
-#define log() unaryExpr(std::ptr_fun<double,double>(log))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
