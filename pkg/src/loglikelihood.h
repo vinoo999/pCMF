@@ -76,13 +76,47 @@ namespace countMatrixFactor {
             void getELBO(VectorXd &res, int size);
             void getDeviance(VectorXd &res, int size);
 
-            // member functions: doc in src
             /*!
-             * \brief compute log-likelihood
+             * \brief compute all different log-likelihood
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
             virtual void computeLogLike() = 0;
+
+            /*!
+             * \brief compute conditional log-likelihood
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void condLogLike() = 0;
+
+            /*!
+             * \brief compute prior log-likelihood
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void priorLogLike() = 0;
+
+            /*!
+             * \brief compute posterior log-likelihood
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void postLogLike() = 0;
+
+            /*!
+             * \brief compute complete log-likelihood
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void compLogLike() = 0;
+
+            /*!
+             * \brief compute marginal log-likelihood
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual void margLogLike() = 0;
 
             /*!
              * \brief compute evidence lower bound
