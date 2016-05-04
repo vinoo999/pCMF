@@ -78,18 +78,37 @@ namespace countMatrixFactor {
         m_X = MatrixXi(X);
 
         // variational parameters
-        m_UphiCur = gamDistrib(n, K, phi1, phi2);
-        m_UphiOld = gamParam(n, K, phi1, phi2);
-        m_VthetaCur = gamDistrib(p, K, theta1, theta2);
-        m_VthetaOld = gamParam(p, K, theta1, theta2);
+        m_phi1cur = MatrixXd(phi1);
+        m_phi2cur = MatrixXd(phi2);
 
-        //sufficient statistics
+        m_phi1old = MatrixXd(phi1);
+        m_phi2old = MatrixXd(phi2);
+
+        m_theta1cur = MatrixXd(theta1);
+        m_theta2cur = MatrixXd(theta2);
+
+        m_theta1old = MatrixXd(theta1);
+        m_theta2old = MatrixXd(theta2);
+
+        // sufficient statistics
+        m_EU = MatrixXd::Zero(n,K);
+        Egam(phi1, phi2, m_EU);
+        m_ElogU = MatrixXd::Zero(n,K);
+        Elgam(phi1, phi2, m_ElogU);
+
+        m_EV = MatrixXd::Zero(p,K);
+        Egam(theta1, theta2, m_EV);
+        m_ElogV = MatrixXd::Zero(p,K);
+        Elgam(theta1, theta2, m_ElogV);
+
         m_EZ_i = MatrixXd::Zero(p,K);
         m_EZ_j = MatrixXd::Zero(n,K);
 
         // prior parameter
-        m_alpha = gamDistrib(n, K, alpha1, alpha2);
-        m_beta = gamParam(p, K, beta1, beta2);
+        m_alpha1 = MatrixXd(alpha1);
+        m_alpha2 = MatrixXd(alpha1);
+        m_beta1 = MatrixXd(beta1);
+        m_beta2 = MatrixXd(beta2);
 
         // criterion
         m_normGap = VectorXd::Zero(iterMax);
@@ -99,81 +118,69 @@ namespace countMatrixFactor {
     // DESTRUCTOR
     gamPoisFactor::~gamPoisFactor() {}
 
-    // member functions: documented in src
-
-    // initialization
-    /*!
-     * \brief Initialization of sufficient statistics
-     */
-    void gamPoisFactor::Init() {
-
-        this->Egamma(m_alpha1, m_alpha2, m_EU);
-        this->Elgamma(m_alpha1, m_alpha2, m_ElogU);
-        this->Egamma(m_beta1, m_beta2, m_EV);
-        this->Elgamma(m_beta1, m_beta2, m_ElogV);
-
-    }
-
-    //-------------------//
-    // sufficient stats  //
-    //-------------------//
-
-    // Expectation gamma
-    /*!
-     * \brief compute the expectation of a Gamma distribution
-     *
-     * From matrices of parameters, element wise
-     */
-    void gamPoisFactor::Egamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res) {
-        res = alpha.array() / beta.array();
-    }
-
-    // Expectation log gamma
-    void gamPoisFactor::Elgamma(const MatrixXd &alpha, const MatrixXd &beta, MatrixXd &res) {
-        res = alpha.digamma().array() - beta.log().array();
-    }
-
     //-------------------//
     //   convergence     //
     //-------------------//
 
-    // parameter norm
-    double gamPoisFactor::parameterNorm() {
-        double res = sqrt( m_phi1old.square().sum() + m_phi2old.square().sum()
-                               + m_theta1old.square().sum() + m_theta2old.square().sum() );
+    /*!
+     * \fn squared norm of parameters
+     *
+     * @param[in] param1 matrix of parameters 1
+     * @param[in] param2 matrix of parameters 2
+     *
+     * @return sum(param1^2) + sum(param2^2)
+     */
+    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
+        double res = param1.square().sum() + param2.square().sum();
+        return res;
+    }
+
+    /*!
+     * \fn difference of squared euclidean norm (on parameters)
+     *
+     * @param[in] param1a matrix of parameters 1 (state a)
+     * @param[in] param2a matrix of parameters 2 (state a)
+     * @param[in] param1b matrix of parameters 1 (state b)
+     * @param[in] param2b matrix of parameters 2 (state b)
+     *
+     * @return sum((param1a - param1b)^2) + sum((param2a-param2b)^2)
+     */
+    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b) {
+        double res = parameterNorm2(param1a - param1b, param2a - param2b);
         return(res);
     }
 
-    // difference norm (on parameters)
-    double gamPoisFactor::differenceNorm() {
-        double res = sqrt( (m_phi1old.array() - m_phi1cur.array()).square().sum()
-                               + (m_phi2old.array() - m_phi2cur.array()).square().sum()
-                               + (m_theta1old.array() - m_theta1cur.array()).square().sum()
-                               + (m_theta2old.array() - m_theta2cur.array()).square().sum() );
-        return(res);
+    /*!
+     * \fn assess convergence condition
+     *
+     * convergence assessed on the normalized gap between two iterates
+     * order 0: value of normalized gap
+     * order 1: first empirical derivative of normalized gap (speed)
+     * order 2: second empirical derivative of normalized gap (acceleration)
+     *
+     * @return value of the condition
+     */
+    double convCondition(int order, const VectorXd &normGap, int iter, int drift) {
+        double condition = 1;
+        switch(order) {
+            case 0 : {
+                condition = normGap(iter-drift);
+            } break;
+
+            case 1 : {
+                if(iter>1) {
+                    condition = normGap(iter-drift) - normGap(iter-drift-1);
+                }
+            } break;
+
+            case 2 : {
+                if(iter>2) {
+                    condition = normGap(iter-drift) - 2*normGap(iter-drift-1) + normGap(iter-drift-2);
+                }
+            } break;
+        }
+        return(condition);
     }
-
-    // convergence condition
-    double gamPoisFactor::convCondition(int iter, int drift) {
-
-    }
-
-    //-------------------//
-    // parameter updates //
-    //-------------------//
-
-    // Poisson intensity
-    void gamPoisFactor::poisRate();
-
-    // local parameters: phi (factor U)
-    void gamPoisFactor::localParam();
-
-    // global parameters: theta (factor V)
-    void gamPoisFactor::globalParam();
-
-
-
-
 
 
 }

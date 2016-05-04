@@ -56,7 +56,7 @@ namespace countMatrixFactor {
      *  V ~ Gamma(beta)
      *  Z_{ij.} | X,U,V ~ Multinom((omega_{ijk})_k)
      * Variational distribution
-     *  Z_{ijk} | X,U,V ~ Multinom(xi_{ijk})
+     *  Z_{ijk} | X,U,V ~ Multinom(omega_{ijk})
      *  U_{ik} ~ Gamma(phi_{ik})
      *  V_{jk} ~ Gamma(theta_{jk})
      */
@@ -69,7 +69,7 @@ namespace countMatrixFactor {
         int m_K;      /*!< dimension of the latent subspace */
 
         // parameters
-        int m_iterMax;          /*!< maximum number of iterations */
+        int m_iterMax;          /*!< maomegamum number of iterations */
         int m_order;            /*!< derivative order on normalized gap to assess convergence
                                 (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative) */
         int m_stabRange;        /*!< range of stability (number of iterations where parameter values are stable to confirm convergence) */
@@ -83,32 +83,36 @@ namespace countMatrixFactor {
         MatrixXi m_X;         /*!< n x p, count data matrix */
 
         // variational parameters
-        gamDistrib m_UphiCur;    /*!< n x K x 2, current values
-                                of variational parameters (phi1, phi2)
-                                of Gamma distribution on U */
+        MatrixXd m_phi1cur;       /*!< n x K, current values of first parameter of Gamma distribution on U */
+        MatrixXd m_phi2cur;       /*!< n x K, current values of second parameter of Gamma distribution on U */
 
-        gamParam m_UphiOld;      /*!< n x K x 2, previous values
-                                of variational parameters (phi1, phi2)
-                                of Gamma distribution on U */
+        MatrixXd m_phi1old;       /*!< n x K, previous values of first parameter of Gamma distribution on U */
+        MatrixXd m_phi2old;       /*!< n x K, previous values of second parameter of Gamma distribution on U */
 
-        gamDistrib m_VthetaCur;  /*!< p x K x 2, current values
-                                of variational parameters (theta1, theta2)
-                                of Gamma distribution on V */
+        MatrixXd m_theta1cur;     /*!< p x K, current values of first parameter of Gamma distribution on V */
+        MatrixXd m_theta2cur;     /*!< p x K, current values of second parameter of Gamma distribution on V */
 
-        gamParam m_VthetaOld;    /*!< p x K, previous values
-                                of variational parameters (theta1, theta2)
-                                of Gamma distribution on V */
+        MatrixXd m_theta1old;     /*!< p x K, previous values of first parameter of Gamma distribution on V */
+        MatrixXd m_theta2old;     /*!< p x K, previous values of second parameter of Gamma distribution on V */
 
         // sufficient statistics
+        MatrixXd m_EU;            /*!< n x K, Expectation of U */
+        MatrixXd m_ElogU;         /*!< n x K, Expectation of log U */
+
+        MatrixXd m_EV;            /*!< p x K, Expectation of V */
+        MatrixXd m_ElogV;         /*!< p x K, Expectation of log V */
+
         MatrixXd m_EZ_i;          /*!< p x k, \sum_i X_{ij} xi_{ijk} = \sum_i E[Z_{ijk}] */
         MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} xi_{ijk} = \sum_j E[Z_{ijk}] */
 
         // prior parameter
-        gamParam m_alpha;       /*!< n x K, values of first parameter of Gamma prior on U */
-        gamParam m_beta;        /*!< p x K, values of first parameter of prior Gamma prior on V */
+        MatriXd m_alpha1;         /*!< n x K, values of first parameter of Gamma prior on U */
+        MatrixXd m_alpha2;        /*!< n x K, values of second parameter of prior Gamma prior on U */
+        MatrixXd m_beta1;         /*!< p x K, values of first parameter of prior Gamma prior on V */
+        MatrixXd m_beta2;         /*!< p x K, values of second parameter of prior Gamma prior on V */
 
         // criterion
-        VectorXd m_normGap;           /*!< normalized gap between two iterates (to assess convergence) */
+        VectorXd m_normGap;         /*!< normalized gap between two iterates (to assess convergence) */
 
     public:
         /*!
@@ -119,7 +123,7 @@ namespace countMatrixFactor {
          * \param n number of observations (rows)
          * \param p number of variables (columns)
          * \param K dimension of the latent subspace
-         * \param iterMax maximum number of iterations
+         * \param iterMax maomegamum number of iterations
          * \param order derivative order on normalized gap to assess convergence
          * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
          * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
@@ -150,41 +154,45 @@ namespace countMatrixFactor {
          */
         ~gamPoisFactor();
 
+    // member functions: documented in src
     protected:
-        // member functions: documented in src
 
         // initialization
-        void Init();
-
-        //-------------------//
-        //   convergence     //
-        //-------------------//
-
-        // difference norm (on parameters)
-        double differenceNorm();
-
-        // convergence condition
-        double convCondition(int iter, int drift);
+        virtual void Init() = 0;
 
         //-------------------//
         // parameter updates //
         //-------------------//
 
         // Poisson intensity
-        void poisRate();
+        virtual void poisRate()=0;
 
         // local parameters: phi (factor U)
-        void localParam();
+        virtual void localParam() = 0;
 
         // global parameters: theta (factor V)
-        void globalParam();
+        virtual void globalParam() = 0;
+
+        //-------------------//
+        //     algorithm     //
+        //-------------------//
+        virtual void algorithm() = 0;
 
 
     };
 
+    //-------------------//
+    //   convergence     //
+    //-------------------//
 
+    // parameter squared euclidean norm
+    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2);
 
+    // difference of squared euclidean norm (on parameters)
+    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b);
 
+    // convergence condition
+    double convCondition(int order, const VectorXd &normGap, int iter, int drift);
 
 }
 
