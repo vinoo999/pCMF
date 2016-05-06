@@ -283,6 +283,8 @@ namespace countMatrixFactor {
                                                   Rcpp::Named("converged") = m_converged,
                                                   Rcpp::Named("nbIter") = m_nbIter);
 
-        results = returnObj;
+        SEXP tmp = Language("c", results, returnObj).eval()
+
+        results = tmp;
     }
 }
