@@ -1,8 +1,6 @@
 # project hierarchical clustering
 # sourcing all files (R and Cpp)
 
-source("/home/durif/source_code/countMatrixFactor/set_working_dir.R")
-
 project.sources = function(subpath="pkg") {
 
     ## library
@@ -20,7 +18,7 @@ project.sources = function(subpath="pkg") {
     ## list of R files
     file.list = system(paste0("cd ", src.path, " && git ls-files | grep \"\\\\.cpp\""), intern=TRUE)
 
-    file.list = file.list[! file.list %in% c("aaa")]
+    file.list = file.list[file.list %in% c("gamPoisFactor_wrapper.cpp")]
 
     print(file.list)
 
