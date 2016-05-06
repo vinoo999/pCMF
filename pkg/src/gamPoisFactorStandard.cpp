@@ -147,12 +147,17 @@ namespace countMatrixFactor {
     // parameter updates //
     //-------------------//
 
-    // poisson rate
+    /*!
+     * \brief update rule for poisson rates in variational inference
+     */
     void gamPoisFactorStandard::poissonRate() {
         m_lambda = m_EU * m_EV.transpose();
     }
 
     // Poisson intensity
+    /*!
+     * \brief update rule for multinomial parameters in variational inference
+     */
     void gamPoisFactorStandard::multinomParam() {
 
         intermediate::checkExp(m_ElogU);
@@ -162,13 +167,17 @@ namespace countMatrixFactor {
         m_EZ_j = m_ElogU.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix() * m_ElogV.exp() ).array();
     }
 
-    // local parameters: phi (factor U)
+    /*!
+     * \brief update rule for local parameters phi (factor U) in variational inference
+     */
     void gamPoisFactorStandard::localParam() {
         m_phi1cur = m_alpha1.array() + m_EZ_j.array();
         m_phi2cur = m_alpha2.rowwise() + m_EV.colwise().sum();
     }
 
-    // global parameters: theta (factor V)
+    /*!
+     * \brief update rule for global parameters theta (factor V) in variational inference
+     */
     void gamPoisFactorStandard::globalParam() {
         m_theta1cur = m_beta1.array() + m_EZ_i.array();
         m_theta2cur = m_beta2.rowwise() + m_EU.colwise().sum();
@@ -178,6 +187,10 @@ namespace countMatrixFactor {
     //-------------------//
     //     algorithm     //
     //-------------------//
+
+    /*!
+     * \brief compute algorithm for variational inference in gamma Poisson factor model
+     */
     void gamPoisFactorStandard::algorithm() {
         // Iteration
         int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
