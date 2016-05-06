@@ -229,6 +229,13 @@ namespace countMatrixFactor {
         // assess convergence
         void assessConvergence(int iter, int &nstab);
 
+        //-------------------//
+        //       return      //
+        //-------------------//
+
+        // create list of object to return
+        virtual Rcpp::List returnObject() = 0;
+
     };
 
     //-------------------//
