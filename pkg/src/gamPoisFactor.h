@@ -38,6 +38,7 @@
 using Eigen::MatrixXd;                  // variable size matrix, double precision
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
+using Eigen::VectorXi;                  // variable size vector, integer
 
 /*!
  * \namespace countMatrixFactor
@@ -118,6 +119,12 @@ namespace countMatrixFactor {
         // criterion
         VectorXd m_normGap;         /*!< normalized gap between two iterates (to assess convergence) */
 
+        // order of factors
+        VectorXi m_orderDeviance;   /*!< order of factors according to increasing deviance */
+        VectorXi m_orderExpVar0;    /*!< order of factors according to increasing expVar0 */
+        VectorXi m_orderExpVarU;    /*!< order of factors according to increasing expVarU */
+        VectorXi m_orderExpVarV;    /*!< order of factors according to increasing expVarV */
+
     public:
         /*!
          * \brief Constructor
@@ -196,6 +203,13 @@ namespace countMatrixFactor {
          * Pure virtual member function, to be implemented, depending on the model
          */
         virtual void computeDeviance() = 0;
+
+        /*!
+         * \brief deviance between estimated and saturated model for Poisson model
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         */
+        virtual double deviance() = 0;
 
         // compute explained variance
         double computeExpVar(int iter);

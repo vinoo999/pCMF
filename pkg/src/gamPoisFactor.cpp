@@ -107,6 +107,12 @@ namespace countMatrixFactor {
         // criterion
         m_normGap = VectorXd::Zero(iterMax);
 
+        // order of factors
+        m_orderDeviance = VectorXi::Zero(K);
+        m_orderExpVar0 = VectorXi::Zero(K);
+        m_orderExpVarU = VectorXi::Zero(K);
+        m_orderExpVarV = VectorXi::Zero(K);
+
     }
 
     // DESTRUCTOR
