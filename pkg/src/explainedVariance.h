@@ -67,7 +67,11 @@ namespace countMatrixFactor {
         void getExpVarU(VectorXd &res);
         void getExpVarV(VectorXd &res);
 
-        // member functions: doc in src
+        /*!
+         * \brief compute explained variance
+         *
+         * Pure virtual member function, to be implemented
+         */
         virtual double computeExpVar() = 0;
     };
 
