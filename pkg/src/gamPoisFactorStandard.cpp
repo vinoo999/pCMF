@@ -140,7 +140,17 @@ namespace countMatrixFactor {
      * @param[in] iter current iteration
      */
     void gamPoisFactorStandard::computeDeviance(int iter) {
-        m_deviance(iter) = poisDeviance(m_X, m_lambda, m_lambda0);
+        m_deviance(iter) = this->deviance();
+    }
+
+    /*!
+     * \brief deviance between estimated and saturated model for Poisson model
+     *
+     * @return value of the deviance for the current values of estimates
+     */
+    double gamPoisFactorStandard::deviance() {
+        double res = poisDeviance(m_X, m_lambda, m_lambda0);
+        return res;
     }
 
     //-------------------//

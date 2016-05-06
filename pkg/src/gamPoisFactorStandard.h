@@ -104,6 +104,9 @@ namespace countMatrixFactor {
         // compute deviance between estimated and saturated model
         void computeDeviance(int iter);
 
+        // deviance between estimated and saturated model for Poisson model
+        double deviance();
+
         //-------------------//
         // parameter updates //
         //-------------------//
