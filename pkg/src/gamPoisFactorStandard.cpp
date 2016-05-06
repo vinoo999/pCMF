@@ -32,6 +32,7 @@
 
 #define exp() unaryExpr(std::ptr_fun<double,double>(exp))
 #define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
+#define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define log() unaryExpr(std::ptr_fun<double,double>(log))
 #define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
 
@@ -87,6 +88,8 @@ namespace countMatrixFactor {
 
     /*!
      * \brief compute log-likelihood
+     *
+     * @param[in] iter current iteration
      */
     void gamPoisFactorStandard::computeLogLike(int iter) {
         m_condLogLike(iter) = poisLogLike(m_X, m_lambda);
@@ -98,13 +101,47 @@ namespace countMatrixFactor {
 
     /*!
      * \brief compute evidence lower bound
+     *
+     * @param[in] iter current iteration
      */
-    void gamPoisFactorStandard::ELBO(int iter) {}
+    void gamPoisFactorStandard::computeELBO(int iter) {
+        m_elbo(iter) = this->ELBO();
+    }
+
+    /*!
+     * \brief evidence lower bound for the specific gamma Poisson factor model
+     *
+     * @return value of the ELBO for the current values of estimates
+     */
+    double gamPoisFactorStandard::ELBO() {
+
+        intermediate::checkExp(m_ElogU);
+        intermediate::checkExp(m_ElogV);
+
+        double res1 = (-1) * ( ( (m_X.array() + 1).lgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
+        double res2 = ( m_X.array() * (m_ElogU.exp() * m_ElogV.exp().transpose()).log().array()).sum();
+
+        double res3 = ( (m_alpha1.array() - 1) * m_ElogU.array() + m_alpha1.array() * m_alpha2.log().array()
+                        - m_alpha2.array() * m_EU.array() - m.alpha1.lgamma() ).sum();
+        double res4 = (-1) * ( (m_phi1.array() - 1) * m_ElogU.array() + m_phi1.array() * m_phi2.log().array()
+                                   - m_phi2.array() * m_EU.array() - m.phi1.lgamma().array() ).sum();
+
+        double res5 = ( (m_beta1.array() - 1) * m_ElogV.array() + m_beta1.array() * m_beta2.log().array()
+                            - m_beta2.array() * m_EV.array() - m.beta1.lgamma() ).sum();
+        double res6 = (-1) * ( (m_theta1.array() - 1) * m_ElogV.array() + m_theta1.array() * m_theta2.log().array()
+                                   - m_theta2.array() * m_EV.array() - m.theta1.lgamma().array() ).sum();
+
+        double res = res1 + res2 + res3 + res4 + res5 + res6;
+    }
 
     /*!
      * \brief compute deviance between estimated and saturated model
+     *
+     * @param[in] iter current iteration
      */
-    void gamPoisFactorStandard::deviance(int iter) {}
+    void gamPoisFactorStandard::computeDeviance(int iter) {
+        m_deviance(iter) = poisDeviance(m_X, m_lambda, m_lambda0);
+    }
 
     //-------------------//
     // parameter updates //
@@ -142,9 +179,7 @@ namespace countMatrixFactor {
     //     algorithm     //
     //-------------------//
     void gamPoisFactorStandard::algorithm() {
-
         // Iteration
-
         int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
         int iter = 0;
 
@@ -178,51 +213,18 @@ namespace countMatrixFactor {
 
             // log-likelihood
             this->computeLogLike(iter);
-
+            // ELBO
+            this->computeELBO(iter);
             // deviance
-            this->deviance(iter);
-
-
-            //// explained variance
-            explainedVar0(iter) = expVar0(X, EU, EV);
-            explainedVar1(iter) = expVar1(X, EU);
-            explainedVar2(iter) = expVar2(X, EV);
-
-
-            //// breaking condition: convergence or not
-            // Rcout << "convergence" << std::endl;
-            double paramNorm = parameterNorm(phi1old, phi2old, theta1old, theta2old);
-            double diffNorm = differenceNorm(phi1old, phi2old, theta1old, theta2old, phi1cur, phi2cur, theta1cur, theta2cur);
-
-            normGap(iter) = diffNorm / paramNorm;
-
-            // derivative order to consider
-            double condition = convCondition(order, normGap, iter, 0);
-
-            if(std::abs(condition) < epsilon) {
-                nstab++;
-            } else {
-                nstab=0;
-            }
-
-            if(nstab > rstab) {
-                converged=true;
-                nbIter=iter;
-            }
-
-
-            //// increment values of parameters
-            phi1old = phi1cur;
-            phi2old = phi2cur;
-
-            theta1old = theta1cur;
-            theta2old = theta2cur;
-
-            //// increment iteration
+            this->computeDeviance(iter);
+            // explained variance
+            this->computeExpVar(iter);
+            // convergence
+            this-> assessConvergence(iter, nstab);
+            // increment values of parameters
+            this->updates();
+            // increment iteration
             iter++;
-
         }
-
     }
-
 }

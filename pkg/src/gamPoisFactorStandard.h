@@ -96,10 +96,13 @@ namespace countMatrixFactor {
         void computeLogLike(int iter);
 
         // compute evidence lower bound
-        void ELBO(int iter);
+        void computeELBO(int iter);
+
+        // evidence lower bound for the specific gamma Poisson factor model
+        double ELBO();
 
         // compute deviance between estimated and saturated model
-        void deviance(int iter);
+        void computeDeviance(int iter);
 
         //-------------------//
         // parameter updates //
@@ -123,10 +126,6 @@ namespace countMatrixFactor {
         void algorithm();
 
     };
-
-
-
-
 
 }
 
