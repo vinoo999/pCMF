@@ -181,14 +181,24 @@ namespace countMatrixFactor {
          *
          * Pure virtual member function, to be implemented, depending on the model
          */
-        virtual void ELBO() = 0;
+        virtual void computeELBO() = 0;
+
+        /*!
+         * \brief evidence lower bound for a specific model
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         */
+        virtual double ELBO() = 0;
 
         /*!
          * \brief compute deviance between estimated and saturated model
          *
          * Pure virtual member function, to be implemented, depending on the model
          */
-        virtual void deviance() = 0;
+        virtual void computeDeviance() = 0;
+
+        // compute explained variance
+        double computeExpVar(int iter);
 
         //-------------------//
         // parameter updates //
@@ -206,10 +216,18 @@ namespace countMatrixFactor {
         // global parameters: theta (factor V)
         virtual void globalParam() = 0;
 
+        // update parameters between iterations
+        void update();
+
         //-------------------//
         //     algorithm     //
         //-------------------//
+
+        // compute algorithm
         virtual void algorithm() = 0;
+
+        // assess convergence
+        void assessConvergence(int iter, int &nstab);
 
     };
 
