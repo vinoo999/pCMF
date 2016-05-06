@@ -22,23 +22,39 @@
 #' @description
 #' Description
 #'
-#' @details#'
+#' @details
 #' Wrapper for Cpp function
 #'
 #' @author
 #' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
 #'
 #'
-#'@seealso
+#' @seealso
 #'
-#'@import Rcpp
-#'@import RcppEigen
-#'@useDynLib countMatrixFactor
+#' @import Rcpp
+#' @import RcppEigen
+#' @useDynLib countMatrixFactor
 #'
-#'@param
+#' @param
 #'
-#'@return return
-#'\item{}{}
+#' @return return
+#' \item{}{}
 #'
 
 ### R wrapper for Gamma-Poisson Factor model
+
+matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
+                        alpha1, alpha2, beta1, beta2,
+                        iterMax=200, epsilon=1e-5,
+                        order=0, stabRange=5, verbose=TRUE) {
+
+    results = gamPoisFactor_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                    alpha1, alpha2, beta1, beta2,
+                                    iterMax, epsilon,
+                                    order, stabRange, verbose)
+
+    class(results) = "countMatrixFactor"
+
+    return(results)
+
+}
