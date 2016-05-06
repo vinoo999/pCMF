@@ -227,4 +227,49 @@ namespace countMatrixFactor {
             iter++;
         }
     }
+
+    //-------------------//
+    //       return      //
+    //-------------------//
+
+    /*!
+     * \brief create list with results to be return
+     *
+     * @param[out] list containing output
+     */
+    Rcpp::List gamPoisFactorStandard::returnObject(Rcpp::List &results) {
+        Rcpp::List logLikelihood = Rcpp:List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
+                                                     Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
+                                                     Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
+                                                     Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
+                                                     Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
+                                                     Rcpp::Named("elbo") = m_elbo.head(nbIter));
+
+        Rcpp::List expVariance = Rcpp:List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
+                                                   Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
+                                                   Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
+
+        Rcpp::List params = Rcpp:List::create(Rcpp::Named("phi1") = m_phi1cur,
+                                              Rcpp::Named("phi2") = m_phi2cur,
+                                              Rcpp::Named("theta1") = m_theta1cur,
+                                              Rcpp::Named("theta2") = m_theta2cur);
+
+        Rcpp::List stats = Rcpp:List::create(Rcpp::Named("EU") = m_EU,
+                                             Rcpp::Named("EV") = m_EV,
+                                             Rcpp::Named("ElogU") = m_ElogU,
+                                             Rcpp::Named("ElogV") = m_ElogV);
+
+        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
+                                                  Rcpp::Named("V") = m_EV,
+                                                  Rcpp::Named("logLikelihood") = logLikelihood,
+                                                  Rcpp::Named("expVariance") = expVariance,
+                                                  Rcpp::Named("params") = params,
+                                                  Rcpp::Named("stats") = stats,
+                                                  Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
+                                                  Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
+                                                  Rcpp::Named("converged") = m_converged,
+                                                  Rcpp::Named("nbIter") = m_nbIter);
+
+        results = returnObj;
+    }
 }

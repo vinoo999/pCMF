@@ -125,6 +125,13 @@ namespace countMatrixFactor {
         //-------------------//
         void algorithm();
 
+        //-------------------//
+        //       return      //
+        //-------------------//
+
+        // create list with results to be return
+        Rcpp::List returnObject();
+
     };
 
 }
