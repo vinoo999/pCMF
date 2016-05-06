@@ -184,14 +184,15 @@ namespace countMatrixFactor {
      * @param[in] X matrix of observations
      * @param[in] lambda matrix of corresponding Poisson rates,
      * supposed to be X in that case (where null values are replaced by 1,
-     * for compatibility with log)
+     * for compatibility with log, convention 0 * log 0 = 0)
      *
      * @return effective value
      */
-    double poisLogLikeSaturated(const MatrixXi &X, const MatrixXd &lambda) {
+    double poisLogLikeSaturated(const MatrixXi &X, const MatrixXd &lambda0) {
         double res;
-        // sum(X.ij * log(lambda.ij) - lambda.ij - lfactorial(X.ij))
-        res = ( X.cast<double>().array() * lambda.log().array() - X.cast<double>().array() - (X.array() + 1).lgamma() ).sum();
+        // sum(X.ij * log(lambda0.ij) - X.ij - lfactorial(X.ij))
+        // lambda0 = X (where 0 are replaced by 1 for convention 0 * log 0 = 0)
+        res = ( X.cast<double>().array() * lambda0.log().array() - X.cast<double>().array() - (X.array() + 1).lgamma() ).sum();
         return(res);
     }
 
