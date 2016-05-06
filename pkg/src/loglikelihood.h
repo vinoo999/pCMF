@@ -88,49 +88,56 @@ namespace countMatrixFactor {
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
-            virtual void condLogLike() = 0;
+            virtual double condLogLike() = 0;
 
             /*!
              * \brief compute prior log-likelihood
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
-            virtual void priorLogLike() = 0;
+            virtual double priorLogLike() = 0;
 
             /*!
              * \brief compute posterior log-likelihood
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
-            virtual void postLogLike() = 0;
+            virtual double postLogLike() = 0;
 
             /*!
              * \brief compute complete log-likelihood
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
-            virtual void compLogLike() = 0;
+            virtual double compLogLike() = 0;
 
             /*!
              * \brief compute marginal log-likelihood
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
-            virtual void margLogLike() = 0;
+            virtual double margLogLike() = 0;
 
             /*!
              * \brief compute evidence lower bound
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
-            virtual void ELBO() = 0;
+            virtual void computeELBO() = 0;
+
+            /*!
+             * \brief evidence lower bound for a specific model
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual double ELBO() = 0;
 
             /*!
              * \brief compute deviance between estimated and saturated model
              *
              * Pure virtual member function, to be implemented, depending on the model
              */
-            virtual void deviance() = 0;
+            virtual void computeDeviance() = 0;
         };
 
     // FUNCTIONS
