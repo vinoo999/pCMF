@@ -30,7 +30,6 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include "gamDistrib.h"
-#include "gamParam.h"
 #include "loglikelihood.h"
 #include "explainedVariance.h"
 
@@ -111,7 +110,7 @@ namespace countMatrixFactor {
         MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} xi_{ijk} = \sum_j E[Z_{ijk}] */
 
         // prior parameter
-        MatriXd m_alpha1;         /*!< n x K, values of first parameter of Gamma prior on U */
+        MatrixXd m_alpha1;         /*!< n x K, values of first parameter of Gamma prior on U */
         MatrixXd m_alpha2;        /*!< n x K, values of second parameter of prior Gamma prior on U */
         MatrixXd m_beta1;         /*!< p x K, values of first parameter of prior Gamma prior on V */
         MatrixXd m_beta2;         /*!< p x K, values of second parameter of prior Gamma prior on V */
