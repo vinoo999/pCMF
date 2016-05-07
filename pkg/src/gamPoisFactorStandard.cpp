@@ -26,15 +26,16 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include <math.h>
 #include <cstdio>
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactorStandard.h"
 
-#define exp() unaryExpr(std::ptr_fun<double,double>(exp))
+#define exp() unaryExpr(std::ptr_fun<double,double>(std::exp))
 #define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
-#define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
-#define log() unaryExpr(std::ptr_fun<double,double>(log))
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
+#define lgamma() unaryExpr(std::ptr_fun<double,double>(std::lgamma))
+#define log() unaryExpr(std::ptr_fun<double,double>(std::log))
+#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
@@ -72,6 +73,30 @@ namespace countMatrixFactor {
     void gamPoisFactorStandard::Init() {
 
         // Gamma variational parameter
+        for(int k=0; k<m_K; k++) {
+            // local parameters
+            for(int i=0; i<m_N; i++) {
+                double param1 = 0;
+                double param2 = 0;
+                estimParam(100, m_alpha1(i,k), m_alpha2(i,k), param1, param2);
+                m_phi1cur(i,k) = param1;
+                m_phi1old(i,k) = param1;
+            m_phi2cur(i,k) = param2;
+                m_phi2old(i,k) = param2;
+            }
+            // global parameters
+            for(int j=0; j<m_P; j++) {
+                double param1 = 0;
+                double param2 = 0;
+                estimParam(100, m_beta1(j,k), m_beta2(j,k), param1, param2);
+                m_theta1cur(j,k) = param1;
+                m_theta1old(j,k) = param1;
+                m_theta2cur(j,k) = param2;
+                m_theta2old(j,k) = param2;
+            }
+        }
+
+        // sufficient statistics
         Egam(m_phi1cur, m_phi2cur, m_EU);
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
         Egam(m_theta1cur, m_theta2cur, m_EV);
