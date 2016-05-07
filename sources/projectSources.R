@@ -5,6 +5,8 @@ project.sources = function(subpath="pkg") {
 
     ## library
 
+    ## remove *.o and *.so files ?
+    #system(paste0("bash ", WORKINGDIR, "/admin/rm_library_files.sh"))
 
     ########################################################################
     ##### Cpp
