@@ -26,6 +26,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include <cstdio>
 #include "gamPoisFactorStandard.h"
 
 using namespace countMatrixFactor;
@@ -61,18 +62,22 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
     int p = X.cols();
 
     // declaration of object gamPoisFactorStandard
+    Rcpp::Rcout << "Declaration" << std::endl;
     gamPoisFactorStandard myModel(n, p, K, iterMax, order,
                                   stabRange, epsilon, verbose,
                                   X, phi01, phi02, theta01, theta02,
                                   alpha1, alpha2, beta1, beta2);
 
     // initialization
+    Rcpp::Rcout << "Initialization" << std::endl;
     myModel.Init();
 
     // computations
+    Rcpp::Rcout << "Algorithm" << std::endl;
     myModel.algorithm();
 
     // returns
+    Rcpp::Rcout << "Output" << std::endl;
     Rcpp::List results;
     myModel.returnObject(results);
 
