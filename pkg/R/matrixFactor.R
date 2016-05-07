@@ -17,7 +17,7 @@
 ### MA 02111-1307, USA
 
 
-#' @title title
+#' @title matrixFactor
 #'
 #' @description
 #' Description
@@ -43,10 +43,17 @@
 
 ### R wrapper for Gamma-Poisson Factor model
 
-matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
-                        alpha1, alpha2, beta1, beta2,
+matrixFactor = function(X, K, alpha1, alpha2, beta1, beta2,
                         iterMax=200, epsilon=1e-5,
                         order=0, stabRange=5, verbose=TRUE) {
+
+    phi01 = matrix(1, nrow=n, ncol=ncomp)
+    phi02 = matrix(1, nrow=n, ncol=ncomp)
+
+    theta01 = matrix(1, nrow=p, ncol=ncomp)
+    theta02 = matrix(1, nrow=p, ncol=ncomp)
+
+    X = apply(X, c(1,2), as.integer)
 
     results = gamPoisFactor_wrapper(X, K, phi01, phi02, theta01, theta02,
                                     alpha1, alpha2, beta1, beta2,
