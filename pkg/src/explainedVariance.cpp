@@ -26,9 +26,10 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+
 #include "explainedVariance.h"
 
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
+#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;              // variable size matrix, double precision
