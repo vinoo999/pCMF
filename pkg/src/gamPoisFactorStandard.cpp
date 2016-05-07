@@ -26,7 +26,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include <stdio>
+#include <cstdio>
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactorStandard.h"
 
