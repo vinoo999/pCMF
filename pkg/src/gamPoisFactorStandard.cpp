@@ -282,12 +282,18 @@ namespace countMatrixFactor {
                                              Rcpp::Named("ElogU") = m_ElogU,
                                              Rcpp::Named("ElogV") = m_ElogV);
 
+        Rcpp::List order = Rcpp:List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
+                                             Rcpp::Named("orderExpVar0") = m_orderExpVar0,
+                                             Rcpp::Named("orderExpVarU") = m_orderExpVarU,
+                                             Rcpp::Named("orderExpVarV") = m_orderExpVarV);
+
         Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
                                                   Rcpp::Named("V") = m_EV,
                                                   Rcpp::Named("logLikelihood") = logLikelihood,
                                                   Rcpp::Named("expVariance") = expVariance,
                                                   Rcpp::Named("params") = params,
                                                   Rcpp::Named("stats") = stats,
+                                                  Rcpp::Named("order") = order,
                                                   Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
                                                   Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
                                                   Rcpp::Named("converged") = m_converged,
