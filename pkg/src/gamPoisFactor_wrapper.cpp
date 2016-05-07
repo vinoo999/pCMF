@@ -67,15 +67,15 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
                                   alpha1, alpha2, beta1, beta2);
 
     // initialization
-    myModel.init();
+    myModel.Init();
 
     // computations
     myModel.algorithm();
 
     // returns
     Rcpp::List results;
-    myModel.returnObj(results);
+    myModel.returnObject(results);
 
     return results;
 
-)
+}
