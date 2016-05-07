@@ -37,8 +37,8 @@ using Eigen::VectorXd;              // variable size matrix, double precision
 
 namespace countMatrixFactor {
     /*!
-    * \class gamParam
-    * \brief class to define Gamma distribution parameters
+    * \class loglikelihood
+    * \brief class to define all attributes and member functions regarding log-likelihood
     */
     class loglikelihood {
     protected:
