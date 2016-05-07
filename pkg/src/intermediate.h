@@ -27,6 +27,13 @@
  * \date 25/04/2016
  */
 
+#include <Rcpp.h>
+#include <RcppEigen.h>
+
+// [[Rcpp::depends(RcppEigen)]]
+using Eigen::MatrixXd;                  // variable size matrix, double precision
+
+
 /*!
  * \namespace intermediate
  *

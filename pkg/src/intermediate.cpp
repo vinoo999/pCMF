@@ -24,6 +24,7 @@
  * \date 25/04/2016
  */
 
+#include <Rcpp.h>
 #include <RcppEigen.h>
 #include <math.h>
 #include "intermediate.h"
