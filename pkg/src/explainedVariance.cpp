@@ -42,9 +42,9 @@ namespace countMatrixFactor {
     //------------------------------------------------------------------------//
     // CONSTRUCTOR
     explainedVariance::explainedVariance(int size) {
-        VectorXd m_expVar0 = VectorXd::Zero(size);
-        VectorXd m_expVarU = VectorXd::Zero(size);
-        VectorXd m_expVarV = VectorXd::Zero(size);
+        m_expVar0 = VectorXd::Zero(size);
+        m_expVarU = VectorXd::Zero(size);
+        m_expVarV = VectorXd::Zero(size);
     }
 
     // DESTRCTOR
