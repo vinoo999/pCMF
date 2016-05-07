@@ -86,7 +86,7 @@ namespace countMatrixFactor {
     protected:
 
         // initialization
-        virtual void Init();
+        void Init();
 
         //-------------------//
         //      criteria     //
