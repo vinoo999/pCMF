@@ -133,7 +133,7 @@ namespace countMatrixFactor {
         //-------------------//
 
         // create list with results to be return
-        Rcpp::List returnObject();
+        Rcpp::List returnObject(Rcpp::List &results);
 
     };
 
