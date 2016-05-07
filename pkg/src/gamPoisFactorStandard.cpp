@@ -132,6 +132,8 @@ namespace countMatrixFactor {
                                    - m_theta2cur.array() * m_EV.array() - m_theta1cur.lgamma().array() ).sum();
 
         double res = res1 + res2 + res3 + res4 + res5 + res6;
+
+        return res;
     }
 
     /*!
@@ -153,6 +155,17 @@ namespace countMatrixFactor {
         return res;
     }
 
+    /*!
+     * \brief compute explained variance
+     *
+     * @param[in] iter current iteration
+     */
+    void gamPoisFactorStandard::computeExpVar(int iter) {
+        m_expVar0(iter) = expVar0(m_X, m_EU, m_EV);
+        m_expVarU(iter) = expVarU(m_X, m_EU);
+        m_expVarV(iter) = expVarV(m_X, m_EV);
+    }
+
     //-------------------//
     // parameter updates //
     //-------------------//
@@ -164,7 +177,6 @@ namespace countMatrixFactor {
         m_lambda = m_EU * m_EV.transpose();
     }
 
-    // Poisson intensity
     /*!
      * \brief update rule for multinomial parameters in variational inference
      */
@@ -191,6 +203,17 @@ namespace countMatrixFactor {
     void gamPoisFactorStandard::globalParam() {
         m_theta1cur = m_beta1.array() + m_EZ_i.array();
         m_theta2cur = m_beta2.rowwise() + m_EU.colwise().sum();
+    }
+
+    /*!
+     * \brief update parameters between iterations
+     */
+    void gamPoisFactorStandard::nextIterate() {
+        m_phi1old = m_phi1cur;
+        m_phi2old = m_phi2cur;
+
+        m_theta1old = m_theta1cur;
+        m_theta2old = m_theta2cur;
     }
 
 
@@ -245,9 +268,37 @@ namespace countMatrixFactor {
             // convergence
             this-> assessConvergence(iter, nstab);
             // increment values of parameters
-            this->update();
+            this->nextIterate();
             // increment iteration
             iter++;
+        }
+    }
+
+    /*!
+     * \brief assess convergence
+     *
+     * @param[in] iter current iteration
+     * @param[in,out] nstab number of successive iteration respecting the breaking condition
+     */
+    void gamPoisFactorStandard::assessConvergence(int iter, int &nstab) {
+        // breaking condition: convergence or not
+        double paramNorm = sqrt(parameterNorm2(m_phi1old, m_phi2old) + parameterNorm2(m_theta1old, m_theta2old));
+        double diffNorm = sqrt(differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur) + differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
+
+        m_normGap(iter) = diffNorm / paramNorm;
+
+        // derivative order to consider
+        double condition = convCondition(m_order, m_normGap, iter, 0);
+
+        if(std::abs(condition) < m_epsilon) {
+            nstab++;
+        } else {
+            nstab=0;
+        }
+
+        if(nstab > m_stabRange) {
+            m_converged=true;
+            m_nbIter=iter;
         }
     }
 
@@ -260,7 +311,7 @@ namespace countMatrixFactor {
      *
      * @param[out] list containing output
      */
-    Rcpp::List gamPoisFactorStandard::returnObject(Rcpp::List &results) {
+    void gamPoisFactorStandard::returnObject(Rcpp::List &results) {
         Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
                                                      Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
                                                      Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),

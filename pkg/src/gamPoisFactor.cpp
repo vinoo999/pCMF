@@ -118,75 +118,19 @@ namespace countMatrixFactor {
     // DESTRUCTOR
     gamPoisFactor::~gamPoisFactor() {}
 
-    //-------------------//
-    //      criteria     //
-    //-------------------//
-
-    /*!
-     * \brief compute explained variance
-     *
-     * @param[in] iter current iteration
-     */
-    double gamPoisFactor::computeExpVar(int iter) {
-        m_expVar0(iter) = expVar0(m_X, m_EU, m_EV);
-        m_expVarU(iter) = expVarU(m_X, m_EU);
-        m_expVarV(iter) = expVarV(m_X, m_EV);
-    }
-
-    //-------------------//
-    // parameter updates //
-    //-------------------//
-
-    /*!
-     * \brief update parameters between iterations
-     */
-    void gamPoisFactor::update() {
-        m_phi1old = m_phi1cur;
-        m_phi2old = m_phi2cur;
-
-        m_theta1old = m_theta1cur;
-        m_theta2old = m_theta2cur;
-    }
 
     //-------------------//
     //   convergence     //
     //-------------------//
 
     /*!
-     * \brief assess convergence
+     * \brief l2 squared norm of all parameters
      *
-     * @param[in] iter current iteration
-     * @param[in,out] nstab number of successive iteration respecting the breaking condition
-     */
-    void gamPoisFactor::assessConvergence(int iter, int &nstab) {
-        // breaking condition: convergence or not
-        double paramNorm = sqrt(parameterNorm2(m_phi1old, m_phi2old) + parameterNorm2(m_theta1old, m_theta2old));
-        double diffNorm = sqrt(differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur) + differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
-
-        m_normGap(iter) = diffNorm / paramNorm;
-
-        // derivative order to consider
-        double condition = convCondition(m_order, m_normGap, iter, 0);
-
-        if(std::abs(condition) < m_epsilon) {
-            nstab++;
-        } else {
-            nstab=0;
-        }
-
-        if(nstab > m_stabRange) {
-            m_converged=true;
-            m_nbIter=iter;
-        }
-    }
-
-    /*!
-     * \fn squared norm of parameters
+     * Computation of sum_{ij} param1_{ij}^2 + param2_{ij}^2
      *
-     * @param[in] param1 matrix of parameters 1
-     * @param[in] param2 matrix of parameters 2
-     *
-     * @return sum(param1^2) + sum(param2^2)
+     * @param[in] param1 rows x cols, matrix of first parameters
+     * @param[in] param2 rows x cols, matrix of second parameters
+     * @return res l2 squared norm
      */
     double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
         double res = param1.square().sum() + param2.square().sum();

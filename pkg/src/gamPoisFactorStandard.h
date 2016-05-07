@@ -82,11 +82,18 @@ namespace countMatrixFactor {
          */
         ~gamPoisFactorStandard();
 
-    // member functions: documented in src
-    protected:
+    public:
 
         // initialization
         void Init();
+
+        // run algorithm
+        void algorithm();
+
+        // create list with results to be return
+        void returnObject(Rcpp::List &results);
+
+    protected:
 
         //-------------------//
         //      criteria     //
@@ -107,6 +114,9 @@ namespace countMatrixFactor {
         // deviance between estimated and saturated model for Poisson model
         double deviance();
 
+        // compute explained variance
+        void computeExpVar(int iter);
+
         //-------------------//
         // parameter updates //
         //-------------------//
@@ -123,17 +133,15 @@ namespace countMatrixFactor {
         // global parameters: theta (factor V)
         void globalParam();
 
+        // update parameters between iterations
+        void nextIterate();
+
         //-------------------//
         //     algorithm     //
         //-------------------//
-        void algorithm();
 
-        //-------------------//
-        //       return      //
-        //-------------------//
-
-        // create list with results to be return
-        Rcpp::List returnObject(Rcpp::List &results);
+        // assess convergence
+        void assessConvergence(int iter, int &nstab);
 
     };
 

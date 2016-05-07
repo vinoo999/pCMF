@@ -164,12 +164,30 @@ namespace countMatrixFactor {
          */
         ~gamPoisFactor();
 
-    protected:
+    public:
 
         /*!
          * \brief Initialization of sufficient statistics
+         *
+         * Pure virtual member function, to be implemented, depending on the model
          */
         virtual void Init() = 0;
+
+        /*!
+         * \brief run algorithm
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         */
+        virtual void algorithm() = 0;
+
+        /*!
+         * \brief create list of object to return
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         */
+        virtual void returnObject(Rcpp::List &results) = 0;
+
+    protected:
 
         //-------------------//
         //      criteria     //
@@ -179,15 +197,19 @@ namespace countMatrixFactor {
         * \brief compute all different log-likelihood
         *
         * Pure virtual member function, to be implemented, depending on the model
+        *
+        * @param[in] iter current iteration
         */
-        virtual void computeLogLike() = 0;
+        virtual void computeLogLike(int iter) = 0;
 
         /*!
          * \brief compute evidence lower bound
          *
          * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[in] iter current iteration
          */
-        virtual void computeELBO() = 0;
+        virtual void computeELBO(int iter) = 0;
 
         /*!
          * \brief evidence lower bound for a specific model
@@ -200,8 +222,10 @@ namespace countMatrixFactor {
          * \brief compute deviance between estimated and saturated model
          *
          * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[in] iter current iteration
          */
-        virtual void computeDeviance() = 0;
+        virtual void computeDeviance(int iter) = 0;
 
         /*!
          * \brief deviance between estimated and saturated model for Poisson model
@@ -210,8 +234,14 @@ namespace countMatrixFactor {
          */
         virtual double deviance() = 0;
 
-        // compute explained variance
-        double computeExpVar(int iter);
+        /*!
+         * \brief compute explained variance
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[in] iter current iteration
+         */
+        virtual void computeExpVar(int iter) = 0;
 
         //-------------------//
         // parameter updates //
@@ -230,24 +260,14 @@ namespace countMatrixFactor {
         virtual void globalParam() = 0;
 
         // update parameters between iterations
-        void update();
+        virtual void nextIterate() = 0;
 
         //-------------------//
         //     algorithm     //
         //-------------------//
 
-        // compute algorithm
-        virtual void algorithm() = 0;
-
         // assess convergence
-        void assessConvergence(int iter, int &nstab);
-
-        //-------------------//
-        //       return      //
-        //-------------------//
-
-        // create list of object to return
-        virtual Rcpp::List returnObject() = 0;
+        virtual void assessConvergence(int iter, int &nstab) = 0;
 
     };
 
