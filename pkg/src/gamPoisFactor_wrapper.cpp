@@ -76,6 +76,10 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
     Rcpp::Rcout << "Algorithm" << std::endl;
     myModel.algorithm();
 
+    // factor order
+    Rcpp::Rcout << "factor order" << std::endl;
+    myModel.computeOrder();
+
     // returns
     Rcpp::Rcout << "Output" << std::endl;
     Rcpp::List results;

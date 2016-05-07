@@ -28,6 +28,7 @@
 #include <RcppEigen.h>
 #include <math.h>
 #include <cstdio>
+#include <vector>
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactorStandard.h"
 
@@ -45,6 +46,8 @@ using Eigen::Map;                       // 'maps' rather than copies
 using Eigen::MatrixXd;                  // variable size matrix, double precision
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
+
+using std::vector;
 
 // SRC
 namespace countMatrixFactor {
@@ -271,12 +274,12 @@ namespace countMatrixFactor {
             }
 
             // Multinomial parameters
-            Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+            //Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
             this->multinomParam();
 
             // local parameters
             // U : param phi
-            Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+            //Rcpp::Rcout << "algorithm: local parameters" << std::endl;
             this->localParam();
 
             // expectation and log-expectation
@@ -285,7 +288,7 @@ namespace countMatrixFactor {
 
             // global parameters
             // V : param theta
-            Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+            //Rcpp::Rcout << "algorithm: global parameters" << std::endl;
             this->globalParam();
 
             // expectation and log-expectation
@@ -293,26 +296,26 @@ namespace countMatrixFactor {
             Elgam(m_theta1cur, m_theta2cur, m_ElogV);
 
             // Poisson rate
-            Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
+            //Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
             this->poissonRate();
 
             // log-likelihood
-            Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
+            //Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
             this->computeLogLike(iter);
             // ELBO
-            Rcpp::Rcout << "algorithm: ELBO" << std::endl;
+            //Rcpp::Rcout << "algorithm: ELBO" << std::endl;
             this->computeELBO(iter);
             // deviance
-            Rcpp::Rcout << "algorithm: deviance" << std::endl;
+            //Rcpp::Rcout << "algorithm: deviance" << std::endl;
             this->computeDeviance(iter);
             // explained variance
-            Rcpp::Rcout << "algorithm: explained variance" << std::endl;
+            //Rcpp::Rcout << "algorithm: explained variance" << std::endl;
             this->computeExpVar(iter);
             // convergence
-            Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
+            //Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
             this-> assessConvergence(iter, nstab);
             // increment values of parameters
-            Rcpp::Rcout << "algorithm: next iteration" << std::endl;
+            //Rcpp::Rcout << "algorithm: next iteration" << std::endl;
             this->nextIterate();
             // increment iteration
             iter++;
@@ -350,6 +353,236 @@ namespace countMatrixFactor {
             }
         }
     }
+
+    //-------------------//
+    //   order factors   //
+    //-------------------//
+
+    /*!
+    * \brief order factors according to expVar0
+    *
+    * @param[out] vector of factor order
+    */
+    void gamPoisFactorStandard::orderExpVar0(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Utmp = MatrixXd::Zero(m_EU.rows(), m_EU.cols());
+        MatrixXd Vtmp = MatrixXd::Zero(m_EV.rows(), m_EV.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_max = -1E6;
+            int ind_max = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+                MatrixXd tmpU(m_EU.rows(), k+1);
+                MatrixXd tmpV(m_EV.rows(), k+1);
+
+                tmpU.col(k) = m_EU.col(leftIndex[ind]);
+                tmpV.col(k) = m_EV.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpU.leftCols(k) = Utmp.leftCols(k);
+                    tmpV.leftCols(k) = Vtmp.leftCols(k);
+                }
+
+                double res = expVar0(m_X, tmpU, tmpV);
+                if(res > val_max) {
+                    val_max = res;
+                    ind_max = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_max);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Utmp.col(k) = m_EU.col(ind_max);
+            Vtmp.col(k) = m_EV.col(ind_max);
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief order factors according to expVarU
+     *
+     * @param[out] vector of factor order
+     */
+    void gamPoisFactorStandard::orderExpVarU(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Utmp = MatrixXd::Zero(m_EU.rows(), m_EU.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_max = -1E6;
+            int ind_max = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+                MatrixXd tmpU(m_EU.rows(), k+1);
+                tmpU.col(k) = m_EU.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpU.leftCols(k) = Utmp.leftCols(k);
+                }
+
+                double res = expVarU(m_X, tmpU);
+                if(res > val_max) {
+                    val_max = res;
+                    ind_max = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_max);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Utmp.col(k) = m_EU.col(ind_max);
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief order factors according to expVarV
+     *
+     * @param[out] vector of factor order
+     */
+    void gamPoisFactorStandard::orderExpVarV(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Vtmp = MatrixXd::Zero(m_EV.rows(), m_EV.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_max = -1E6;
+            int ind_max = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+                MatrixXd tmpV(m_EV.rows(), k+1);
+                tmpV.col(k) = m_EV.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpV.leftCols(k) = Vtmp.leftCols(k);
+                }
+
+                double res = expVarV(m_X, tmpV);
+                if(res > val_max) {
+                    val_max = res;
+                    ind_max = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_max);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Vtmp.col(k) = m_EV.col(ind_max);
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief order factors according to deviance
+     *
+     * @param[out] vector of factor order
+     */
+    void gamPoisFactorStandard::orderDeviance(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Utmp = MatrixXd::Zero(m_EU.rows(), m_EU.cols());
+        MatrixXd Vtmp = MatrixXd::Zero(m_EV.rows(), m_EV.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_min = 0;
+            int ind_min = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+
+                MatrixXd tmpU(m_EU.rows(), k+1);
+                MatrixXd tmpV(m_EV.rows(), k+1);
+
+                tmpU.col(k) = m_EU.col(leftIndex[ind]);
+                tmpV.col(k) = m_EV.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpU.leftCols(k) = Utmp.leftCols(k);
+                    tmpV.leftCols(k) = Vtmp.leftCols(k);
+                }
+
+                MatrixXd lambda = tmpU * tmpV.transpose();
+                double res = poisDeviance(m_X, lambda, m_lambda0);
+                if(ind==0) {
+                    val_min = res;
+                    ind_min = leftIndex[ind];
+                    ind_left = ind;
+                }
+                if(res < val_min) {
+                    val_min = res;
+                    ind_min = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_min);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Utmp.col(k) = m_EU.col(ind_min);
+            Vtmp.col(k) = m_EV.col(ind_min);
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief compute factor order
+     */
+    void gamPoisFactorStandard::computeOrder() {
+        this->orderExpVar0(m_orderExpVar0);
+        this->orderExpVarU(m_orderExpVarU);
+        this->orderExpVarV(m_orderExpVarV);
+        this->orderDeviance(m_orderDeviance);
+    }
+
 
     //-------------------//
     //       return      //

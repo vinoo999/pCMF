@@ -187,6 +187,15 @@ namespace countMatrixFactor {
          */
         virtual void returnObject(Rcpp::List &results) = 0;
 
+        /*!
+         * \brief compute factor order
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[out] iter current iteration
+         */
+        virtual void computeOrder() = 0;
+
     protected:
 
         //-------------------//
@@ -268,6 +277,46 @@ namespace countMatrixFactor {
 
         // assess convergence
         virtual void assessConvergence(int iter, int &nstab) = 0;
+
+        //-------------------//
+        //   order factors   //
+        //-------------------//
+
+        /*!
+         * \brief order factors according to expVar0
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[out] vector of factor order
+         */
+        virtual void orderExpVar0(VectorXi &order) = 0;
+
+        /*!
+         * \brief order factors according to expVarU
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[out] vector of factor order
+         */
+        virtual void orderExpVarU(VectorXi &order) = 0;
+
+        /*!
+         * \brief order factors according to expVarV
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[out] vector of factor order
+         */
+        virtual void orderExpVarV(VectorXi &order) = 0;
+
+        /*!
+         * \brief order factors according to deviance
+         *
+         * Pure virtual member function, to be implemented, depending on the model
+         *
+         * @param[out] vector of factor order
+         */
+        virtual void orderDeviance(VectorXi &order) = 0;
 
     };
 

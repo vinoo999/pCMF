@@ -93,6 +93,10 @@ namespace countMatrixFactor {
         // create list with results to be return
         void returnObject(Rcpp::List &results);
 
+
+        // compute factor order
+        void computeOrder();
+
     protected:
 
         //-------------------//
@@ -142,6 +146,22 @@ namespace countMatrixFactor {
 
         // assess convergence
         void assessConvergence(int iter, int &nstab);
+
+        //-------------------//
+        //   order factors   //
+        //-------------------//
+
+        // order factors according to expVar0
+        void orderExpVar0(VectorXi &order);
+
+        // order factors according to expVarU
+        void orderExpVarU(VectorXi &order);
+
+        // order factors according to expVarV
+        void orderExpVarV(VectorXi &order);
+
+        // order factors according to deviance
+        void orderDeviance(VectorXi &order);
 
     };
 
