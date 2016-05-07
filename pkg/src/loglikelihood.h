@@ -80,50 +80,19 @@ namespace countMatrixFactor {
              * \brief compute all different log-likelihood
              *
              * Pure virtual member function, to be implemented, depending on the model
-             */
-            virtual void computeLogLike() = 0;
-
-            /*!
-             * \brief compute conditional log-likelihood
              *
-             * Pure virtual member function, to be implemented, depending on the model
+             * @param[in] iter current iteration
              */
-            virtual double condLogLike() = 0;
-
-            /*!
-             * \brief compute prior log-likelihood
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             */
-            virtual double priorLogLike() = 0;
-
-            /*!
-             * \brief compute posterior log-likelihood
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             */
-            virtual double postLogLike() = 0;
-
-            /*!
-             * \brief compute complete log-likelihood
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             */
-            virtual double compLogLike() = 0;
-
-            /*!
-             * \brief compute marginal log-likelihood
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             */
-            virtual double margLogLike() = 0;
+            virtual void computeLogLike(int iter) = 0;
 
             /*!
              * \brief compute evidence lower bound
              *
              * Pure virtual member function, to be implemented, depending on the model
+             *
+             * @param[in] iter current iteration
              */
-            virtual void computeELBO() = 0;
+            virtual void computeELBO(int iter) = 0;
 
             /*!
              * \brief evidence lower bound for a specific model
@@ -136,8 +105,17 @@ namespace countMatrixFactor {
              * \brief compute deviance between estimated and saturated model
              *
              * Pure virtual member function, to be implemented, depending on the model
+             *
+             * @param[in] iter current iteration
              */
-            virtual void computeDeviance() = 0;
+            virtual void computeDeviance(int iter) = 0;
+
+            /*!
+             * \brief deviance between estimated and saturated model for Poisson model
+             *
+             * Pure virtual member function, to be implemented, depending on the model
+             */
+            virtual double deviance() = 0;
         };
 
     // FUNCTIONS

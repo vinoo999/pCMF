@@ -71,8 +71,10 @@ namespace countMatrixFactor {
          * \brief compute explained variance
          *
          * Pure virtual member function, to be implemented
+         *
+         * @param[in] iter current iteration
          */
-        virtual double computeExpVar() = 0;
+        virtual void computeExpVar(int iter) = 0;
     };
 
     // functions, documented in src
