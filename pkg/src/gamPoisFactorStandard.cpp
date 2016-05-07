@@ -56,11 +56,12 @@ namespace countMatrixFactor {
                                                  const MatrixXd &phi1, const MatrixXd &phi2,
                                                  const MatrixXd &theta1, const MatrixXd &theta2,
                                                  const MatrixXd &alpha1, const MatrixXd &alpha2,
-                                                 const MatrixXd &beta1, const MatrixXd &beta2) :
-                gamPoisFactor::gamPoisFactor(n, p, K, iterMax, order,
+                                                 const MatrixXd &beta1, const MatrixXd &beta2)
+                : gamPoisFactor::gamPoisFactor(n, p, K, iterMax, order,
                                               stabRange, epsilon, verbose,
                                               X, phi1, phi2, theta1, theta2,
-                                              alpha1, alpha2, beta1, beta2) {}
+                                              alpha1, alpha2, beta1, beta2)
+    {}
 
     // DESTRUCTOR
     gamPoisFactorStandard::~gamPoisFactorStandard() {}
@@ -73,22 +74,23 @@ namespace countMatrixFactor {
     void gamPoisFactorStandard::Init() {
 
         // Gamma variational parameter
+        Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
         for(int k=0; k<m_K; k++) {
             // local parameters
             for(int i=0; i<m_N; i++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(100, m_alpha1(i,k), m_alpha2(i,k), param1, param2);
+                estimParam(1000, m_alpha1(i,k), m_alpha2(i,k), param1, param2);
                 m_phi1cur(i,k) = param1;
                 m_phi1old(i,k) = param1;
-            m_phi2cur(i,k) = param2;
+                m_phi2cur(i,k) = param2;
                 m_phi2old(i,k) = param2;
             }
             // global parameters
             for(int j=0; j<m_P; j++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(100, m_beta1(j,k), m_beta2(j,k), param1, param2);
+                estimParam(1000, m_beta1(j,k), m_beta2(j,k), param1, param2);
                 m_theta1cur(j,k) = param1;
                 m_theta1old(j,k) = param1;
                 m_theta2cur(j,k) = param2;
@@ -97,6 +99,7 @@ namespace countMatrixFactor {
         }
 
         // sufficient statistics
+        Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
         Egam(m_phi1cur, m_phi2cur, m_EU);
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
         Egam(m_theta1cur, m_theta2cur, m_EV);
@@ -144,17 +147,23 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogV);
 
         double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).lgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
+        //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
         double res2 = ( m_X.cast<double>().array() * (m_ElogU.exp() * m_ElogV.exp().transpose()).log().array()).sum();
+        //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
 
         double res3 = ( (m_alpha1.array() - 1) * m_ElogU.array() + m_alpha1.array() * m_alpha2.log().array()
                         - m_alpha2.array() * m_EU.array() - m_alpha1.lgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
         double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.log().array()
                                    - m_phi2cur.array() * m_EU.array() - m_phi1cur.lgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
 
         double res5 = ( (m_beta1.array() - 1) * m_ElogV.array() + m_beta1.array() * m_beta2.log().array()
                             - m_beta2.array() * m_EV.array() - m_beta1.lgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
         double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.log().array()
                                    - m_theta2cur.array() * m_EV.array() - m_theta1cur.lgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
 
         double res = res1 + res2 + res3 + res4 + res5 + res6;
 
@@ -211,7 +220,7 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogV);
 
         m_EZ_j = m_ElogU.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix() * m_ElogV.exp() ).array();
-        m_EZ_j = m_ElogU.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix() * m_ElogV.exp() ).array();
+        m_EZ_i = m_ElogV.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix().transpose() * m_ElogU.exp() ).array();
     }
 
     /*!
@@ -250,6 +259,7 @@ namespace countMatrixFactor {
      * \brief compute algorithm for variational inference in gamma Poisson factor model
      */
     void gamPoisFactorStandard::algorithm() {
+
         // Iteration
         int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
         int iter = 0;
@@ -261,10 +271,12 @@ namespace countMatrixFactor {
             }
 
             // Multinomial parameters
+            Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
             this->multinomParam();
 
             // local parameters
             // U : param phi
+            Rcpp::Rcout << "algorithm: local parameters" << std::endl;
             this->localParam();
 
             // expectation and log-expectation
@@ -273,6 +285,7 @@ namespace countMatrixFactor {
 
             // global parameters
             // V : param theta
+            Rcpp::Rcout << "algorithm: global parameters" << std::endl;
             this->globalParam();
 
             // expectation and log-expectation
@@ -280,19 +293,26 @@ namespace countMatrixFactor {
             Elgam(m_theta1cur, m_theta2cur, m_ElogV);
 
             // Poisson rate
+            Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
             this->poissonRate();
 
             // log-likelihood
+            Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
             this->computeLogLike(iter);
             // ELBO
+            Rcpp::Rcout << "algorithm: ELBO" << std::endl;
             this->computeELBO(iter);
             // deviance
+            Rcpp::Rcout << "algorithm: deviance" << std::endl;
             this->computeDeviance(iter);
             // explained variance
+            Rcpp::Rcout << "algorithm: explained variance" << std::endl;
             this->computeExpVar(iter);
             // convergence
+            Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
             this-> assessConvergence(iter, nstab);
             // increment values of parameters
+            Rcpp::Rcout << "algorithm: next iteration" << std::endl;
             this->nextIterate();
             // increment iteration
             iter++;
@@ -324,6 +344,10 @@ namespace countMatrixFactor {
         if(nstab > m_stabRange) {
             m_converged=true;
             m_nbIter=iter;
+        } else {
+            if(iter == m_iterMax - 1) {
+                m_nbIter = iter;
+            }
         }
     }
 
