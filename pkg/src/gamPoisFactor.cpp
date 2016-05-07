@@ -52,8 +52,9 @@ namespace countMatrixFactor {
                                  const MatrixXd &phi1, const MatrixXd &phi2,
                                  const MatrixXd &theta1, const MatrixXd &theta2,
                                  const MatrixXd &alpha1, const MatrixXd &alpha2,
-                                 const MatrixXd &beta1, const MatrixXd &beta2) :
-                loglikelihood(iterMax), explainedVariance(iterMax) {
+                                 const MatrixXd &beta1, const MatrixXd &beta2)
+                : loglikelihood(iterMax), explainedVariance(iterMax)
+    {
 
         // dimensions
         m_N = n;
@@ -72,22 +73,22 @@ namespace countMatrixFactor {
 
         // data
         m_X = MatrixXi(X);
-        m_lambda0 = X.cast<double>();
+        m_lambda0 = MatrixXd(X.cast<double>());
         intermediate::eraseZero(m_lambda0);
         m_lambda = MatrixXd::Zero(n, p);
 
         // variational parameters
-        m_phi1cur = MatrixXd(phi1);
-        m_phi2cur = MatrixXd(phi2);
+        m_phi1cur = MatrixXd::Zero(n,K);
+        m_phi2cur = MatrixXd::Zero(n,K);
 
-        m_phi1old = MatrixXd(phi1);
-        m_phi2old = MatrixXd(phi2);
+        m_phi1old = MatrixXd::Zero(n,K);
+        m_phi2old = MatrixXd::Zero(n,K);
 
-        m_theta1cur = MatrixXd(theta1);
-        m_theta2cur = MatrixXd(theta2);
+        m_theta1cur = MatrixXd::Zero(p,K);
+        m_theta2cur = MatrixXd::Zero(p,K);
 
-        m_theta1old = MatrixXd(theta1);
-        m_theta2old = MatrixXd(theta2);
+        m_theta1old = MatrixXd::Zero(p,K);
+        m_theta2old = MatrixXd::Zero(p,K);
 
         // sufficient statistics
         m_EU = MatrixXd::Zero(n,K);
