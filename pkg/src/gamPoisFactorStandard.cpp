@@ -33,7 +33,7 @@
 
 #define exp() unaryExpr(std::ptr_fun<double,double>(std::exp))
 #define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
-#define lgamma() unaryExpr(std::ptr_fun<double,double>(std::lgamma))
+#define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define log() unaryExpr(std::ptr_fun<double,double>(std::log))
 #define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
