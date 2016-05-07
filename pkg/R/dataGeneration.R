@@ -1,6 +1,6 @@
 ### Copyright 2016-05 Ghislain DURIF
 ###
-### This file is part of the `hClustering' library for R and related languages.
+### This file is part of the `countMatrixFactor' library for R and related languages.
 ### It is made available under the terms of the GNU General Public
 ### License, version 2, or at your option, any later version,
 ### incorporated herein by reference.
