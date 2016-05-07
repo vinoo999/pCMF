@@ -78,17 +78,17 @@ namespace countMatrixFactor {
         m_lambda = MatrixXd::Zero(n, p);
 
         // variational parameters
-        m_phi1cur = MatrixXd::Zero(n,K);
-        m_phi2cur = MatrixXd::Zero(n,K);
+        m_phi1cur = MatrixXd(phi1); //MatrixXd::Zero(n,K);
+        m_phi2cur = MatrixXd(phi2); //MatrixXd::Zero(n,K);
 
-        m_phi1old = MatrixXd::Zero(n,K);
-        m_phi2old = MatrixXd::Zero(n,K);
+        m_phi1old = MatrixXd(phi1); //MatrixXd::Zero(n,K);
+        m_phi2old = MatrixXd(phi2); //MatrixXd::Zero(n,K);
 
-        m_theta1cur = MatrixXd::Zero(p,K);
-        m_theta2cur = MatrixXd::Zero(p,K);
+        m_theta1cur = MatrixXd(theta1); //MatrixXd::Zero(p,K);
+        m_theta2cur = MatrixXd(theta2); //MatrixXd::Zero(p,K);
 
-        m_theta1old = MatrixXd::Zero(p,K);
-        m_theta2old = MatrixXd::Zero(p,K);
+        m_theta1old = MatrixXd(theta1); //MatrixXd::Zero(p,K);
+        m_theta2old = MatrixXd(theta2); //MatrixXd::Zero(p,K);
 
         // sufficient statistics
         m_EU = MatrixXd::Zero(n,K);
