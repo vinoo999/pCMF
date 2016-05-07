@@ -27,6 +27,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <math.h>
+#include <cstdio>
 #include "intermediate.h"
 
 // [[Rcpp::depends(RcppEigen)]]
@@ -99,5 +100,14 @@ namespace intermediate {
         if( A.minCoeff() < - 300) {
             Rcpp::stop("underflow in element-wise exponentiation of matrix");
         }
+    }
+
+    /*!
+     * \fn check matrix (dim, min and max element)
+     *
+     * @param[in] A matrix to be checked
+     */
+    void checkMat(const MatrixXd &A) {
+        Rcpp::Rcout << "dimension: " << A.rows() << " x " << A.cols() << " / min = " << A.minCoeff() << " / max = " << A.maxCoeff() << std::endl;
     }
 }

@@ -52,6 +52,9 @@ namespace intermediate {
 
     // check if exponential can be applied to a matrix
     void checkExp(const MatrixXd &A);
+
+    // check matrix (dim, min and max element)
+    void checkMat(const MatrixXd &A);
 }
 
 #endif
