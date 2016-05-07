@@ -49,6 +49,7 @@ namespace countMatrixFactor {
         m_priorLogLike = VectorXd::Zero(size);
         m_postLogLike = VectorXd::Zero(size);
         m_compLogLike = VectorXd::Zero(size);
+        m_elbo = VectorXd::Zero(size);
         m_deviance = VectorXd::Zero(size);
     }
 
