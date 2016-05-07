@@ -63,7 +63,7 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
     // declaration of object gamPoisFactorStandard
     gamPoisFactorStandard myModel(n, p, K, iterMax, order,
                                   stabRange, epsilon, verbose,
-                                  X, phi1, phi2, theta1, theta2,
+                                  X, phi01, phi02, theta01, theta02,
                                   alpha1, alpha2, beta1, beta2);
 
     // initialization
