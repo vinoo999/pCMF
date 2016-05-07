@@ -32,6 +32,7 @@
 #define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
 #define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define log() unaryExpr(std::ptr_fun<double,double>(log))
+#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
