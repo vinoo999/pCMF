@@ -32,7 +32,6 @@
 #define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
 #define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define log() unaryExpr(std::ptr_fun<double,double>(log))
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
@@ -88,20 +87,6 @@ namespace countMatrixFactor {
     void entropyGam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res) {
         res = (1-param1.array()) * param1.digamma().array() + param1.array()
         + param1.lgamma().array() - param2.log().array();
-    }
-
-    /*!
-     * \brief l2 squared norm of all parameters
-     *
-     * Computation of sum_{ij} param1_{ij}^2 + param2_{ij}^2
-     *
-     * @param[in] param1 rows x cols, matrix of first parameters
-     * @param[in] param2 rows x cols, matrix of second parameters
-     * @return res l2 squared norm
-     */
-    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
-        double res = param1.square().sum() + param2.square().sum();
-        return res;
     }
 
 }
