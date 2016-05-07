@@ -26,11 +26,12 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include <math.h>
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactor.h"
 #include "intermediate.h"
 
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(pow),2))
+#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
