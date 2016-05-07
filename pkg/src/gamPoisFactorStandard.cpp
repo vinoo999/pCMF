@@ -118,18 +118,18 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        double res1 = (-1) * ( ( (m_X.array() + 1).lgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
-        double res2 = ( m_X.array() * (m_ElogU.exp() * m_ElogV.exp().transpose()).log().array()).sum();
+        double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).lgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
+        double res2 = ( m_X.cast<double>().array() * (m_ElogU.exp() * m_ElogV.exp().transpose()).log().array()).sum();
 
         double res3 = ( (m_alpha1.array() - 1) * m_ElogU.array() + m_alpha1.array() * m_alpha2.log().array()
-                        - m_alpha2.array() * m_EU.array() - m.alpha1.lgamma() ).sum();
-        double res4 = (-1) * ( (m_phi1.array() - 1) * m_ElogU.array() + m_phi1.array() * m_phi2.log().array()
-                                   - m_phi2.array() * m_EU.array() - m.phi1.lgamma().array() ).sum();
+                        - m_alpha2.array() * m_EU.array() - m_alpha1.lgamma().array() ).sum();
+        double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.log().array()
+                                   - m_phi2cur.array() * m_EU.array() - m_phi1cur.lgamma().array() ).sum();
 
         double res5 = ( (m_beta1.array() - 1) * m_ElogV.array() + m_beta1.array() * m_beta2.log().array()
-                            - m_beta2.array() * m_EV.array() - m.beta1.lgamma() ).sum();
-        double res6 = (-1) * ( (m_theta1.array() - 1) * m_ElogV.array() + m_theta1.array() * m_theta2.log().array()
-                                   - m_theta2.array() * m_EV.array() - m.theta1.lgamma().array() ).sum();
+                            - m_beta2.array() * m_EV.array() - m_beta1.lgamma().array() ).sum();
+        double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.log().array()
+                                   - m_theta2cur.array() * m_EV.array() - m_theta1cur.lgamma().array() ).sum();
 
         double res = res1 + res2 + res3 + res4 + res5 + res6;
     }
@@ -245,7 +245,7 @@ namespace countMatrixFactor {
             // convergence
             this-> assessConvergence(iter, nstab);
             // increment values of parameters
-            this->updates();
+            this->update();
             // increment iteration
             iter++;
         }
@@ -261,28 +261,28 @@ namespace countMatrixFactor {
      * @param[out] list containing output
      */
     Rcpp::List gamPoisFactorStandard::returnObject(Rcpp::List &results) {
-        Rcpp::List logLikelihood = Rcpp:List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
+        Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
                                                      Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
                                                      Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
                                                      Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
                                                      Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
-                                                     Rcpp::Named("elbo") = m_elbo.head(nbIter));
+                                                     Rcpp::Named("elbo") = m_elbo.head(m_nbIter));
 
-        Rcpp::List expVariance = Rcpp:List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
+        Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
                                                    Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
                                                    Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
 
-        Rcpp::List params = Rcpp:List::create(Rcpp::Named("phi1") = m_phi1cur,
+        Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
                                               Rcpp::Named("phi2") = m_phi2cur,
                                               Rcpp::Named("theta1") = m_theta1cur,
                                               Rcpp::Named("theta2") = m_theta2cur);
 
-        Rcpp::List stats = Rcpp:List::create(Rcpp::Named("EU") = m_EU,
+        Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
                                              Rcpp::Named("EV") = m_EV,
                                              Rcpp::Named("ElogU") = m_ElogU,
                                              Rcpp::Named("ElogV") = m_ElogV);
 
-        Rcpp::List order = Rcpp:List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
+        Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
                                              Rcpp::Named("orderExpVar0") = m_orderExpVar0,
                                              Rcpp::Named("orderExpVarU") = m_orderExpVarU,
                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV);
@@ -299,7 +299,7 @@ namespace countMatrixFactor {
                                                   Rcpp::Named("converged") = m_converged,
                                                   Rcpp::Named("nbIter") = m_nbIter);
 
-        SEXP tmp = Language("c", results, returnObj).eval()
+        SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
 
         results = tmp;
     }
