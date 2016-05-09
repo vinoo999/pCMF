@@ -23,7 +23,7 @@ K = 10
 blockAlpha1 = blockMatrixGamma(nrow=n, ncol=K, nblock=5)
 alpha1 = blockAlpha1$mat
 alpha2 = matrix(1, nrow=n, ncol=K)
-blockBeta1 = blockMatrixGamma(nrow=n, ncol=K, nblock=5)
+blockBeta1 = blockMatrixGamma(nrow=p, ncol=K, nblock=5)
 beta1 = blockBeta1$mat
 beta2 = matrix(1, nrow=p, ncol=K)
 
