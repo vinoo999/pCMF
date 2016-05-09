@@ -13,9 +13,9 @@ source("sources/projectSources.R")
 ######################
 
 ## generating the data
-n = 50
-p = 20
-K = 10
+n = 100
+p = 5000
+K = 50
 
 
 
