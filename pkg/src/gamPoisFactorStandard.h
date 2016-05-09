@@ -65,7 +65,7 @@ namespace countMatrixFactor {
         /*!
          * \brief Constructor
          *
-         * Constructor of the class gamPoisFactor
+         * Constructor of the class gamPoisFactorStandard
          */
         gamPoisFactorStandard(int n, int p, int K, int iterMax, int order,
                               int stabRange, double epsilon, bool verbose,
@@ -78,7 +78,7 @@ namespace countMatrixFactor {
         /*!
          * \brief Destructor
          *
-         * Destructor of the class gamPoisFactor
+         * Destructor of the class gamPoisFactorStandard
          */
         ~gamPoisFactorStandard();
 
