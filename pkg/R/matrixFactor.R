@@ -47,7 +47,7 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
                         alpha1, alpha2, beta1, beta2,
                         lambda = NULL, mu = NULL,
                         iterMax=200, epsilon=1e-5,
-                        order=0, stabRange=5, verbose=TRUE, pen=FALSE) {
+                        order=0, stabRange=5, verbose=TRUE, pen=FALSE, sparse=FALSE) {
 
 #     phi01 = matrix(1, nrow=n, ncol=ncomp)
 #     phi02 = matrix(1, nrow=n, ncol=ncomp)
@@ -60,11 +60,19 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
     results = NULL
 
     if(pen) {
-        results = gamPoisFactorPen_wrapper(X, K, phi01, phi02, theta01, theta02,
-                                        alpha1, alpha2, beta1, beta2,
-                                        lambda, mu,
-                                        iterMax, epsilon,
-                                        order, stabRange, verbose)
+        if(sparse) {
+            results = gamPoisFactorSparse_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                               alpha1, alpha2, beta1, beta2,
+                                               lambda, mu,
+                                               iterMax, epsilon,
+                                               order, stabRange, verbose)
+        } else {
+            results = gamPoisFactorPen_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                               alpha1, alpha2, beta1, beta2,
+                                               lambda, mu,
+                                               iterMax, epsilon,
+                                               order, stabRange, verbose)
+        }
     } else {
         results = gamPoisFactor_wrapper(X, K, phi01, phi02, theta01, theta02,
                                         alpha1, alpha2, beta1, beta2,
