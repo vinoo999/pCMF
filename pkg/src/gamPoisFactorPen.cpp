@@ -87,7 +87,7 @@ namespace countMatrixFactor {
                 double param1 = 0;
                 double param2 = 0;
                 estimParam(1000, m_alpha1(i,k), m_alpha2(i,k), param1, param2);
-                m_phi1old(i,k) = param1;
+                m_phi1cur(i,k) = param1;
                 m_phi1old(i,k) = param1;
                 m_phi2inter(i,k) = param2;
             }
@@ -108,7 +108,6 @@ namespace countMatrixFactor {
 
         m_phi2old = m_phi2cur;
         m_theta2old = m_theta2cur;
-
 
         // sufficient statistics
         Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
@@ -139,18 +138,18 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorPen::penLocalParam() {
         m_phi2cur = (m_phi2inter.array() * m_phi1cur.array() + ( (m_phi2inter.array() * m_phi1cur.array()).msquare()
-                    + 8 * (m_phi1cur.array().rowwise() * m_mu_k.array())).msqrt()).array() / (2 * m_phi1cur.array());
+                        + 8 * (m_phi1cur.array().rowwise() * m_mu_k.transpose().array())).msqrt()).array() / (2 * m_phi1cur.array());
 
         // test
-        for(int i=0; i<m_N; i++) {
-            for(int k = 0; k<m_K; k++) {
-                double test = ( m_phi2inter(i,k) * m_phi1cur(i,k) + sqrt( std::pow(m_phi2inter(i,k) * m_phi1cur(i,k),2)
-                                + 8 * m_phi1cur(i,k) * m_mu_k(k)) )/(2*m_phi1cur(i,k));
-                if(test != m_phi2cur(i,k)) {
-                    Rcpp::Rcout << "error in penalized updates" << std::endl;
-                }
-            }
-        }
+        //for(int i=0; i<m_N; i++) {
+        //    for(int k = 0; k<m_K; k++) {
+        //        double test = ( m_phi2inter(i,k) * m_phi1cur(i,k) + sqrt( std::pow(m_phi2inter(i,k) * m_phi1cur(i,k),2)
+        //                        + 8 * m_phi1cur(i,k) * m_mu_k(k)) )/(2*m_phi1cur(i,k));
+        //        if(test != m_phi2cur(i,k)) {
+        //            Rcpp::Rcout << "error in penalized updates" << std::endl;
+        //        }
+        //    }
+        //}
     }
 
     /*!
@@ -166,7 +165,7 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorPen::penGlobalParam() {
         m_theta2cur = (m_theta2inter.array() * m_theta1cur.array() + ( (m_theta2inter.array() * m_theta1cur.array()).msquare()
-                    + 8 * (m_theta1cur.array().rowwise() * m_mu_k.array())).msqrt()).array() / (2 * m_theta1cur.array());
+                    + 8 * (m_theta1cur.array().rowwise() * m_lambda_k.transpose().array())).msqrt()).array() / (2 * m_theta1cur.array());
     }
 
     //-------------------//
@@ -272,11 +271,15 @@ namespace countMatrixFactor {
         Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
                                               Rcpp::Named("orderExpVar0") = m_orderExpVar0,
                                               Rcpp::Named("orderExpVarU") = m_orderExpVarU,
-                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV,
-                                              Rcpp::Named("kDeviance") = m_kDeviance,
-                                              Rcpp::Named("kExpVar0") = m_kExpVar0,
-                                              Rcpp::Named("kExpVarU") = m_kExpVarU,
-                                              Rcpp::Named("kExpVarV") = m_kExpVarV);
+                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV);
+
+        Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
+                                                   Rcpp::Named("kExpVar0") = m_kExpVar0,
+                                                   Rcpp::Named("kExpVarU") = m_kExpVarU,
+                                                   Rcpp::Named("kExpVarV") = m_kExpVarV);
+
+        Rcpp::List pen = Rcpp::List::create(Rcpp::Named("lambda_k") = m_lambda_k,
+                                            Rcpp::Named("mu_k") = m_mu_k);
 
         Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
                                                   Rcpp::Named("V") = m_EV,
@@ -285,15 +288,12 @@ namespace countMatrixFactor {
                                                   Rcpp::Named("params") = params,
                                                   Rcpp::Named("stats") = stats,
                                                   Rcpp::Named("order") = order,
+                                                  Rcpp::Named("criteria_k") = criteria_k,
                                                   Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
                                                   Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
                                                   Rcpp::Named("converged") = m_converged,
-                                                  Rcpp::Named("nbIter") = m_nbIter);
-
-        Rcpp::List pen = Rcpp::List::create(Rcpp::Named("lambda_k") = m_lambda_k,
-                                              Rcpp::Named("mu_k") = m_mu_k,
-                                              Rcpp::Named("ElogU") = m_ElogU,
-                                              Rcpp::Named("ElogV") = m_ElogV);
+                                                  Rcpp::Named("nbIter") = m_nbIter,
+                                                  Rcpp::Named("pen") = pen);
 
         SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
 
