@@ -115,6 +115,12 @@ namespace countMatrixFactor {
         m_orderExpVarU = VectorXi::Zero(K);
         m_orderExpVarV = VectorXi::Zero(K);
 
+        // criterion following order of factors
+        m_kDeviance = VectorXd::Zero(K);
+        m_kExpVar0 = VectorXd::Zero(K);
+        m_kExpVarU = VectorXd::Zero(K);
+        m_kExpVarV = VectorXd::Zero(K);
+
     }
 
     // DESTRUCTOR

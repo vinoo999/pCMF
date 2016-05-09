@@ -124,6 +124,12 @@ namespace countMatrixFactor {
         VectorXi m_orderExpVarU;    /*!< order of factors according to increasing expVarU */
         VectorXi m_orderExpVarV;    /*!< order of factors according to increasing expVarV */
 
+        // criterion following order of factors
+        VectorXd m_kDeviance;       /*!< deviance depending on k */
+        VectorXd m_kExpVar0;        /*!< expVar0 depending on k */
+        VectorXd m_kExpVarU;        /*!< expVarU depending on k */
+        VectorXd m_kExpVarV;        /*!< expVarV depending on k */
+
     public:
         /*!
          * \brief Constructor

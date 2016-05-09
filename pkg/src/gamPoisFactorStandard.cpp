@@ -405,6 +405,9 @@ namespace countMatrixFactor {
 
             Utmp.col(k) = m_EU.col(ind_max);
             Vtmp.col(k) = m_EV.col(ind_max);
+
+            // store it
+            m_kExpVar0(k) = val_max;
         }
 
         // return
@@ -454,6 +457,9 @@ namespace countMatrixFactor {
             leftIndex.erase(leftIndex.begin() + ind_left);
 
             Utmp.col(k) = m_EU.col(ind_max);
+
+            // store it
+            m_kExpVarU(k) = val_max;
         }
 
         // return
@@ -503,6 +509,9 @@ namespace countMatrixFactor {
             leftIndex.erase(leftIndex.begin() + ind_left);
 
             Vtmp.col(k) = m_EV.col(ind_max);
+
+            // store it
+            m_kExpVarV(k) = val_max;
         }
 
         // return
@@ -565,6 +574,10 @@ namespace countMatrixFactor {
 
             Utmp.col(k) = m_EU.col(ind_min);
             Vtmp.col(k) = m_EV.col(ind_min);
+
+            // store it
+            m_kDeviance(k) = val_min;
+
         }
 
         // return
@@ -595,30 +608,34 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorStandard::returnObject(Rcpp::List &results) {
         Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
-                                                     Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
-                                                     Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
-                                                     Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
-                                                     Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
-                                                     Rcpp::Named("elbo") = m_elbo.head(m_nbIter));
+                                                      Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
+                                                      Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
+                                                      Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
+                                                      Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
+                                                      Rcpp::Named("elbo") = m_elbo.head(m_nbIter));
 
         Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
-                                                   Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
-                                                   Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
+                                                    Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
+                                                    Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
 
         Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
-                                              Rcpp::Named("phi2") = m_phi2cur,
-                                              Rcpp::Named("theta1") = m_theta1cur,
-                                              Rcpp::Named("theta2") = m_theta2cur);
+                                               Rcpp::Named("phi2") = m_phi2cur,
+                                               Rcpp::Named("theta1") = m_theta1cur,
+                                               Rcpp::Named("theta2") = m_theta2cur);
 
         Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
-                                             Rcpp::Named("EV") = m_EV,
-                                             Rcpp::Named("ElogU") = m_ElogU,
-                                             Rcpp::Named("ElogV") = m_ElogV);
+                                              Rcpp::Named("EV") = m_EV,
+                                              Rcpp::Named("ElogU") = m_ElogU,
+                                              Rcpp::Named("ElogV") = m_ElogV);
 
         Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
-                                             Rcpp::Named("orderExpVar0") = m_orderExpVar0,
-                                             Rcpp::Named("orderExpVarU") = m_orderExpVarU,
-                                             Rcpp::Named("orderExpVarV") = m_orderExpVarV);
+                                              Rcpp::Named("orderExpVar0") = m_orderExpVar0,
+                                              Rcpp::Named("orderExpVarU") = m_orderExpVarU,
+                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV,
+                                              Rcpp::Named("kDeviance") = m_kDeviance,
+                                              Rcpp::Named("kExpVar0") = m_kExpVar0,
+                                              Rcpp::Named("kExpVarU") = m_kExpVarU,
+                                              Rcpp::Named("kExpVarV") = m_kExpVarV);
 
         Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
                                                   Rcpp::Named("V") = m_EV,
