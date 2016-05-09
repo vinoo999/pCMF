@@ -43,9 +43,11 @@
 
 ### R wrapper for Gamma-Poisson Factor model
 
-matrixFactor = function(X, K, phi01, phi02, theta01, theta02, alpha1, alpha2, beta1, beta2,
+matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
+                        alpha1, alpha2, beta1, beta2,
+                        lambda = NULL, mu = NULL,
                         iterMax=200, epsilon=1e-5,
-                        order=0, stabRange=5, verbose=TRUE) {
+                        order=0, stabRange=5, verbose=TRUE, pen=FALSE) {
 
 #     phi01 = matrix(1, nrow=n, ncol=ncomp)
 #     phi02 = matrix(1, nrow=n, ncol=ncomp)
@@ -55,10 +57,20 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02, alpha1, alpha2, be
 
     X = apply(X, c(1,2), as.integer)
 
-    results = gamPoisFactor_wrapper(X, K, phi01, phi02, theta01, theta02,
-                                    alpha1, alpha2, beta1, beta2,
-                                    iterMax, epsilon,
-                                    order, stabRange, verbose)
+    results = NULL
+
+    if(pen) {
+        results = gamPoisFactorPen_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                        alpha1, alpha2, beta1, beta2,
+                                        lambda, mu,
+                                        iterMax, epsilon,
+                                        order, stabRange, verbose)
+    } else {
+        results = gamPoisFactor_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                        alpha1, alpha2, beta1, beta2,
+                                        iterMax, epsilon,
+                                        order, stabRange, verbose)
+    }
 
     class(results) = "countMatrixFactor"
 
