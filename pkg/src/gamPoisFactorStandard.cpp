@@ -77,29 +77,29 @@ namespace countMatrixFactor {
     void gamPoisFactorStandard::Init() {
 
         // Gamma variational parameter
-//         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
-//         for(int k=0; k<m_K; k++) {
-//             // local parameters
-//             for(int i=0; i<m_N; i++) {
-//                 double param1 = 0;
-//                 double param2 = 0;
-//                 estimParam(1000, m_alpha1(i,k), m_alpha2(i,k), param1, param2);
-//                 m_phi1cur(i,k) = param1;
-//                 m_phi1old(i,k) = param1;
-//                 m_phi2cur(i,k) = param2;
-//                 m_phi2old(i,k) = param2;
-//             }
-//             // global parameters
-//             for(int j=0; j<m_P; j++) {
-//                 double param1 = 0;
-//                 double param2 = 0;
-//                 estimParam(1000, m_beta1(j,k), m_beta2(j,k), param1, param2);
-//                 m_theta1cur(j,k) = param1;
-//                 m_theta1old(j,k) = param1;
-//                 m_theta2cur(j,k) = param2;
-//                 m_theta2old(j,k) = param2;
-//             }
-//         }
+        Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
+        for(int k=0; k<m_K; k++) {
+            // local parameters
+            for(int i=0; i<m_N; i++) {
+                double param1 = 0;
+                double param2 = 0;
+                estimParam(1000, m_alpha1(i,k), m_alpha2(i,k), param1, param2);
+                m_phi1cur(i,k) = param1;
+                m_phi1old(i,k) = param1;
+                m_phi2cur(i,k) = param2;
+                m_phi2old(i,k) = param2;
+            }
+            // global parameters
+            for(int j=0; j<m_P; j++) {
+                double param1 = 0;
+                double param2 = 0;
+                estimParam(1000, m_beta1(j,k), m_beta2(j,k), param1, param2);
+                m_theta1cur(j,k) = param1;
+                m_theta1old(j,k) = param1;
+                m_theta2cur(j,k) = param2;
+                m_theta2old(j,k) = param2;
+            }
+        }
 
         // sufficient statistics
         Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
