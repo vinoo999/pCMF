@@ -46,17 +46,21 @@
 #' \item{idRows}{vector indicating the division of columns into blocks}
 #'
 
-blockMatrixGamma = function(nrow, ncol, nblock, signalBlock=NULL) {
+blockMatrixGamma = function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) {
 
     ###### verification on input paramters
-    if((ncol < nblock) || (nrow < nblock)) {
+    if((ncol < nColBlock) || (nrow < nRowBlock)) {
         stop("message from blockMatrix: more blocks than columns or rows")
     }
 
     if(is.null(signalBlock)) {
-        signalBlock=diag(2.99, nblock)+0.01
+        if(nRowBlock != nColBlock) {
+            stop("message from blockMatrix: consider supplying signalBlock in input")
+        } else {
+            signalBlock=diag(2.9, nRowBlock)+0.1
+        }
     } else {
-        if((nrow(signalBlock) != nblock) || (ncol(signalBlock) != nblock)) {
+        if((nrow(signalBlock) != nRowBlock) || (ncol(signalBlock) != nColBlock)) {
             stop("message from blockMatrix: matrix signalBlock of wrong dimensions")
         }
     }
@@ -66,8 +70,8 @@ blockMatrixGamma = function(nrow, ncol, nblock, signalBlock=NULL) {
     ###### significant blocks
 
     # identification of the blocks in rows and columns
-    id.rowblock = 1:nblock
-    id.colblock = 1:nblock
+    id.rowblock = 1:nRowBlock
+    id.colblock = 1:nColBlock
 
     # assignation to a blocks for each row and columns
     idRows = sort(rep(id.rowblock, length=nrow))
@@ -82,7 +86,7 @@ blockMatrixGamma = function(nrow, ncol, nblock, signalBlock=NULL) {
             ncolsBlock = length(colsBlock)
             blockSize = nrowsBlock * ncolsBlock
 
-            mat[rowsBlock, colsBlock] = matrix(rexp(blockSize, rate=1/signalBlock[rowBlock, colBlock]), nrow=nrowsBlock, ncol=ncolsBlock)
+            mat[rowsBlock, colsBlock] = matrix(rexp(blockSize, rate=1/signalBlock[rowBlock, colBlock]), nrow=nrowsBlock, ncol=ncolsBlock) #matrix(signalBlock[rowBlock, colBlock], nrow=nrowsBlock, ncol=ncolsBlock)
         }
     }
 
