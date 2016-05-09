@@ -631,11 +631,12 @@ namespace countMatrixFactor {
         Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
                                               Rcpp::Named("orderExpVar0") = m_orderExpVar0,
                                               Rcpp::Named("orderExpVarU") = m_orderExpVarU,
-                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV,
-                                              Rcpp::Named("kDeviance") = m_kDeviance,
-                                              Rcpp::Named("kExpVar0") = m_kExpVar0,
-                                              Rcpp::Named("kExpVarU") = m_kExpVarU,
-                                              Rcpp::Named("kExpVarV") = m_kExpVarV);
+                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV);
+
+       Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
+                                                  Rcpp::Named("kExpVar0") = m_kExpVar0,
+                                                  Rcpp::Named("kExpVarU") = m_kExpVarU,
+                                                  Rcpp::Named("kExpVarV") = m_kExpVarV);
 
         Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
                                                   Rcpp::Named("V") = m_EV,
@@ -644,6 +645,7 @@ namespace countMatrixFactor {
                                                   Rcpp::Named("params") = params,
                                                   Rcpp::Named("stats") = stats,
                                                   Rcpp::Named("order") = order,
+                                                  Rcpp::Named("criteria_k") = criteria_k,
                                                   Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
                                                   Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
                                                   Rcpp::Named("converged") = m_converged,
