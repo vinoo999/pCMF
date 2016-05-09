@@ -31,8 +31,8 @@
 #include <vector>
 #include "gamPoisFactorPen.h"
 
-#define sqrt() unaryExpr(std::ptr_fun<double,double>(std::sqrt))
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
+#define msqrt() unaryExpr(std::ptr_fun<double,double>(std::sqrt))
+#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -138,8 +138,19 @@ namespace countMatrixFactor {
     * \brief update rule for penalized local parameters phi (factor U) in variational inference
     */
     void gamPoisFactorPen::penLocalParam() {
-        m_phi2cur = (m_phi2inter.array() * m_phi1cur.array() + ( (m_phi2inter.array() * m_phi1cur.array()).square()
-                                                                     + 8 * (m_phi1cur.array().rowwise() * m_mu_k.array())).sqrt()).array() / (2 * m_phi1cur.array());
+        m_phi2cur = (m_phi2inter.array() * m_phi1cur.array() + ( (m_phi2inter.array() * m_phi1cur.array()).msquare()
+                    + 8 * (m_phi1cur.array().rowwise() * m_mu_k.array())).msqrt()).array() / (2 * m_phi1cur.array());
+
+        // test
+        for(int i=0; i<m_N; i++) {
+            for(int k = 0; k<m_K; k++) {
+                double test = ( m_phi2inter(i,k) * m_phi1cur(i,k) + sqrt( std::pow(m_phi2inter(i,k) * m_phi1cur(i,k),2)
+                                + 8 * m_phi1cur(i,k) * m_mu_k(k)) )/(2*m_phi1cur(i,k));
+                if(test != m_phi2cur(i,k)) {
+                    Rcpp::Rcout << "error in penalized updates" << std::endl;
+                }
+            }
+        }
     }
 
     /*!
@@ -154,7 +165,8 @@ namespace countMatrixFactor {
      * \brief update rule for penalized global parameters theta (factor V) in variational inference
      */
     void gamPoisFactorPen::penGlobalParam() {
-        m_theta2cur = m_theta2inter.array() + (m_theta1cur.array().inverse().rowwise() * m_lambda_k.array());
+        m_theta2cur = (m_theta2inter.array() * m_theta1cur.array() + ( (m_theta2inter.array() * m_theta1cur.array()).msquare()
+                    + 8 * (m_theta1cur.array().rowwise() * m_mu_k.array())).msqrt()).array() / (2 * m_theta1cur.array());
     }
 
     //-------------------//
@@ -225,6 +237,67 @@ namespace countMatrixFactor {
             // increment iteration
             iter++;
         }
+    }
+
+    //       return      //
+    //-------------------//
+
+    /*!
+    * \brief create list with results to be return
+    *
+    * @param[out] list containing output
+    */
+    void gamPoisFactorPen::returnObject(Rcpp::List &results) {
+        Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
+                                                      Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
+                                                      Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
+                                                      Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
+                                                      Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
+                                                      Rcpp::Named("elbo") = m_elbo.head(m_nbIter));
+
+        Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
+                                                    Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
+                                                    Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
+
+        Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
+                                               Rcpp::Named("phi2") = m_phi2cur,
+                                               Rcpp::Named("theta1") = m_theta1cur,
+                                               Rcpp::Named("theta2") = m_theta2cur);
+
+        Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
+                                              Rcpp::Named("EV") = m_EV,
+                                              Rcpp::Named("ElogU") = m_ElogU,
+                                              Rcpp::Named("ElogV") = m_ElogV);
+
+        Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
+                                              Rcpp::Named("orderExpVar0") = m_orderExpVar0,
+                                              Rcpp::Named("orderExpVarU") = m_orderExpVarU,
+                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV,
+                                              Rcpp::Named("kDeviance") = m_kDeviance,
+                                              Rcpp::Named("kExpVar0") = m_kExpVar0,
+                                              Rcpp::Named("kExpVarU") = m_kExpVarU,
+                                              Rcpp::Named("kExpVarV") = m_kExpVarV);
+
+        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
+                                                  Rcpp::Named("V") = m_EV,
+                                                  Rcpp::Named("logLikelihood") = logLikelihood,
+                                                  Rcpp::Named("expVariance") = expVariance,
+                                                  Rcpp::Named("params") = params,
+                                                  Rcpp::Named("stats") = stats,
+                                                  Rcpp::Named("order") = order,
+                                                  Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
+                                                  Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
+                                                  Rcpp::Named("converged") = m_converged,
+                                                  Rcpp::Named("nbIter") = m_nbIter);
+
+        Rcpp::List pen = Rcpp::List::create(Rcpp::Named("lambda_k") = m_lambda_k,
+                                              Rcpp::Named("mu_k") = m_mu_k,
+                                              Rcpp::Named("ElogU") = m_ElogU,
+                                              Rcpp::Named("ElogV") = m_ElogV);
+
+        SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
+
+        results = tmp;
     }
 
 }

@@ -54,7 +54,7 @@ namespace countMatrixFactor {
     *  V_{jk} ~ Gamma(theta_{jk})
     *
     * Penalization
-    *   l1 penalty on theta_{jk}
+    *   l2 penalty on theta_{jk}
     *   l2 penalty on phi_{ik}
     */
 
@@ -98,6 +98,9 @@ namespace countMatrixFactor {
 
         // run algorithm
         void algorithm();
+
+        // create list with results to be return
+        void returnObject(Rcpp::List &results);
 
     protected:
 
