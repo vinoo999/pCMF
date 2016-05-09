@@ -93,7 +93,6 @@ namespace countMatrixFactor {
         // create list with results to be return
         void returnObject(Rcpp::List &results);
 
-
         // compute factor order
         void computeOrder();
 
