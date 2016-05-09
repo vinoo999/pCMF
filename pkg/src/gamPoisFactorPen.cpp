@@ -58,16 +58,16 @@ namespace countMatrixFactor {
                                                        stabRange, epsilon, verbose,
                                                        X, phi1, phi2, theta1, theta2,
                                                        alpha1, alpha2, beta1, beta2)
-        {
-            // penalty constant
-            m_lambda_k = VectorXd(lambda_k);
-            m_mu_k = VectorXd(mu_k);
+    {
+        // penalty constant
+        m_lambda_k = VectorXd(lambda_k);
+        m_mu_k = VectorXd(mu_k);
 
-            // variational parameters
-            m_phi2inter = MatrixXd::Zero(n,K);
-            m_theta2inter = MatrixXd::Zero(p,K);
+        // variational parameters
+        m_phi2inter = MatrixXd::Zero(n,K);
+        m_theta2inter = MatrixXd::Zero(p,K);
 
-        }
+    }
 
     // DESTRUCTOR
     gamPoisFactorPen::~gamPoisFactorPen() {}
