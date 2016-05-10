@@ -60,32 +60,31 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
     results = NULL
 
     if(ZI) {
-        results = gamPoisFactorSparseZI_wrapper(X, K, phi01, phi02, theta01, theta02,
+        results = gamPoisFactorZI_wrapper(X, K, phi01, phi02, theta01, theta02,
                                               alpha1, alpha2, beta1, beta2,
-                                              lambda, mu,
                                               iterMax, epsilon,
                                               order, stabRange, verbose)
-    }
-
-    if(pen) {
-        if(sparse) {
-            results = gamPoisFactorSparse_wrapper(X, K, phi01, phi02, theta01, theta02,
-                                               alpha1, alpha2, beta1, beta2,
-                                               lambda, mu,
-                                               iterMax, epsilon,
-                                               order, stabRange, verbose)
-        } else {
-            results = gamPoisFactorPen_wrapper(X, K, phi01, phi02, theta01, theta02,
-                                               alpha1, alpha2, beta1, beta2,
-                                               lambda, mu,
-                                               iterMax, epsilon,
-                                               order, stabRange, verbose)
-        }
     } else {
-        results = gamPoisFactor_wrapper(X, K, phi01, phi02, theta01, theta02,
-                                        alpha1, alpha2, beta1, beta2,
-                                        iterMax, epsilon,
-                                        order, stabRange, verbose)
+        if(pen) {
+            if(sparse) {
+                results = gamPoisFactorSparse_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                                      alpha1, alpha2, beta1, beta2,
+                                                      lambda, mu,
+                                                      iterMax, epsilon,
+                                                      order, stabRange, verbose)
+            } else {
+                results = gamPoisFactorPen_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                                   alpha1, alpha2, beta1, beta2,
+                                                   lambda, mu,
+                                                   iterMax, epsilon,
+                                                   order, stabRange, verbose)
+            }
+        } else {
+            results = gamPoisFactor_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                            alpha1, alpha2, beta1, beta2,
+                                            iterMax, epsilon,
+                                            order, stabRange, verbose)
+        }
     }
 
     class(results) = "countMatrixFactor"
