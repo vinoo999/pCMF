@@ -9,7 +9,7 @@ Description: Routines for count matrices factorization. As PCA with gaussian dat
         we provide a method that factorize matrices of count, taking into account
         the specific distribution of such data.
 License: GPL (>= 2)
-Imports: Rcpp (>= 0.11.6), RcppEigen (>= 0.3.2.5.0), MASS, DescTools
+Imports: Rcpp (>= 0.11.6), RcppEigen (>= 0.3.2.5.0)
 Depends: R (>= 3.0)
 LinkingTo: Rcpp, RcppEigen, BH
 LazyData: false
