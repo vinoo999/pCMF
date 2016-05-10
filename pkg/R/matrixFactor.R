@@ -47,7 +47,7 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
                         alpha1, alpha2, beta1, beta2,
                         lambda = NULL, mu = NULL,
                         iterMax=200, epsilon=1e-5,
-                        order=0, stabRange=5, verbose=TRUE, pen=FALSE, sparse=FALSE) {
+                        order=0, stabRange=5, verbose=TRUE, pen=FALSE, sparse=FALSE, ZI=FALSE) {
 
 #     phi01 = matrix(1, nrow=n, ncol=ncomp)
 #     phi02 = matrix(1, nrow=n, ncol=ncomp)
@@ -58,6 +58,14 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
     X = apply(X, c(1,2), as.integer)
 
     results = NULL
+
+    if(ZI) {
+        results = gamPoisFactorSparseZI_wrapper(X, K, phi01, phi02, theta01, theta02,
+                                              alpha1, alpha2, beta1, beta2,
+                                              lambda, mu,
+                                              iterMax, epsilon,
+                                              order, stabRange, verbose)
+    }
 
     if(pen) {
         if(sparse) {
