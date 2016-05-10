@@ -123,8 +123,6 @@ namespace countMatrixFactor {
             }
         }
 
-        Rcpp::Rcout << "prob0 = " << std::endl << m_prob0 << std::endl;
-
         // sufficient statistics
         Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
         Egam(m_phi1cur, m_phi2cur, m_EU);
@@ -172,6 +170,8 @@ namespace countMatrixFactor {
     void gamPoisFactorZI::globalParam() {
         m_theta1cur = m_beta1.array() + m_EZ_i.array();
         m_theta2cur = m_beta2.array() + (m_prob.transpose() * m_EU).array();
+
+        Rcpp::Rcout << m_theta2cur << std::endl;
     }
 
     // zi proba
