@@ -20,7 +20,7 @@ project.sources = function(subpath="pkg") {
     ## list of R files
     file.list = system(paste0("cd ", src.path, " && git ls-files | grep \"\\\\.cpp\""), intern=TRUE)
 
-    file.list = file.list[file.list %in% c("gamPoisFactor_wrapper.cpp", "gamPoisFactorPen_wrapper.cpp", "gamPoisFactorSparse_wrapper.cpp")]
+    file.list = file.list[file.list %in% c("gamPoisFactor_wrapper.cpp", "gamPoisFactorPen_wrapper.cpp", "gamPoisFactorSparse_wrapper.cpp", "gamPoisFactorZI_wrapper.cpp")]
 
     print(file.list)
 
