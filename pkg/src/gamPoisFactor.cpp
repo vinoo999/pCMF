@@ -27,14 +27,10 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <math.h>
-#include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactor.h"
 #include "intermediate.h"
 
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
-
-// [[Rcpp::depends(BH)]]
-using boost::math::digamma;
+#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -141,7 +137,7 @@ namespace countMatrixFactor {
      * @return res l2 squared norm
      */
     double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
-        double res = param1.square().sum() + param2.square().sum();
+        double res = param1.msquare().sum() + param2.msquare().sum();
         return res;
     }
 

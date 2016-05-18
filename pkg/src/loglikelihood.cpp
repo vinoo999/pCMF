@@ -29,10 +29,9 @@
 #include "loglikelihood.h"
 #include "intermediate.h"
 
-#define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
-#define log() unaryExpr(std::ptr_fun<double,double>(log))
-#define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
-#define dirac() unaryExpr(std::ptr_fun<double,double>(intermediate::dirac))
+#define mlog() unaryExpr(std::ptr_fun<double,double>(log))
+#define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
+#define mdirac() unaryExpr(std::ptr_fun<double,double>(intermediate::dirac))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;              // variable size matrix, double precision
@@ -136,7 +135,7 @@ namespace countMatrixFactor {
     double gammaLogLike(const MatrixXd &X, const MatrixXd &param1, const MatrixXd &param2) {
         double res;
         // sum( (param1.ij - 1)*log(X.ij)  + param1.ij*log(param2.ij) - param2.ij * X.ij - lgamma(param1.ij) )
-        res = ( param1.array() * param2.log().array() + (param1.array() - 1) * X.cast<double>().log().array() - param2.array() * X.cast<double>().array() - param1.lgamma().array() ).sum();
+        res = ( param1.array() * param2.mlog().array() + (param1.array() - 1) * X.cast<double>().mlog().array() - param2.array() * X.cast<double>().array() - param1.mlgamma().array() ).sum();
         return res;
     }
 
@@ -151,7 +150,7 @@ namespace countMatrixFactor {
     double poisLogLike(const MatrixXi &X, const MatrixXd &lambda) {
         double res;
         // sum(X.ij * log(lambda.ij) - lambda.ij - lfactorial(X.ij))
-        res = ( X.cast<double>().array() * lambda.log().array() - lambda.array() - (X.cast<double>().array() + 1).lgamma() ).sum();
+        res = ( X.cast<double>().array() * lambda.mlog().array() - lambda.array() - (X.cast<double>().array() + 1).mlgamma() ).sum();
         return(res);
     }
 
@@ -173,8 +172,8 @@ namespace countMatrixFactor {
         int p(X.cols());
         // sum( log( (1-pi.ij) * delta_0(X.ij) + pi.ij * Poisson(X.ij, lambda.ij) ))
         // sum( (1 - delta_0(X.ij)) * (X.ij * log(lambda.ij) - lambda.ij - lfactorial(X.ij)) + delta_0(X.ij) * log( (1-pi.ij) + pi.ij * Poisson(X.ij, lambda.ij) ) )
-        res1 = ((1 - X.cast<double>().dirac().array()) * ( X.cast<double>().array() * lambda.log().array() - lambda.array() - (X.array() + 1).lgamma() )).sum();
-        res2 = (( X.cast<double>().dirac().array()) * ( 1 - pi.array() + pi.array() * (X.cast<double>().array() * lambda.log().array() - lambda.array() - (X.cast<double>().array() + 1).lgamma().array()).exp() )).log().sum();
+        res1 = ((1 - X.cast<double>().mdirac().array()) * ( X.cast<double>().array() * lambda.mlog().array() - lambda.array() - (X.array() + 1).mlgamma() )).sum();
+        res2 = (( X.cast<double>().mdirac().array()) * ( 1 - pi.array() + pi.array() * (X.cast<double>().array() * lambda.mlog().array() - lambda.array() - (X.cast<double>().array() + 1).mlgamma().array()).exp() )).mlog().sum();
         //std::cout << X.cast<double>().unaryExpr(std::pointer_to_unary_function<double,double>(dirac)) << std::endl; //.array().sum;
         return res1+res2;
     }
@@ -193,7 +192,7 @@ namespace countMatrixFactor {
         double res;
         // sum(X.ij * log(lambda0.ij) - X.ij - lfactorial(X.ij))
         // lambda0 = X (where 0 are replaced by 1 for convention 0 * log 0 = 0)
-        res = ( X.cast<double>().array() * lambda0.log().array() - X.cast<double>().array() - (X.cast<double>().array() + 1).lgamma() ).sum();
+        res = ( X.cast<double>().array() * lambda0.mlog().array() - X.cast<double>().array() - (X.cast<double>().array() + 1).mlgamma() ).sum();
         return(res);
     }
 
@@ -208,8 +207,8 @@ namespace countMatrixFactor {
      * @return effective value
      */
     double poisDeviance(const MatrixXi &X, const MatrixXd &lambda, const MatrixXd &lambda0) {
-        double res1 = ( X.cast<double>().array() * lambda.log().array() - lambda.array() ).sum();
-        double res2 = ( X.cast<double>().array() * lambda0.log().array() - X.cast<double>().array() ).sum();
+        double res1 = ( X.cast<double>().array() * lambda.mlog().array() - lambda.array() ).sum();
+        double res2 = ( X.cast<double>().array() * lambda0.mlog().array() - X.cast<double>().array() ).sum();
         double res = -2*(res1 - res2);
         return(res);
     }

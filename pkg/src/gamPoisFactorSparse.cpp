@@ -31,9 +31,6 @@
 #include <vector>
 #include "gamPoisFactorSparse.h"
 
-#define sqrt() unaryExpr(std::ptr_fun<double,double>(std::sqrt))
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
-
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
 using Eigen::MatrixXd;                  // variable size matrix, double precision

@@ -29,7 +29,7 @@
 
 #include "explainedVariance.h"
 
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
+#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;              // variable size matrix, double precision
@@ -97,7 +97,7 @@ namespace countMatrixFactor {
      */
     double expVar0(const MatrixXi &X, const MatrixXd &U, const MatrixXd &V) {
         double res;
-        res = (double) 1 - ( X.cast<double>().array() - (U * V.transpose()).array()).square().sum() / ( X.cast<double>().square().sum() );
+        res = (double) 1 - ( X.cast<double>().array() - (U * V.transpose()).array()).msquare().sum() / ( X.cast<double>().msquare().sum() );
         return res;
     }
 

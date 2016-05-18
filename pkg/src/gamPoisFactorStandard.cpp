@@ -29,17 +29,11 @@
 #include <math.h>
 #include <cstdio>
 #include <vector>
-#include <boost/math/special_functions/digamma.hpp>
 #include "gamPoisFactorStandard.h"
 
-#define exp() unaryExpr(std::ptr_fun<double,double>(std::exp))
-#define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
-#define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
-#define log() unaryExpr(std::ptr_fun<double,double>(std::log))
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
-
-// [[Rcpp::depends(BH)]]
-using boost::math::digamma;
+#define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
+#define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
+#define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -149,23 +143,23 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).lgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
+        double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
         //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
-        double res2 = ( m_X.cast<double>().array() * (m_ElogU.exp() * m_ElogV.exp().transpose()).log().array()).sum();
+        double res2 = ( m_X.cast<double>().array() * (m_ElogU.mexp() * m_ElogV.mexp().transpose()).mlog().array()).sum();
         //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
 
-        double res3 = ( (m_alpha1.array() - 1) * m_ElogU.array() + m_alpha1.array() * m_alpha2.log().array()
-                        - m_alpha2.array() * m_EU.array() - m_alpha1.lgamma().array() ).sum();
+        double res3 = ( (m_alpha1.array() - 1) * m_ElogU.array() + m_alpha1.array() * m_alpha2.mlog().array()
+                        - m_alpha2.array() * m_EU.array() - m_alpha1.mlgamma().array() ).sum();
         //Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
-        double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.log().array()
-                                   - m_phi2cur.array() * m_EU.array() - m_phi1cur.lgamma().array() ).sum();
+        double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
+                                   - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
         //Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
 
-        double res5 = ( (m_beta1.array() - 1) * m_ElogV.array() + m_beta1.array() * m_beta2.log().array()
-                            - m_beta2.array() * m_EV.array() - m_beta1.lgamma().array() ).sum();
+        double res5 = ( (m_beta1.array() - 1) * m_ElogV.array() + m_beta1.array() * m_beta2.mlog().array()
+                            - m_beta2.array() * m_EV.array() - m_beta1.mlgamma().array() ).sum();
         //Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
-        double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.log().array()
-                                   - m_theta2cur.array() * m_EV.array() - m_theta1cur.lgamma().array() ).sum();
+        double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
+                                   - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
         //Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
 
         double res = res1 + res2 + res3 + res4 + res5 + res6;
@@ -222,8 +216,8 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        m_EZ_j = m_ElogU.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix() * m_ElogV.exp() ).array();
-        m_EZ_i = m_ElogV.exp().array() * ( (m_X.cast<double>().array() / (m_ElogU.exp() * m_ElogV.exp().transpose()).array() ).matrix().transpose() * m_ElogU.exp() ).array();
+        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / (m_ElogU.mexp() * m_ElogV.mexp().transpose()).array() ).matrix() * m_ElogV.mexp() ).array();
+        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / (m_ElogU.mexp() * m_ElogV.mexp().transpose()).array() ).matrix().transpose() * m_ElogU.mexp() ).array();
     }
 
     /*!

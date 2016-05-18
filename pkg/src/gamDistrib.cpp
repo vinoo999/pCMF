@@ -30,10 +30,10 @@
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamDistrib.h"
 
-#define digamma() unaryExpr(std::ptr_fun<double,double>(digamma))
-#define lgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
-#define log() unaryExpr(std::ptr_fun<double,double>(std::log))
-#define square() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
+#define mdigamma() unaryExpr(std::ptr_fun<double,double>(digamma))
+#define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
+#define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
+#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
@@ -73,7 +73,7 @@ namespace countMatrixFactor {
     * of parameters
     */
     void Elgam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res) {
-        res = param1.digamma().array() - param2.log().array();
+        res = param1.mdigamma().array() - param2.mlog().array();
     }
 
     /*!
@@ -89,8 +89,8 @@ namespace countMatrixFactor {
      * of parameters
      */
     void entropyGam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res) {
-        res = (1-param1.array()) * param1.digamma().array() + param1.array()
-        + param1.lgamma().array() - param2.log().array();
+        res = (1-param1.array()) * param1.mdigamma().array() + param1.array()
+        + param1.mlgamma().array() - param2.mlog().array();
     }
 
 
@@ -113,7 +113,7 @@ namespace countMatrixFactor {
         Rcpp::NumericVector sample = Rcpp::rgamma(n, param1, param2);
         VectorXd sample2 = Rcpp::as<Map<VectorXd> >(sample);
         double mean = sample2.mean();
-        double var = sample2.square().mean() - std::pow(mean,2);
+        double var = sample2.msquare().mean() - std::pow(mean,2);
         param1e = std::pow(mean,2) / var;
         param2e = mean / var;
     }
