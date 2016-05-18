@@ -63,7 +63,7 @@ namespace intermediate {
         int n = X.rows();
         int p = X.cols();
         for(int i=0; i<n; i++) {
-            for(int j=0; j<n; j++) {
+            for(int j=0; j<p; j++) {
                 if(X(i,j) == 0) {
                     X(i,j) = X(i,j) + 1;
                 }
