@@ -208,7 +208,9 @@ namespace countMatrixFactor {
      * @return effective value
      */
     double poisDeviance(const MatrixXi &X, const MatrixXd &lambda, const MatrixXd &lambda0) {
-        double res = -2*(poisLogLike(X, lambda) - poisLogLikeSaturated(X, lambda0));
+        double res1 = ( X.cast<double>().array() * lambda.log().array() - lambda.array() ).sum();
+        double res2 = ( X.cast<double>().array() * lambda0.log().array() - X.cast<double>().array() ).sum();
+        double res = -2*(res1 - res2);
         return(res);
     }
 }
