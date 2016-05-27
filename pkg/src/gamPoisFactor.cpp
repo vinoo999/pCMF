@@ -27,6 +27,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <math.h>
+#include <cstdio>
 #include "gamPoisFactor.h"
 #include "intermediate.h"
 
@@ -71,6 +72,10 @@ namespace countMatrixFactor {
         m_X = MatrixXi(X);
         m_lambda0 = MatrixXd(X.cast<double>());
         intermediate::eraseZero(m_lambda0);
+
+        Rcpp::Rcout << "min lambda0 = " << m_lambda0.minCoeff() << std::endl;
+        Rcpp::Rcout << "max lambda0 = " << m_lambda0.maxCoeff() << std::endl;
+
         m_lambda = MatrixXd::Zero(n, p);
 
         // variational parameters
