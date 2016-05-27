@@ -7,6 +7,9 @@ rm(list=ls())
 source("/home/durif/source_code/countMatrixFactor/set_working_dir.R")
 source("sources/projectSources.R")
 
+library(fields)
+library(ggplot2)
+
 
 ######################
 ### Cpp version
@@ -84,3 +87,13 @@ str(res3)
 U = data1$X %*% res3$rotation[,1:10]
 plot(U, col=blockAlpha1$idRows)
 image.plot(U, xaxt="n", yaxt="n", xlab="i", ylab="k")
+
+
+### NMF
+source("/home/durif/source_code/countMatrixFactorArchives/sources/light.sources.R")
+
+res2 = nmfCall(data1$X, ncomp=ncomp)
+str(res2)
+
+plot(res2$deviance, type="l", col="red", xlab="comp", ylab="deviance")
+points(res1$criteria_k$kDeviance, type="l", col="blue")
