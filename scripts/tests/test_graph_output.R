@@ -89,11 +89,5 @@ plot(U, col=blockAlpha1$idRows)
 image.plot(U, xaxt="n", yaxt="n", xlab="i", ylab="k")
 
 
-### NMF
-source("/home/durif/source_code/countMatrixFactorArchives/sources/light.sources.R")
-
-res2 = nmfCall(data1$X, ncomp=ncomp)
-str(res2)
-
-plot(res2$deviance, type="l", col="red", xlab="comp", ylab="deviance")
-points(res1$criteria_k$kDeviance, type="l", col="blue")
+### ELBO
+plot(res1$logLikelihood$elbo)
