@@ -104,7 +104,6 @@ namespace countMatrixFactor {
 
         // Multinomial Z parameters
         this->multinomParam();
-
     }
 
     //-------------------//
@@ -307,7 +306,7 @@ namespace countMatrixFactor {
             this->computeExpVar(iter);
             // convergence
             //Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
-            this-> assessConvergence(iter, nstab);
+            this->assessConvergence(iter, nstab);
             // increment values of parameters
             //Rcpp::Rcout << "algorithm: next iteration" << std::endl;
             this->nextIterate();

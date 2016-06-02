@@ -37,14 +37,9 @@ using Eigen::MatrixXd;                  // variable size matrix, double precisio
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
 
-/*!
- * \namespace countMatrixFactor
- *
- * A common namespace for the entire package
- */
 namespace countMatrixFactor {
     /*!
-     * \class gamPoisFactor
+     * \class gamPoisFactorStandard
      * \brief class to process variational inference in Gamma Poisson Factor Model
      *
      * MODEL
