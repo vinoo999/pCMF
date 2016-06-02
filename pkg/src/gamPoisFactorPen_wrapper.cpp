@@ -27,7 +27,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <cstdio>
-#include "gamPoisFactorPen.h"
+#include "internal/gamPoisFactorPen.h"
 
 using namespace countMatrixFactor;
 
