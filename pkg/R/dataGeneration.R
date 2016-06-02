@@ -39,30 +39,30 @@
 #' @author
 #' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
 #'
-#'@param n number of observations (nb of rows)
-#'@param p number of variables (nb of columns)
-#'@param K number of latent factors (dimension of latent subspace)
-#'@param alpha1 matrix n x K, first parameters for the prior distribution on U
-#'@param alpĥa2 matrix n x K, second parameters for the prior distribution on U
-#'@param beta1 matrix n x K, first parameters for the prior distribution on V
-#'@param beta2 matrix n x K, second parameters for the prior distribution on U
-#'@param ZI boolean, indicating if the data are zero-inflated (default is FALSE)
-#'@param prob0 vector of Bernoulli probability for zero-inflation
-#'(default is NULL), length p, one probability per variable
+#' @param n number of observations (nb of rows)
+#' @param p number of variables (nb of columns)
+#' @param K number of latent factors (dimension of latent subspace)
+#' @param alpha1 matrix n x K, first parameters for the prior distribution on U
+#' @param alpĥa2 matrix n x K, second parameters for the prior distribution on U
+#' @param beta1 matrix n x K, first parameters for the prior distribution on V
+#' @param beta2 matrix n x K, second parameters for the prior distribution on U
+#' @param ZI boolean, indicating if the data are zero-inflated (default is FALSE)
+#' @param prob0 vector of Bernoulli probability for zero-inflation
+#' (default is NULL), length p, one probability per variable
 #'
-#'@return list containing the following
-#'\item{X}{data matrix n x p of counts}
-#'\item{U}{matrix n x K of factor coordinates (in observation space)}
-#'\item{V}{matrix p x K of factor loadings (in variable space)}
-#'\item{n}{number of observations (or rows in X)}
-#'\item{p}{number of variables (or columns in X)}
-#'\item{K}{number of latent factors (dimension of latent subspace)}
-#'\item{alpha1}{matrix n x K, first parameters for the prior distribution on U}
-#'\item{alpĥa2}{matrix n x K, second parameters for the prior distribution on U}
-#'\item{beta1}{matrix n x K, first parameters for the prior distribution on V}
-#'\item{beta2}{matrix n x K, second parameters for the prior distribution on U}
-#'\item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
-#'\item{prob0}{vector of Bernoulli probability for zero-inflation}
+#' @return list containing the following
+#' \item{X}{data matrix n x p of counts}
+#' \item{U}{matrix n x K of factor coordinates (in observation space)}
+#' \item{V}{matrix p x K of factor loadings (in variable space)}
+#' \item{n}{number of observations (or rows in X)}
+#' \item{p}{number of variables (or columns in X)}
+#' \item{K}{number of latent factors (dimension of latent subspace)}
+#' \item{alpha1}{matrix n x K, first parameters for the prior distribution on U}
+#' \item{alpĥa2}{matrix n x K, second parameters for the prior distribution on U}
+#' \item{beta1}{matrix n x K, first parameters for the prior distribution on V}
+#' \item{beta2}{matrix n x K, second parameters for the prior distribution on U}
+#' \item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
+#' \item{prob0}{vector of Bernoulli probability for zero-inflation}
 #'
 
 dataGeneration = function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob0=NULL) {

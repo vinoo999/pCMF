@@ -34,13 +34,13 @@
 #'
 #' @param nrow number of rows
 #' @param ncol number of columns
-#' @param nblock number of blocks in rows and cols
+#' @param nRowBlock number of blocks in rows and cols
+#' @param nColBlock number of blocks in rows and cols
 #' @param signalBlock matrix nrow x ncol of parameters used to generate
 #' the matrix entries within each block
 #'
 #' @return list containing the following
 #' \item{mat}{block matrix}
-#' \item{U}{matrix n x K of factor coordinates (in observation space)}
 #' \item{signalBlock}{see input parameters}
 #' \item{idRows}{vector indicating the division of rows into blocks}
 #' \item{idRows}{vector indicating the division of columns into blocks}
