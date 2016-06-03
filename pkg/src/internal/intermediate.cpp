@@ -28,7 +28,13 @@
 #include <RcppEigen.h>
 #include <math.h>
 #include <cstdio>
+#include <boost/math/special_functions/digamma.hpp>
+#include <boost/math/special_functions/trigamma.hpp>
 #include "intermediate.h"
+
+// [[Rcpp::depends(BH)]]
+using boost::math::digamma;
+using boost::math::trigamma;
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -110,4 +116,33 @@ namespace intermediate {
     void checkMat(const MatrixXd &A) {
         Rcpp::Rcout << "dimension: " << A.rows() << " x " << A.cols() << " / min = " << A.minCoeff() << " / max = " << A.maxCoeff() << std::endl;
     }
+
+    /*!
+     * \fn inverse digamma (psi) function
+     *
+     * find the solution in x with y given of y = psi(x)
+     *
+     * @param[in] y the value of the digamma function
+     * @return the corresponding x
+     */
+    double psiInv(double y, int nbIter=6) {
+        double x0 = 0;
+        double x = 0;
+
+        // init
+        if(y >= -2.22) {
+            x0 = std::exp(y) + 0.5;
+        } else {
+            x0 = -1/(y-digamma(1));
+        }
+
+        // iter
+        for(int i=0; i<nbIter; i++) {
+            x = x0 - (digamma(x0) - y)/trigamma(x0);
+            x0 = x;
+        }
+
+        return x;
+    }
+
 }
