@@ -633,7 +633,7 @@ namespace countMatrixFactor {
                                               Rcpp::Named("orderExpVarU") = m_orderExpVarU,
                                               Rcpp::Named("orderExpVarV") = m_orderExpVarV);
 
-       Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
+        Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
                                                   Rcpp::Named("kExpVar0") = m_kExpVar0,
                                                   Rcpp::Named("kExpVarU") = m_kExpVarU,
                                                   Rcpp::Named("kExpVarV") = m_kExpVarV);
