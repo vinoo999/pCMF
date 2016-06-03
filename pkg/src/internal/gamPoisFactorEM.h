@@ -61,8 +61,15 @@ namespace countMatrixFactor {
     class gamPoisFactorEM : public gamPoisFactorStandard {
 
     protected:
-        int m_iterMax_Estep;    /*!< max nb of iterations in E-step (variational) */
-        int m_iterMax_Vstep;    /*!< max nb of iterations in M-step */
+        int m_iterMax_Estep;        /*!< max nb of iterations in E-step (variational) */
+        int m_iterMax_Mstep;        /*!< max nb of iterations in M-step */
+
+        VectorXd m_nbIter_Estep;    /*!< nb of iterations in each E-step */
+        VectorXd m_nbIter_Mstep;    /*!< nb of iterations in each M-step */
+
+        int m_iter;             /*!< current iterations in EM algo */
+        int m_globalIter;       /*!< current inner iterations (counting all E-steps and M-steps) */
+        int m_nbGlobalIter;     /*!< number of inner effective iterations */
 
         bool m_converged_Estep;       /*!< status of convergence in E-step */
         bool m_converged_Mstep;       /*!< status of convergence in M-step */
@@ -71,14 +78,8 @@ namespace countMatrixFactor {
         VectorXd m_normGap_Mstep;         /*!< normalized gap between two iterates (to assess convergence) in M-step */
 
         // prior parameters
-        MatrixXd m_alpha1cur;       /*!< n x K, current values of first parameter of Gamma prior distribution on U */
-        MatrixXd m_alpha2cur;       /*!< n x K, current values of second parameter of Gamma prior distribution on U */
-
         MatrixXd m_alpha1old;       /*!< n x K, previous values of first parameter of Gamma prior distribution on U */
         MatrixXd m_alpha2old;       /*!< n x K, previous values of second parameter of Gamma prior distribution on U */
-
-        MatrixXd m_beta1cur;     /*!< p x K, current values of first parameter of Gamma prior distribution on V */
-        MatrixXd m_beta2cur;     /*!< p x K, current values of second parameter of Gamma prior distribution on V */
 
         MatrixXd m_beta1old;     /*!< p x K, previous values of first parameter of Gamma prior distribution on V */
         MatrixXd m_beta2old;     /*!< p x K, previous values of second parameter of Gamma prior distribution on V */
@@ -126,6 +127,12 @@ namespace countMatrixFactor {
 
         // global parameters: beta (factor V)
         void globalPriorParam();
+
+        // update parameters between iterations
+        void nextIterateEstep();
+
+        // update parameters between iterations
+        void nextIterateMstep();
 
         //-------------------//
         //     algorithm     //
