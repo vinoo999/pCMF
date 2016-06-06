@@ -26,6 +26,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include <iostream>
 #include "gamPoisFactorEM.h"
 #include "intermediate.h"
 
@@ -77,17 +78,17 @@ namespace countMatrixFactor {
         m_beta2old = MatrixXd(m_beta2);
 
         // criteria
-        m_expVar0 = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_expVarU = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_expVarV = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
+        m_expVar0 = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_expVarU = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_expVarV = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
 
-        m_margLogLike = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_condLogLike = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_priorLogLike = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_postLogLike = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_compLogLike = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_elbo = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
-        m_deviance = VectorXd::Zero(iterMax * iterMax_Estep * iterMax_Mstep);
+        m_margLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_condLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_priorLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_postLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_compLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_elbo = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        m_deviance = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
     }
 
     // DESTRUCTOR
@@ -105,10 +106,13 @@ namespace countMatrixFactor {
         int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
         int iter = 0;
 
+        //Rcpp::Rcout << "m_iter " << m_iter << std::endl;
+        //Rcpp::Rcout << "m_globalIter " << m_globalIter << std::endl;
+
         while( (iter < m_iterMax_Estep) && (m_converged_Estep==false)) {
 
             if(m_verbose==true) {
-                Rcpp::Rcout << "E-step : iter " << iter << std::endl;
+                //Rcpp::Rcout << "E-step : iter " << iter << std::endl;
             }
 
             // Multinomial parameters
@@ -171,10 +175,13 @@ namespace countMatrixFactor {
         int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
         int iter = 0;
 
+        //Rcpp::Rcout << "m_iter " << m_iter << std::endl;
+        //Rcpp::Rcout << "m_globalIter " << m_globalIter << std::endl;
+
         while( (iter < m_iterMax_Mstep) && (m_converged_Mstep==false)) {
 
             if(m_verbose==true) {
-                Rcpp::Rcout << "M-step : iter " << iter << std::endl;
+                //Rcpp::Rcout << "M-step : iter " << iter << std::endl;
             }
 
             // local parameters
@@ -201,7 +208,7 @@ namespace countMatrixFactor {
             this->computeExpVar(m_globalIter);
             // convergence
             //Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
-            this->assessConvergenceEstep(iter, nstab);
+            this->assessConvergenceMstep(iter, nstab);
             // increment values of parameters
             //Rcpp::Rcout << "algorithm: next iteration" << std::endl;
             this->nextIterateMstep();
@@ -218,13 +225,13 @@ namespace countMatrixFactor {
         m_converged = false;
         // Iteration
         int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
-        int iter = 0;
 
-        while( (iter < m_iterMax) && (m_converged==false)) {
+        while( (m_iter < m_iterMax) && (m_converged==false)) {
 
             if(m_verbose==true) {
                 Rcpp::Rcout << "################" << std::endl;
-                Rcpp::Rcout << "iter " << iter << std::endl;
+                Rcpp::Rcout << "iter " << m_iter << std::endl;
+                Rcpp::Rcout << "globalIter " << m_globalIter << std::endl;
             }
 
             // E-step
@@ -235,10 +242,10 @@ namespace countMatrixFactor {
 
             // convergence
             //Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
-            this->assessConvergence(iter, nstab);
+            this->assessConvergence(m_iter, nstab);
 
             // increment iteration
-            iter++;
+            m_iter++;
         }
     }
 
@@ -304,6 +311,9 @@ namespace countMatrixFactor {
             m_nbIter_Estep(m_iter) = iter;
         } else {
             if(iter == m_iterMax_Estep - 1) {
+                Rcpp::Rcout << "convergence ?" << std::endl;
+                Rcpp::Rcout << "iter = " << iter << std::endl;
+                Rcpp::Rcout << "m_iter = " << m_iter << std::endl;
                 m_nbIter_Estep(m_iter) = iter;
             }
         }
@@ -383,6 +393,12 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorEM::returnObject(Rcpp::List &results) {
 
+        Rcpp::Rcout << "nb Global iter = " << m_nbGlobalIter << std::endl;
+        Rcpp::Rcout << " nb iter E-step = " << m_nbIter_Estep << std::endl;
+        Rcpp::Rcout << " nb iter M-step = " << m_nbIter_Mstep << std::endl;
+
+
+        Rcpp::Rcout << "loglikelihood" << std::endl;
         Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbGlobalIter),
                                                       Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbGlobalIter),
                                                       Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbGlobalIter),
@@ -390,10 +406,12 @@ namespace countMatrixFactor {
                                                       Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbGlobalIter),
                                                       Rcpp::Named("elbo") = m_elbo.head(m_nbGlobalIter));
 
+        Rcpp::Rcout << "expVariance" << std::endl;
         Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbGlobalIter),
                                                     Rcpp::Named("expVarU") = m_expVarU.head(m_nbGlobalIter),
                                                     Rcpp::Named("expVarV") = m_expVarV.head(m_nbGlobalIter));
 
+        Rcpp::Rcout << "params" << std::endl;
         Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
                                                Rcpp::Named("phi2") = m_phi2cur,
                                                Rcpp::Named("theta1") = m_theta1cur,
@@ -403,25 +421,35 @@ namespace countMatrixFactor {
                                                Rcpp::Named("beta1") = m_beta1,
                                                Rcpp::Named("beta2") = m_beta2);
 
+        Rcpp::Rcout << "stats" << std::endl;
         Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
                                               Rcpp::Named("EV") = m_EV,
                                               Rcpp::Named("ElogU") = m_ElogU,
                                               Rcpp::Named("ElogV") = m_ElogV);
 
+        Rcpp::Rcout << "order" << std::endl;
         Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
                                               Rcpp::Named("orderExpVar0") = m_orderExpVar0,
                                               Rcpp::Named("orderExpVarU") = m_orderExpVarU,
                                               Rcpp::Named("orderExpVarV") = m_orderExpVarV);
 
+        Rcpp::Rcout << "criteria_k" << std::endl;
         Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
                                                    Rcpp::Named("kExpVar0") = m_kExpVar0,
                                                    Rcpp::Named("kExpVarU") = m_kExpVarU,
                                                    Rcpp::Named("kExpVarV") = m_kExpVarV);
 
+        Rcpp::Rcout << "EM" << std::endl;
         Rcpp::List EM = Rcpp::List::create(Rcpp::Named("normGap_Estep") = m_normGap_Estep.head(m_nbIter_Estep.sum()),
                                            Rcpp::Named("normGap_Mstep") = m_normGap_Mstep.head(m_nbIter_Mstep.sum()),
                                            Rcpp::Named("nbIter_Estep") = m_normGap_Estep.head(m_nbIter),
                                            Rcpp::Named("nbIter_Mstep") = m_normGap_Estep.head(m_nbIter));
+
+        Rcpp::Rcout << "returnObj" << std::endl;
+        Rcpp::Rcout << "nbIter = " << m_nbIter << std::endl;
+        Rcpp::Rcout << "m_normGap size = " << m_normGap.size() << std::endl;
+        Rcpp::Rcout << "m_nbGlobalIter = " << m_nbGlobalIter << std::endl;
+        Rcpp::Rcout << "m_deviance size = " << m_deviance.size() << std::endl;
 
         Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
                                                   Rcpp::Named("V") = m_EV,
@@ -441,6 +469,4 @@ namespace countMatrixFactor {
 
         results = tmp;
     }
-
-
 }
