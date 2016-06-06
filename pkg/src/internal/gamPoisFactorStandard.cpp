@@ -550,11 +550,11 @@ namespace countMatrixFactor {
 
                 MatrixXd lambda = tmpU * tmpV.transpose();
 
-                Rcpp::Rcout << "min lambda = " << lambda.minCoeff() << std::endl;
-                Rcpp::Rcout << "max lambda = " << lambda.maxCoeff() << std::endl;
+                //Rcpp::Rcout << "min lambda = " << lambda.minCoeff() << std::endl;
+                //Rcpp::Rcout << "max lambda = " << lambda.maxCoeff() << std::endl;
 
-                Rcpp::Rcout << "min lambda0 = " << m_lambda0.minCoeff() << std::endl;
-                Rcpp::Rcout << "max lambda0 = " << m_lambda0.maxCoeff() << std::endl;
+                //Rcpp::Rcout << "min lambda0 = " << m_lambda0.minCoeff() << std::endl;
+                //Rcpp::Rcout << "max lambda0 = " << m_lambda0.maxCoeff() << std::endl;
 
                 double res = poisDeviance(m_X, lambda, m_lambda0);
                 if(ind==0) {
