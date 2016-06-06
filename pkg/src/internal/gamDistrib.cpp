@@ -28,7 +28,7 @@
 #include <RcppEigen.h>
 #include <math.h>
 #include <boost/math/special_functions/digamma.hpp>
-#include "model/gamDistrib.h"
+#include "internal/gamDistrib.h"
 
 #define mdigamma() unaryExpr(std::ptr_fun<double,double>(digamma))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))

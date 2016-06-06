@@ -29,8 +29,8 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "model/explainedVariance.h"
-#include "model/loglikelihood.h"
+#include "internal/explainedVariance.h"
+#include "internal/loglikelihood.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision

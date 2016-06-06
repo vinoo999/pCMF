@@ -26,8 +26,8 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "model/loglikelihood.h"
-#include "intermediate.h"
+#include "intenral/loglikelihood.h"
+#include "internal/intermediate.h"
 
 #define mlog() unaryExpr(std::ptr_fun<double,double>(log))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))

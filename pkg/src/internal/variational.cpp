@@ -26,7 +26,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "variational.h"
+#include "internal/variational.h"
 
 #define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 

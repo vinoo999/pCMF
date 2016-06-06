@@ -29,11 +29,11 @@
 #include <math.h>
 #include <cstdio>
 #include <vector>
-#include "model/explainedVariance.h"
-#include "model/gamPoisFactor.h"
-#include "model/gamDistrib.h"
-#include "model/intermediate.h"
-#include "model/loglikelihood.h"
+#include "internal/explainedVariance.h"
+#include "internal/gamPoisFactor.h"
+#include "internal/gamDistrib.h"
+#include "internal/intermediate.h"
+#include "internal/loglikelihood.h"
 
 #define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
