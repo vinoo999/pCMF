@@ -29,13 +29,12 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "gamPoisFactor.h"
-#include "intermediate.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
+using Eigen::VectorXi;                  // variable size vector, double precision
 
 namespace countMatrixFactor {
     /*!
@@ -54,7 +53,7 @@ namespace countMatrixFactor {
      *  V_{jk} ~ Gamma(theta_{jk})
      */
 
-    class gamPoisFactor : public gamPoisFactor {
+    class gamPoisFactor {
 
     protected:
         // dimensions
@@ -118,11 +117,11 @@ namespace countMatrixFactor {
          * Constructor of the class gamPoisFactor
          */
         gamPoisFactor(int n, int p, int K,
-                              const MatrixXi &X,
-                              const MatrixXd &phi1, const MatrixXd &phi2,
-                              const MatrixXd &theta1, const MatrixXd &theta2,
-                              const MatrixXd &alpha1, const MatrixXd &alpha2,
-                              const MatrixXd &beta1, const MatrixXd &beta2);
+                      const MatrixXi &X,
+                      const MatrixXd &phi1, const MatrixXd &phi2,
+                      const MatrixXd &theta1, const MatrixXd &theta2,
+                      const MatrixXd &alpha1, const MatrixXd &alpha2,
+                      const MatrixXd &beta1, const MatrixXd &beta2);
 
         /*!
          * \brief Destructor
