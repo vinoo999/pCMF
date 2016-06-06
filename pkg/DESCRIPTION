@@ -5,11 +5,15 @@ Version: 0.1
 Date: 2016-04-22
 Author: Ghislain Durif
 Maintainer: Ghislain Durif <ghislain.durif@univ-lyon1.fr>
-Description: Routines for count matrices factorization. As PCA with gaussian data,
-        we provide a method that factorize matrices of count, taking into account
-        the specific distribution of such data.
+Description: Routines for count matrices factorization. As PCA with gaussian
+    data, we provide a method that factorize matrices of count, taking into account
+    the specific distribution of such data.
 License: GPL (>= 2)
-Imports: Rcpp (>= 0.11.6), RcppEigen (>= 0.3.2.5.0)
-Depends: R (>= 3.0)
+Imports:
+    Rcpp (>= 0.11.6),
+    RcppEigen (>= 0.3.2.5.0)
+Depends:
+    R (>= 3.0)
 LinkingTo: Rcpp, RcppEigen, BH
 LazyData: false
+RoxygenNote: 5.0.1
