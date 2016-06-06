@@ -95,13 +95,6 @@ namespace countMatrixFactor {
             virtual void computeELBO(int iter) = 0;
 
             /*!
-             * \brief evidence lower bound for a specific model
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             */
-            virtual double ELBO() = 0;
-
-            /*!
              * \brief compute deviance between estimated and saturated model
              *
              * Pure virtual member function, to be implemented, depending on the model
@@ -110,12 +103,6 @@ namespace countMatrixFactor {
              */
             virtual void computeDeviance(int iter) = 0;
 
-            /*!
-             * \brief deviance between estimated and saturated model for Poisson model
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             */
-            virtual double deviance() = 0;
         };
 
     // FUNCTIONS
