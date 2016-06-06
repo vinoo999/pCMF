@@ -18,20 +18,22 @@
 
 /*!
  * \file gamPoisFactor.cpp
- * \brief class definition for Gamma Poisson Factor Model  (abstract class)
+ * \brief class definition for standard Gamma Poisson Factor Model
  * \author Ghislain Durif
- * \version 0.1
- * \date 22/04/2016
+ * \version 0.2
+ * \date 04/05/2016
  */
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <math.h>
 #include <cstdio>
+#include <vector>
 #include "gamPoisFactor.h"
-#include "intermediate.h"
 
-#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
+#define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
+#define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
+#define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -39,42 +41,27 @@ using Eigen::MatrixXd;                  // variable size matrix, double precisio
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
 
+using std::vector;
+
 // SRC
 namespace countMatrixFactor {
 
     // CONSTRUCTOR
-    gamPoisFactor::gamPoisFactor(int n, int p, int K, int iterMax, int order,
-                                 int stabRange, double epsilon, bool verbose,
-                                 const MatrixXi &X,
+    gamPoisFactor::gamPoisFactor(int n, int p, int K, const MatrixXi &X,
                                  const MatrixXd &phi1, const MatrixXd &phi2,
                                  const MatrixXd &theta1, const MatrixXd &theta2,
                                  const MatrixXd &alpha1, const MatrixXd &alpha2,
-                                 const MatrixXd &beta1, const MatrixXd &beta2)
-                : loglikelihood(iterMax), explainedVariance(iterMax)
-    {
+                                 const MatrixXd &beta1, const MatrixXd &beta2) {
 
         // dimensions
         m_N = n;
         m_P = p;
         m_K = K;
 
-        // parameters
-        m_iterMax = iterMax;
-        m_order = order;
-        m_stabRange = stabRange;
-        m_epsilon = epsilon;
-        m_verbose = verbose;
-
-        m_converged = false;
-        m_nbIter = 0;
-
         // data
         m_X = MatrixXi(X);
         m_lambda0 = MatrixXd(X.cast<double>());
         intermediate::eraseZero(m_lambda0);
-
-        Rcpp::Rcout << "min lambda0 = " << m_lambda0.minCoeff() << std::endl;
-        Rcpp::Rcout << "max lambda0 = " << m_lambda0.maxCoeff() << std::endl;
 
         m_lambda = MatrixXd::Zero(n, p);
 
@@ -102,13 +89,15 @@ namespace countMatrixFactor {
         m_EZ_j = MatrixXd::Zero(n,K);
 
         // prior parameter
-        m_alpha1 = MatrixXd(alpha1);
-        m_alpha2 = MatrixXd(alpha1);
-        m_beta1 = MatrixXd(beta1);
-        m_beta2 = MatrixXd(beta2);
+        m_alpha1cur = MatrixXd(alpha1);
+        m_alpha2cur = MatrixXd(alpha1);
+        m_beta1cur = MatrixXd(beta1);
+        m_beta2cur = MatrixXd(beta2);
 
-        // criterion
-        m_normGap = VectorXd::Zero(iterMax);
+        m_alpha1old = MatrixXd(alpha1);
+        m_alpha2old = MatrixXd(alpha1);
+        m_beta1old = MatrixXd(beta1);
+        m_beta2old = MatrixXd(beta2);
 
         // order of factors
         m_orderDeviance = VectorXi::Zero(K);
@@ -127,70 +116,583 @@ namespace countMatrixFactor {
     // DESTRUCTOR
     gamPoisFactor::~gamPoisFactor() {}
 
+    // member functions: documented in src
+
+    /*!
+     * \brief Initialization of sufficient statistics
+     */
+    void gamPoisFactor::Init() {
+
+        // Gamma variational parameter
+        Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
+        for(int k=0; k<m_K; k++) {
+            // local parameters
+            for(int i=0; i<m_N; i++) {
+                double param1 = 0;
+                double param2 = 0;
+                estimParam(1000, m_alpha1cur(i,k), m_alpha2cur(i,k), param1, param2);
+                m_phi1cur(i,k) = param1;
+                m_phi1old(i,k) = param1;
+                m_phi2cur(i,k) = param2;
+                m_phi2old(i,k) = param2;
+            }
+            // global parameters
+            for(int j=0; j<m_P; j++) {
+                double param1 = 0;
+                double param2 = 0;
+                estimParam(1000, m_beta1cur(j,k), m_beta2cur(j,k), param1, param2);
+                m_theta1cur(j,k) = param1;
+                m_theta1old(j,k) = param1;
+                m_theta2cur(j,k) = param2;
+                m_theta2old(j,k) = param2;
+            }
+        }
+
+        // sufficient statistics
+        Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
+        Egam(m_phi1cur, m_phi2cur, m_EU);
+        Elgam(m_phi1cur, m_phi2cur, m_ElogU);
+        Egam(m_theta1cur, m_theta2cur, m_EV);
+        Elgam(m_theta1cur, m_theta2cur, m_ElogV);
+
+        // Multinomial Z parameters
+        this->multinomParam();
+    }
 
     //-------------------//
-    //   convergence     //
+    //      criteria     //
     //-------------------//
 
     /*!
-     * \brief l2 squared norm of all parameters
+     * \brief compute conditonal log-likelihood
      *
-     * Computation of sum_{ij} param1_{ij}^2 + param2_{ij}^2
+     * Pure member function, to be implemented, depending on the model
      *
-     * @param[in] param1 rows x cols, matrix of first parameters
-     * @param[in] param2 rows x cols, matrix of second parameters
-     * @return res l2 squared norm
+     * @return the current value (double)
      */
-    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
-        double res = param1.msquare().sum() + param2.msquare().sum();
+    double computeCondLogLike() {
+        double res = poisLogLike(m_X, m_lambda);
         return res;
     }
 
     /*!
-     * \fn difference of squared euclidean norm (on parameters)
-     *
-     * @param[in] param1a matrix of parameters 1 (state a)
-     * @param[in] param2a matrix of parameters 2 (state a)
-     * @param[in] param1b matrix of parameters 1 (state b)
-     * @param[in] param2b matrix of parameters 2 (state b)
-     *
-     * @return sum((param1a - param1b)^2) + sum((param2a-param2b)^2)
-     */
-    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b) {
-        double res = parameterNorm2(param1a - param1b, param2a - param2b);
-        return(res);
+    * \brief compute Prior log-likelihood
+    *
+    * Pure member function, to be implemented, depending on the model
+    *
+    * @return the current value (double)
+    */
+    double computePriorLogLike() {
+        double res = gammaLogLike(m_EU, m_alpha1cur, m_alpha2cur) + gammaLogLike(m_EV, m_beta1cur, m_beta2cur);
+        return res;
     }
 
     /*!
-     * \fn assess convergence condition
-     *
-     * convergence assessed on the normalized gap between two iterates
-     * order 0: value of normalized gap
-     * order 1: first empirical derivative of normalized gap (speed)
-     * order 2: second empirical derivative of normalized gap (acceleration)
-     *
-     * @return value of the condition
-     */
-    double convCondition(int order, const VectorXd &normGap, int iter, int drift) {
-        double condition = 1;
-        switch(order) {
-            case 0 : {
-                condition = normGap(iter-drift);
-            } break;
-
-            case 1 : {
-                if(iter>1) {
-                    condition = normGap(iter-drift) - normGap(iter-drift-1);
-                }
-            } break;
-
-            case 2 : {
-                if(iter>2) {
-                    condition = normGap(iter-drift) - 2*normGap(iter-drift-1) + normGap(iter-drift-2);
-                }
-            } break;
-        }
-        return(condition);
+    * \brief compute Posterior log-likelihood
+    *
+    * Pure member function, to be implemented, depending on the model
+    *
+    * @return the current value (double)
+    */
+    double computePostLogLike() {
+        double res = gammaLogLike(m_EU, m_phi1cur, m_phi2cur) + gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
+        return res;
     }
 
+    /*!
+    * \brief compute complete log-likelihood
+    *
+    * Pure member function, to be implemented, depending on the model
+    *
+    * @return the current value (double)
+    */
+    double computeCompLogLike() {
+        // return m_condLogLike(iter) + m_postLogLike(iter);
+        double res = poisLogLike(m_X, m_lambda) + gammaLogLike(m_EU, m_phi1cur, m_phi2cur) + gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
+        return res;
+    }
+
+    /*!
+    * \brief compute complete log-likelihood
+    *
+    * Pure member function, to be implemented, depending on the model
+    *
+    * @return the current value (double)
+    */
+    double computeMargLogLike() {
+        // return m_condLogLike(iter) + m_priorLogLike(iter) - m_postLogLike(iter);
+        double res = poisLogLike(m_X, m_lambda) + gammaLogLike(m_EU, m_alpha1cur, m_alpha2cur) + gammaLogLike(m_EV, m_beta1cur, m_beta2cur)
+                    - gammaLogLike(m_EU, m_phi1cur, m_phi2cur) - gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
+        return res;
+    }
+
+    /*!
+    * \brief compute evidence lower bound
+    *
+    * Pure member function, to be implemented, depending on the model
+    *
+    * @return the current value (double)
+    */
+    double computeELBO() {
+        intermediate::checkExp(m_ElogU);
+        intermediate::checkExp(m_ElogV);
+
+        double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
+        //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
+        double res2 = ( m_X.cast<double>().array() * (m_ElogU.mexp() * m_ElogV.mexp().transpose()).mlog().array()).sum();
+        //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
+
+        double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
+                            - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
+        double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
+                                   - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
+
+        double res5 = ( (m_beta1cur.array() - 1) * m_ElogV.array() + m_beta1cur.array() * m_beta2cur.mlog().array()
+                            - m_beta2cur.array() * m_EV.array() - m_beta1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
+        double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
+                                   - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
+
+        double res = res1 + res2 + res3 + res4 + res5 + res6;
+
+        return res;
+    }
+
+    /*!
+    * \brief compute deviance between estimated and saturated model
+    *
+    * Pure member function, to be implemented, depending on the model
+    *
+    * @return the current value (double)
+    */
+    double computeDeviance() {
+        double res = poisDeviance(m_X, m_lambda, m_lambda0);
+        return res;
+    }
+
+    /*!
+     * \brief compute explained variance regarding residuals sum of squares
+     *
+     * Pure member function, to be implemented, depending on the model
+     *
+     * @return the current value (double)
+     */
+    double computeExpVar0() {}
+
+    /*!
+     * \brief compute explained variance regarding U
+     *
+     * Pure member function, to be implemented, depending on the model
+     *
+     * @return the current value (double)
+     */
+    double computeExpVarU() {}
+
+    /*!
+     * \brief compute explained variance regarding V
+     *
+     * Pure member function, to be implemented, depending on the model
+     *
+     * @return the current value (double)
+     */
+    double computeExpVarV() {}
+
+
+
+    /*!
+     * \brief compute explained variance
+     *
+     * @param[in] iter current iteration
+     */
+    void gamPoisFactor::computeExpVar(int iter) {
+        m_expVar0(iter) = expVar0(m_X, m_EU, m_EV);
+        m_expVarU(iter) = expVarU(m_X, m_EU);
+        m_expVarV(iter) = expVarV(m_X, m_EV);
+    }
+
+    //-------------------//
+    // parameter updates //
+    //-------------------//
+
+    /*!
+     * \brief update rule for poisson rates in variational inference
+     */
+    void gamPoisFactor::poissonRate() {
+        m_lambda = m_EU * m_EV.transpose();
+    }
+
+    /*!
+     * \brief update rule for multinomial parameters in variational inference
+     */
+    void gamPoisFactor::multinomParam() {
+
+        intermediate::checkExp(m_ElogU);
+        intermediate::checkExp(m_ElogV);
+
+        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / (m_ElogU.mexp() * m_ElogV.mexp().transpose()).array() ).matrix() * m_ElogV.mexp() ).array();
+        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / (m_ElogU.mexp() * m_ElogV.mexp().transpose()).array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+    }
+
+    /*!
+     * \brief update rule for local parameters phi (factor U) in variational inference
+     */
+    void gamPoisFactor::localParam() {
+        m_phi1cur = m_alpha1cur.array() + m_EZ_j.array();
+        m_phi2cur = m_alpha2cur.rowwise() + m_EV.colwise().sum();
+
+        // expectation and log-expectation
+        Egam(m_phi1cur, m_phi2cur, m_EU);
+        Elgam(m_phi1cur, m_phi2cur, m_ElogU);
+    }
+
+    /*!
+     * \brief update rule for global parameters theta (factor V) in variational inference
+     */
+    void gamPoisFactor::globalParam() {
+        m_theta1cur = m_beta1cur.array() + m_EZ_i.array();
+        m_theta2cur = m_beta2cur.rowwise() + m_EU.colwise().sum();
+
+        // expectation and log-expectation
+        Egam(m_theta1cur, m_theta2cur, m_EV);
+        Elgam(m_theta1cur, m_theta2cur, m_ElogV);
+    }
+
+    /*!
+     * \brief update parameters between iterations
+     */
+    void gamPoisFactor::nextIterate() {
+        m_phi1old = m_phi1cur;
+        m_phi2old = m_phi2cur;
+
+        m_theta1old = m_theta1cur;
+        m_theta2old = m_theta2cur;
+    }
+
+
+    //-------------------//
+    //     algorithm     //
+    //-------------------//
+
+    /*!
+     * \brief compute normalized gap between two iterates
+     */
+    double gamPoisFactor::normGap() {
+        double paramNorm = sqrt(parameterNorm2(m_phi1old, m_phi2old) + parameterNorm2(m_theta1old, m_theta2old));
+        double diffNorm = sqrt(differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur) + differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
+
+        res = diffNorm / paramNorm;
+        return res;
+    }
+
+    //-------------------//
+    //   order factors   //
+    //-------------------//
+
+    /*!
+    * \brief order factors according to expVar0
+    *
+    * @param[out] vector of factor order
+    */
+    void gamPoisFactor::orderExpVar0(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Utmp = MatrixXd::Zero(m_EU.rows(), m_EU.cols());
+        MatrixXd Vtmp = MatrixXd::Zero(m_EV.rows(), m_EV.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_max = -1E6;
+            int ind_max = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+                MatrixXd tmpU(m_EU.rows(), k+1);
+                MatrixXd tmpV(m_EV.rows(), k+1);
+
+                tmpU.col(k) = m_EU.col(leftIndex[ind]);
+                tmpV.col(k) = m_EV.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpU.leftCols(k) = Utmp.leftCols(k);
+                    tmpV.leftCols(k) = Vtmp.leftCols(k);
+                }
+
+                double res = expVar0(m_X, tmpU, tmpV);
+                if(res > val_max) {
+                    val_max = res;
+                    ind_max = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_max);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Utmp.col(k) = m_EU.col(ind_max);
+            Vtmp.col(k) = m_EV.col(ind_max);
+
+            // store it
+            m_kExpVar0(k) = val_max;
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief order factors according to expVarU
+     *
+     * @param[out] vector of factor order
+     */
+    void gamPoisFactor::orderExpVarU(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Utmp = MatrixXd::Zero(m_EU.rows(), m_EU.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_max = -1E6;
+            int ind_max = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+                MatrixXd tmpU(m_EU.rows(), k+1);
+                tmpU.col(k) = m_EU.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpU.leftCols(k) = Utmp.leftCols(k);
+                }
+
+                double res = expVarU(m_X, tmpU);
+                if(res > val_max) {
+                    val_max = res;
+                    ind_max = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_max);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Utmp.col(k) = m_EU.col(ind_max);
+
+            // store it
+            m_kExpVarU(k) = val_max;
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief order factors according to expVarV
+     *
+     * @param[out] vector of factor order
+     */
+    void gamPoisFactor::orderExpVarV(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Vtmp = MatrixXd::Zero(m_EV.rows(), m_EV.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_max = -1E6;
+            int ind_max = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+                MatrixXd tmpV(m_EV.rows(), k+1);
+                tmpV.col(k) = m_EV.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpV.leftCols(k) = Vtmp.leftCols(k);
+                }
+
+                double res = expVarV(m_X, tmpV);
+                if(res > val_max) {
+                    val_max = res;
+                    ind_max = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_max);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Vtmp.col(k) = m_EV.col(ind_max);
+
+            // store it
+            m_kExpVarV(k) = val_max;
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief order factors according to deviance
+     *
+     * @param[out] vector of factor order
+     */
+    void gamPoisFactor::orderDeviance(VectorXi &order) {
+        vector<int> leftIndex;
+        vector<int> chosenIndex;
+
+        MatrixXd Utmp = MatrixXd::Zero(m_EU.rows(), m_EU.cols());
+        MatrixXd Vtmp = MatrixXd::Zero(m_EV.rows(), m_EV.cols());
+
+        // init
+        for(int k=0; k<m_K; k++) {
+            leftIndex.push_back(k);
+        }
+
+        // ordering
+        for(int k=0; k<m_K; k++) {
+            double val_min = 0;
+            int ind_min = 0;
+            int ind_left = 0;
+            for(int ind=0; ind<leftIndex.size(); ind++) {
+
+                MatrixXd tmpU(m_EU.rows(), k+1);
+                MatrixXd tmpV(m_EV.rows(), k+1);
+
+                tmpU.col(k) = m_EU.col(leftIndex[ind]);
+                tmpV.col(k) = m_EV.col(leftIndex[ind]);
+
+                if(k!=0) {
+                    tmpU.leftCols(k) = Utmp.leftCols(k);
+                    tmpV.leftCols(k) = Vtmp.leftCols(k);
+                }
+
+                MatrixXd lambda = tmpU * tmpV.transpose();
+
+                //Rcpp::Rcout << "min lambda = " << lambda.minCoeff() << std::endl;
+                //Rcpp::Rcout << "max lambda = " << lambda.maxCoeff() << std::endl;
+
+                //Rcpp::Rcout << "min lambda0 = " << m_lambda0.minCoeff() << std::endl;
+                //Rcpp::Rcout << "max lambda0 = " << m_lambda0.maxCoeff() << std::endl;
+
+                double res = poisDeviance(m_X, lambda, m_lambda0);
+                if(ind==0) {
+                    val_min = res;
+                    ind_min = leftIndex[ind];
+                    ind_left = ind;
+                }
+                if(res < val_min) {
+                    val_min = res;
+                    ind_min = leftIndex[ind];
+                    ind_left = ind;
+                }
+            }
+            // max found
+            chosenIndex.push_back(ind_min);
+            leftIndex.erase(leftIndex.begin() + ind_left);
+
+            Utmp.col(k) = m_EU.col(ind_min);
+            Vtmp.col(k) = m_EV.col(ind_min);
+
+            // store it
+            m_kDeviance(k) = val_min;
+
+        }
+
+        // return
+        for(int k=0; k<m_K; k++) {
+            order(k) = chosenIndex[k] + 1;
+        }
+    }
+
+    /*!
+     * \brief compute factor order
+     */
+    void gamPoisFactor::computeOrder() {
+        this->orderExpVar0(m_orderExpVar0);
+        this->orderExpVarU(m_orderExpVarU);
+        this->orderExpVarV(m_orderExpVarV);
+        this->orderDeviance(m_orderDeviance);
+    }
+
+
+    //-------------------//
+    //       return      //
+    //-------------------//
+
+    /*!
+     * \brief create list with results to be return
+     *
+     * @param[out] list containing output
+     */
+    void gamPoisFactor::returnObject(Rcpp::List &results) {
+        Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
+                                                      Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
+                                                      Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
+                                                      Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
+                                                      Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
+                                                      Rcpp::Named("elbo") = m_elbo.head(m_nbIter));
+
+        Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
+                                                    Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
+                                                    Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
+
+        Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
+                                               Rcpp::Named("phi2") = m_phi2cur,
+                                               Rcpp::Named("theta1") = m_theta1cur,
+                                               Rcpp::Named("theta2") = m_theta2cur);
+
+        Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
+                                              Rcpp::Named("EV") = m_EV,
+                                              Rcpp::Named("ElogU") = m_ElogU,
+                                              Rcpp::Named("ElogV") = m_ElogV);
+
+        Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
+                                              Rcpp::Named("orderExpVar0") = m_orderExpVar0,
+                                              Rcpp::Named("orderExpVarU") = m_orderExpVarU,
+                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV);
+
+        Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
+                                                  Rcpp::Named("kExpVar0") = m_kExpVar0,
+                                                  Rcpp::Named("kExpVarU") = m_kExpVarU,
+                                                  Rcpp::Named("kExpVarV") = m_kExpVarV);
+
+        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
+                                                  Rcpp::Named("V") = m_EV,
+                                                  Rcpp::Named("logLikelihood") = logLikelihood,
+                                                  Rcpp::Named("expVariance") = expVariance,
+                                                  Rcpp::Named("params") = params,
+                                                  Rcpp::Named("stats") = stats,
+                                                  Rcpp::Named("order") = order,
+                                                  Rcpp::Named("criteria_k") = criteria_k,
+                                                  Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
+                                                  Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
+                                                  Rcpp::Named("converged") = m_converged,
+                                                  Rcpp::Named("nbIter") = m_nbIter);
+
+        SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
+
+        results = tmp;
+    }
 }

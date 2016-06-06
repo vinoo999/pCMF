@@ -21,29 +21,22 @@
 
 /*!
  * \file gamPoisFactor.h
- * \brief class definition for Gamma Poisson Factor Model (abstract class)
+ * \brief class definition for standard Gamma Poisson Factor Model
  * \author Ghislain Durif
- * \version 0.1
- * \date 22/04/2016
+ * \version 0.2
+ * \date 04/05/2016
  */
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "gamDistrib.h"
-#include "loglikelihood.h"
-#include "explainedVariance.h"
+#include "gamPoisFactor.h"
+#include "intermediate.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
-using Eigen::VectorXi;                  // variable size vector, integer
 
-/*!
- * \namespace countMatrixFactor
- *
- * A common namespace for the entire package
- */
 namespace countMatrixFactor {
     /*!
      * \class gamPoisFactor
@@ -59,27 +52,15 @@ namespace countMatrixFactor {
      *  Z_{ijk} | X,U,V ~ Multinom(omega_{ijk})
      *  U_{ik} ~ Gamma(phi_{ik})
      *  V_{jk} ~ Gamma(theta_{jk})
-     *
-     *  Abstract class: skeleton for the different implementations
      */
 
-    class gamPoisFactor : public loglikelihood, public explainedVariance {
+    class gamPoisFactor : public gamPoisFactor {
+
     protected:
         // dimensions
         int m_N;      /*!< number of observations (rows) */
         int m_P;      /*!< number of variables (columns) */
         int m_K;      /*!< dimension of the latent subspace */
-
-        // parameters
-        int m_iterMax;          /*!< maomegamum number of iterations */
-        int m_order;            /*!< derivative order on normalized gap to assess convergence
-                                (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative) */
-        int m_stabRange;        /*!< range of stability (number of iterations where parameter values are stable to confirm convergence) */
-        double m_epsilon;       /*!< precision for comparison when assessing convergence */
-        bool m_verbose;         /*!< boolean indicating verbosity in the output */
-
-        bool m_converged;       /*!< status of convergence */
-        int m_nbIter;           /*!< number of effective iterations */
 
         // data
         MatrixXi m_X;           /*!< n x p, count data matrix */
@@ -89,13 +70,11 @@ namespace countMatrixFactor {
         // variational parameters
         MatrixXd m_phi1cur;       /*!< n x K, current values of first parameter of Gamma distribution on U */
         MatrixXd m_phi2cur;       /*!< n x K, current values of second parameter of Gamma distribution on U */
-
-        MatrixXd m_phi1old;       /*!< n x K, previous values of first parameter of Gamma distribution on U */
-        MatrixXd m_phi2old;       /*!< n x K, previous values of second parameter of Gamma distribution on U */
-
         MatrixXd m_theta1cur;     /*!< p x K, current values of first parameter of Gamma distribution on V */
         MatrixXd m_theta2cur;     /*!< p x K, current values of second parameter of Gamma distribution on V */
 
+        MatrixXd m_phi1old;       /*!< n x K, previous values of first parameter of Gamma distribution on U */
+        MatrixXd m_phi2old;       /*!< n x K, previous values of second parameter of Gamma distribution on U */
         MatrixXd m_theta1old;     /*!< p x K, previous values of first parameter of Gamma distribution on V */
         MatrixXd m_theta2old;     /*!< p x K, previous values of second parameter of Gamma distribution on V */
 
@@ -110,13 +89,15 @@ namespace countMatrixFactor {
         MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} xi_{ijk} = \sum_j E[Z_{ijk}] */
 
         // prior parameter
-        MatrixXd m_alpha1;         /*!< n x K, values of first parameter of Gamma prior on U */
-        MatrixXd m_alpha2;        /*!< n x K, values of second parameter of prior Gamma prior on U */
-        MatrixXd m_beta1;         /*!< p x K, values of first parameter of prior Gamma prior on V */
-        MatrixXd m_beta2;         /*!< p x K, values of second parameter of prior Gamma prior on V */
+        MatrixXd m_alpha1cur;      /*!< n x K, current values of first parameter of Gamma prior on U */
+        MatrixXd m_alpha2cur;      /*!< n x K, current values of second parameter of prior Gamma prior on U */
+        MatrixXd m_beta1cur;       /*!< p x K, current values of first parameter of prior Gamma prior on V */
+        MatrixXd m_beta2cur;       /*!< p x K, current values of second parameter of prior Gamma prior on V */
 
-        // criterion
-        VectorXd m_normGap;         /*!< normalized gap between two iterates (to assess convergence) */
+        MatrixXd m_alpha1old;      /*!< n x K, previous values of first parameter of Gamma prior on U */
+        MatrixXd m_alpha2old;      /*!< n x K, previous values of second parameter of prior Gamma prior on U */
+        MatrixXd m_beta1old;       /*!< p x K, previous values of first parameter of prior Gamma prior on V */
+        MatrixXd m_beta2old;       /*!< p x K, previous values of second parameter of prior Gamma prior on V */
 
         // order of factors
         VectorXi m_orderDeviance;   /*!< order of factors according to increasing deviance */
@@ -135,33 +116,13 @@ namespace countMatrixFactor {
          * \brief Constructor
          *
          * Constructor of the class gamPoisFactor
-         *
-         * \param n number of observations (rows)
-         * \param p number of variables (columns)
-         * \param K dimension of the latent subspace
-         * \param iterMax maomegamum number of iterations
-         * \param order derivative order on normalized gap to assess convergence
-         * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
-         * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
-         * \param epsilon precision for comparison when assessing convergence
-         * \param verbose boolean indicating verbosity in the output
-         * \param X n x p, count data matrix (const reference)
-         * \param phi1 n x K, initial values of first parameter of Gamma distribution on U (const reference)
-         * \param phi2 n x K, initial values of second parameter of Gamma distribution on U (const reference)
-         * \param theta1 n x K, initial values of first parameter of Gamma distribution on V (const reference)
-         * \param theta2 n x K, initial values of second parameter of Gamma distribution on V (const reference)
-         * \param alpha1 n x K, initial values of first parameter of Gamma prior on U (const reference)
-         * \param alpha2 n x K, initial values of second parameter of Gamma prior on U (const reference)
-         * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
-         * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
          */
-        gamPoisFactor(int n, int p, int K, int iterMax, int order,
-                      int stabRange, double epsilon, bool verbose,
-                      const MatrixXi &X,
-                      const MatrixXd &phi1, const MatrixXd &phi2,
-                      const MatrixXd &theta1, const MatrixXd &theta2,
-                      const MatrixXd &alpha1, const MatrixXd &alpha2,
-                      const MatrixXd &beta1, const MatrixXd &beta2);
+        gamPoisFactor(int n, int p, int K,
+                              const MatrixXi &X,
+                              const MatrixXd &phi1, const MatrixXd &phi2,
+                              const MatrixXd &theta1, const MatrixXd &theta2,
+                              const MatrixXd &alpha1, const MatrixXd &alpha2,
+                              const MatrixXd &beta1, const MatrixXd &beta2);
 
         /*!
          * \brief Destructor
@@ -172,172 +133,92 @@ namespace countMatrixFactor {
 
     public:
 
-        /*!
-         * \brief Initialization of sufficient statistics
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         */
-        virtual void Init() = 0;
+        // initialization
+        void Init();
 
-        /*!
-         * \brief run algorithm
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         */
-        virtual void algorithm() = 0;
+        // create list with results to be return
+        void returnObject(Rcpp::List &results);
 
-        /*!
-         * \brief create list of object to return
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         */
-        virtual void returnObject(Rcpp::List &results) = 0;
-
-        /*!
-         * \brief compute factor order
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[out] iter current iteration
-         */
-        virtual void computeOrder() = 0;
-
-    protected:
+        // compute factor order
+        void computeOrder();
 
         //-------------------//
         //      criteria     //
         //-------------------//
 
-        /*!
-        * \brief compute all different log-likelihood
-        *
-        * Pure virtual member function, to be implemented, depending on the model
-        *
-        * @param[in] iter current iteration
-        */
-        virtual void computeLogLike(int iter) = 0;
+        // compute conditonal log-likelihood
+        double computeCondLogLike();
 
-        /*!
-         * \brief compute evidence lower bound
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[in] iter current iteration
-         */
-        virtual void computeELBO(int iter) = 0;
+        // compute Prior log-likelihood
+        double computePriorLogLike();
 
-        /*!
-         * \brief evidence lower bound for a specific model
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         */
-        virtual double ELBO() = 0;
+        // compute Posterior log-likelihood
+        double computePostLogLike();
 
-        /*!
-         * \brief compute deviance between estimated and saturated model
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[in] iter current iteration
-         */
-        virtual void computeDeviance(int iter) = 0;
+        // compute complete log-likelihood
+        double computeCompLogLike();
 
-        /*!
-         * \brief deviance between estimated and saturated model for Poisson model
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         */
-        virtual double deviance() = 0;
+        // compute complete log-likelihood
+        double computeMargLogLike();
 
-        /*!
-         * \brief compute explained variance
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[in] iter current iteration
-         */
-        virtual void computeExpVar(int iter) = 0;
+        // compute evidence lower bound
+        double computeELBO();
+
+        // compute deviance between estimated and saturated model
+        double computeDeviance();
+
+        // compute explained variance regarding residuals sum of squares
+        double computeExpVar0();
+
+        // compute explained variance regarding U
+        double computeExpVarU();
+
+        // compute explained variance regarding V
+        double computeExpVarV();
 
         //-------------------//
         // parameter updates //
         //-------------------//
 
         // poisson rate
-        virtual void poissonRate() = 0;
+        void poissonRate();
 
         // multinomial parameters
-        virtual void multinomParam() = 0;
+        void multinomParam();
 
         // local parameters: phi (factor U)
-        virtual void localParam() = 0;
+        void localParam();
 
         // global parameters: theta (factor V)
-        virtual void globalParam() = 0;
+        void globalParam();
 
         // update parameters between iterations
-        virtual void nextIterate() = 0;
+        void nextIterate();
 
         //-------------------//
         //     algorithm     //
         //-------------------//
 
-        // assess convergence
-        virtual void assessConvergence(int iter, int &nstab) = 0;
+        // compute normalized gap between two iterates
+        double normGap();
 
         //-------------------//
         //   order factors   //
         //-------------------//
 
-        /*!
-         * \brief order factors according to expVar0
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[out] vector of factor order
-         */
-        virtual void orderExpVar0(VectorXi &order) = 0;
+        // order factors according to expVar0
+        void orderExpVar0(VectorXi &order);
 
-        /*!
-         * \brief order factors according to expVarU
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[out] vector of factor order
-         */
-        virtual void orderExpVarU(VectorXi &order) = 0;
+        // order factors according to expVarU
+        void orderExpVarU(VectorXi &order);
 
-        /*!
-         * \brief order factors according to expVarV
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[out] vector of factor order
-         */
-        virtual void orderExpVarV(VectorXi &order) = 0;
+        // order factors according to expVarV
+        void orderExpVarV(VectorXi &order);
 
-        /*!
-         * \brief order factors according to deviance
-         *
-         * Pure virtual member function, to be implemented, depending on the model
-         *
-         * @param[out] vector of factor order
-         */
-        virtual void orderDeviance(VectorXi &order) = 0;
+        // order factors according to deviance
+        void orderDeviance(VectorXi &order);
 
     };
-
-    //-------------------//
-    //   convergence     //
-    //-------------------//
-
-    // parameter squared euclidean norm
-    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2);
-
-    // difference of squared euclidean norm (on parameters)
-    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b);
-
-    // convergence condition
-    double convCondition(int order, const VectorXd &normGap, int iter, int drift);
 
 }
 
