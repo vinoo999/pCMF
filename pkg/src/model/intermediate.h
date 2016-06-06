@@ -58,6 +58,12 @@ namespace intermediate {
 
     // inverse psi (digamma function)
     double psiInv(double y, int nbIter);
+
+    // parameter squared euclidean norm
+    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2);
+
+    // difference of squared euclidean norm (on parameters)
+    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b);
 }
 
 #endif

@@ -30,7 +30,9 @@
 #include <cstdio>
 #include <boost/math/special_functions/digamma.hpp>
 #include <boost/math/special_functions/trigamma.hpp>
-#include "intermediate.h"
+#include "model/intermediate.h"
+
+#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(BH)]]
 using boost::math::digamma;
@@ -144,5 +146,35 @@ namespace intermediate {
 
         return x;
     }
+
+    /*!
+     * \brief l2 squared norm of all parameters
+     *
+     * Computation of sum_{ij} param1_{ij}^2 + param2_{ij}^2
+     *
+     * @param[in] param1 rows x cols, matrix of first parameters
+     * @param[in] param2 rows x cols, matrix of second parameters
+     * @return res l2 squared norm
+     */
+    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
+        double res = param1.msquare().sum() + param2.msquare().sum();
+        return res;
+    }
+
+    /*!
+     * \fn difference of squared euclidean norm (on parameters)
+     *
+     * @param[in] param1a matrix of parameters 1 (state a)
+     * @param[in] param2a matrix of parameters 2 (state a)
+     * @param[in] param1b matrix of parameters 1 (state b)
+     * @param[in] param2b matrix of parameters 2 (state b)
+     *
+     * @return sum((param1a - param1b)^2) + sum((param2a-param2b)^2)
+     */
+    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b) {
+        double res = parameterNorm2(param1a - param1b, param2a - param2b);
+        return(res);
+    }
+
 
 }
