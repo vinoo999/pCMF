@@ -79,7 +79,9 @@ namespace countMatrixFactor {
      * \brief Initialization of sufficient statistics
      */
     template <typename model>
-    void variational<model>::Init() {}
+    void variational<model>::Init() {
+        m_model.Init();
+    }
 
     /*!
      * \brief run algorithm
@@ -142,7 +144,38 @@ namespace countMatrixFactor {
      * \brief create list of object to return
      */
     template <typename model>
-    void variational<model>::returnObject(Rcpp::List &results) {}
+    void variational<model>::returnObject(Rcpp::List &results) {
+
+        Rcpp::List res;
+        m_model.returnObject(res);
+
+
+
+        Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
+                                                      Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
+                                                      Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
+                                                      Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
+                                                      Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
+                                                      Rcpp::Named("elbo") = m_elbo.head(m_nbIter));
+
+        Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
+                                                    Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
+                                                    Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
+
+        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("logLikelihood") = logLikelihood,
+                                                  Rcpp::Named("expVariance") = expVariance,
+                                                  Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
+                                                  Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
+                                                  Rcpp::Named("converged") = m_converged,
+                                                  Rcpp::Named("nbIter") = m_nbIter);
+
+        SEXP tmp1 = Rcpp::Language("c", res, returnObj).eval();
+
+        SEXP tmp2 = Rcpp::Language("c", results, tmp1).eval();
+
+        results = tmp2;
+
+    }
 
     /*!
      * \brief assess convergence
@@ -229,35 +262,6 @@ namespace countMatrixFactor {
     //-------------------//
     //   convergence     //
     //-------------------//
-
-    /*!
-    * \brief l2 squared norm of all parameters
-    *
-    * Computation of sum_{ij} param1_{ij}^2 + param2_{ij}^2
-    *
-    * @param[in] param1 rows x cols, matrix of first parameters
-    * @param[in] param2 rows x cols, matrix of second parameters
-    * @return res l2 squared norm
-    */
-    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2) {
-        double res = param1.msquare().sum() + param2.msquare().sum();
-        return res;
-    }
-
-    /*!
-    * \fn difference of squared euclidean norm (on parameters)
-    *
-    * @param[in] param1a matrix of parameters 1 (state a)
-    * @param[in] param2a matrix of parameters 2 (state a)
-    * @param[in] param1b matrix of parameters 1 (state b)
-    * @param[in] param2b matrix of parameters 2 (state b)
-    *
-    * @return sum((param1a - param1b)^2) + sum((param2a-param2b)^2)
-    */
-    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b) {
-        double res = parameterNorm2(param1a - param1b, param2a - param2b);
-        return(res);
-    }
 
     /*!
      * \fn assess convergence condition

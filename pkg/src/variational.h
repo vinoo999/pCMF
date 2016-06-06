@@ -125,6 +125,9 @@ namespace countMatrixFactor {
         // assess convergence
         void assessConvergence(int &nstab);
 
+        // compute factor order
+        void computeOrder();
+
     protected :
 
         //-------------------//
@@ -143,20 +146,11 @@ namespace countMatrixFactor {
         // compute explained variance
         void computeExpVar(int iter);
 
-        // compute factor order
-        void computeOrder();
-
     };
 
     //-------------------//
     //   convergence     //
     //-------------------//
-
-    // parameter squared euclidean norm
-    double parameterNorm2(const MatrixXd &param1, const MatrixXd &param2);
-
-    // difference of squared euclidean norm (on parameters)
-    double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b);
 
     // convergence condition
     double convCondition(int order, const VectorXd &normGap, int iter, int drift);
