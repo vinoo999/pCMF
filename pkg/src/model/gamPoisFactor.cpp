@@ -29,10 +29,11 @@
 #include <math.h>
 #include <cstdio>
 #include <vector>
-#include "explainedVariance.h"
-#include "gamPoisFactor.h"
-#include "gamDistrib.h"
-#include "loglikelihood.h"
+#include "model/explainedVariance.h"
+#include "model/gamPoisFactor.h"
+#include "model/gamDistrib.h"
+#include "model/intermediate.h"
+#include "model/loglikelihood.h"
 
 #define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
@@ -173,7 +174,7 @@ namespace countMatrixFactor {
      *
      * @return the current value (double)
      */
-    double computeCondLogLike() {
+    double gamPoisFactor::computeCondLogLike() {
         double res = poisLogLike(m_X, m_lambda);
         return res;
     }
@@ -185,7 +186,7 @@ namespace countMatrixFactor {
     *
     * @return the current value (double)
     */
-    double computePriorLogLike() {
+    double gamPoisFactor::computePriorLogLike() {
         double res = gammaLogLike(m_EU, m_alpha1cur, m_alpha2cur) + gammaLogLike(m_EV, m_beta1cur, m_beta2cur);
         return res;
     }
@@ -197,7 +198,7 @@ namespace countMatrixFactor {
     *
     * @return the current value (double)
     */
-    double computePostLogLike() {
+    double gamPoisFactor::computePostLogLike() {
         double res = gammaLogLike(m_EU, m_phi1cur, m_phi2cur) + gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
         return res;
     }
@@ -209,7 +210,7 @@ namespace countMatrixFactor {
     *
     * @return the current value (double)
     */
-    double computeCompLogLike() {
+    double gamPoisFactor::computeCompLogLike() {
         // return m_condLogLike(iter) + m_postLogLike(iter);
         double res = poisLogLike(m_X, m_lambda) + gammaLogLike(m_EU, m_phi1cur, m_phi2cur) + gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
         return res;
@@ -222,7 +223,7 @@ namespace countMatrixFactor {
     *
     * @return the current value (double)
     */
-    double computeMargLogLike() {
+    double gamPoisFactor::computeMargLogLike() {
         // return m_condLogLike(iter) + m_priorLogLike(iter) - m_postLogLike(iter);
         double res = poisLogLike(m_X, m_lambda) + gammaLogLike(m_EU, m_alpha1cur, m_alpha2cur) + gammaLogLike(m_EV, m_beta1cur, m_beta2cur)
                     - gammaLogLike(m_EU, m_phi1cur, m_phi2cur) - gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
@@ -236,7 +237,7 @@ namespace countMatrixFactor {
     *
     * @return the current value (double)
     */
-    double computeELBO() {
+    double gamPoisFactor::computeELBO() {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
@@ -271,7 +272,7 @@ namespace countMatrixFactor {
     *
     * @return the current value (double)
     */
-    double computeDeviance() {
+    double gamPoisFactor::computeDeviance() {
         double res = poisDeviance(m_X, m_lambda, m_lambda0);
         return res;
     }
@@ -283,7 +284,10 @@ namespace countMatrixFactor {
      *
      * @return the current value (double)
      */
-    double computeExpVar0() {}
+    double gamPoisFactor::computeExpVar0() {
+        double res = expVar0(m_X, m_EU, m_EV);
+        return res;
+    }
 
     /*!
      * \brief compute explained variance regarding U
@@ -292,7 +296,10 @@ namespace countMatrixFactor {
      *
      * @return the current value (double)
      */
-    double computeExpVarU() {}
+    double gamPoisFactor::computeExpVarU() {
+        double res = expVarU(m_X, m_EU);
+        return res;
+    }
 
     /*!
      * \brief compute explained variance regarding V
@@ -301,19 +308,9 @@ namespace countMatrixFactor {
      *
      * @return the current value (double)
      */
-    double computeExpVarV() {}
-
-
-
-    /*!
-     * \brief compute explained variance
-     *
-     * @param[in] iter current iteration
-     */
-    void gamPoisFactor::computeExpVar(int iter) {
-        m_expVar0(iter) = expVar0(m_X, m_EU, m_EV);
-        m_expVarU(iter) = expVarU(m_X, m_EU);
-        m_expVarV(iter) = expVarV(m_X, m_EV);
+    double gamPoisFactor::computeExpVarV() {
+        double res = expVarV(m_X, m_EV);
+        return res;
     }
 
     //-------------------//
@@ -383,10 +380,12 @@ namespace countMatrixFactor {
      * \brief compute normalized gap between two iterates
      */
     double gamPoisFactor::normGap() {
-        double paramNorm = sqrt(parameterNorm2(m_phi1old, m_phi2old) + parameterNorm2(m_theta1old, m_theta2old));
-        double diffNorm = sqrt(differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur) + differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
+        double paramNorm = sqrt(intermediate::parameterNorm2(m_phi1old, m_phi2old)
+                                    + intermediate::parameterNorm2(m_theta1old, m_theta2old));
+        double diffNorm = sqrt(intermediate::differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur)
+                                   + intermediate::differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
 
-        res = diffNorm / paramNorm;
+        double res = diffNorm / paramNorm;
         return res;
     }
 
@@ -650,16 +649,6 @@ namespace countMatrixFactor {
      * @param[out] list containing output
      */
     void gamPoisFactor::returnObject(Rcpp::List &results) {
-        Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
-                                                      Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
-                                                      Rcpp::Named("priorLogLike") = m_priorLogLike.head(m_nbIter),
-                                                      Rcpp::Named("postLogLike") = m_postLogLike.head(m_nbIter),
-                                                      Rcpp::Named("compLogLike") = m_compLogLike.head(m_nbIter),
-                                                      Rcpp::Named("elbo") = m_elbo.head(m_nbIter));
-
-        Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = m_expVar0.head(m_nbIter),
-                                                    Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
-                                                    Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
 
         Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
                                                Rcpp::Named("phi2") = m_phi2cur,
@@ -683,16 +672,10 @@ namespace countMatrixFactor {
 
         Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
                                                   Rcpp::Named("V") = m_EV,
-                                                  Rcpp::Named("logLikelihood") = logLikelihood,
-                                                  Rcpp::Named("expVariance") = expVariance,
                                                   Rcpp::Named("params") = params,
                                                   Rcpp::Named("stats") = stats,
                                                   Rcpp::Named("order") = order,
-                                                  Rcpp::Named("criteria_k") = criteria_k,
-                                                  Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
-                                                  Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
-                                                  Rcpp::Named("converged") = m_converged,
-                                                  Rcpp::Named("nbIter") = m_nbIter);
+                                                  Rcpp::Named("criteria_k") = criteria_k);
 
         SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
 
