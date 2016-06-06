@@ -57,7 +57,7 @@ namespace intermediate {
     void checkMat(const MatrixXd &A);
 
     // inverse psi (digamma function)
-    double psiInv(double y, int nbIter=6);
+    double psiInv(double y, int nbIter);
 }
 
 #endif

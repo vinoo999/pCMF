@@ -125,7 +125,7 @@ namespace intermediate {
      * @param[in] y the value of the digamma function
      * @return the corresponding x
      */
-    double psiInv(double y, int nbIter=6) {
+    double psiInv(double y, int nbIter) {
         double x0 = 0;
         double x = 0;
 
