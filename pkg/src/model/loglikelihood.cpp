@@ -26,7 +26,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "loglikelihood.h"
+#include "model/loglikelihood.h"
 #include "intermediate.h"
 
 #define mlog() unaryExpr(std::ptr_fun<double,double>(log))

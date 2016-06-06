@@ -26,8 +26,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-
-#include "explainedVariance.h"
+#include "model/explainedVariance.h"
 
 #define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
