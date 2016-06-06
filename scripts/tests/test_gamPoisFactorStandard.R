@@ -7,8 +7,6 @@ rm(list=ls())
 source("/home/durif/source_code/countMatrixFactor/set_working_dir.R")
 source("sources/projectSources.R")
 
-library(fields)
-
 
 ######################
 ### Cpp version
