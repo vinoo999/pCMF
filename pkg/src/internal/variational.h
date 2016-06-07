@@ -29,8 +29,6 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "internal/explainedVariance.h"
-#include "internal/loglikelihood.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -49,7 +47,7 @@ namespace countMatrixFactor {
     */
 
     template <typename model>
-    class variational : public loglikelihood, public explainedVariance {
+    class variational {
     protected:
 
         // MODEL
@@ -69,6 +67,18 @@ namespace countMatrixFactor {
 
         // criterion
         VectorXd m_normGap;         /*!< normalized gap between two iterates (to assess convergence) */
+
+        VectorXd m_expVar0;         /*!< proportion of explained variance as residual sum of squares */
+        VectorXd m_expVarU;         /*!< proportion of variance explained by columns of U (as the ratio between variance of the projection over total variance) */
+        VectorXd m_expVarV;         /*!< proportion of variance explained by columns of V (as the ratio between variance of the projection over total variance) */
+
+        VectorXd m_margLogLike;     /*!< marginal log-likelihood of the data */
+        VectorXd m_condLogLike;     /*!< conditional log-likelihood of the data */
+        VectorXd m_priorLogLike;    /*!< log-likelihood of factor priors */
+        VectorXd m_postLogLike;     /*!< log-likelihood of factor posterior */
+        VectorXd m_compLogLike;     /*!< complete log-likelihood of the model */
+        VectorXd m_elbo;            /*!< Evidence lower bound of the model */
+        VectorXd m_deviance;        /*!< deviance between estimated and saturated model */
 
     public:
         /*!
@@ -97,12 +107,13 @@ namespace countMatrixFactor {
         */
         variational(int iterMax, int order,
                     int stabRange, double epsilon, bool verbose,
-                    int n, int p, int K,
-                    const MatrixXi &X,
-                    const MatrixXd &phi1, const MatrixXd &phi2,
-                    const MatrixXd &theta1, const MatrixXd &theta2,
-                    const MatrixXd &alpha1, const MatrixXd &alpha2,
-                    const MatrixXd &beta1, const MatrixXd &beta2);
+                    int n, int p, int K);
+        // ,
+        //             const MatrixXi &X,
+        //             const MatrixXd &phi1, const MatrixXd &phi2,
+        //             const MatrixXd &theta1, const MatrixXd &theta2,
+        //             const MatrixXd &alpha1, const MatrixXd &alpha2,
+        //             const MatrixXd &beta1, const MatrixXd &beta2);
 
         /*!
         * \brief Destructor
@@ -113,20 +124,20 @@ namespace countMatrixFactor {
 
     public:
 
-        // Initialization of sufficient statistics
-        void Init();
-
-        // run algorithm
-        void algorithm();
-
-        // create list of object to return
-        void returnObject(Rcpp::List &results);
-
-        // assess convergence
-        void assessConvergence(int &nstab);
-
-        // compute factor order
-        void computeOrder();
+        // // Initialization of sufficient statistics
+        // void Init();
+        //
+        // // run algorithm
+        // void algorithm();
+        //
+        // // create list of object to return
+        // void returnObject(Rcpp::List &results);
+        //
+        // // assess convergence
+        // void assessConvergence(int &nstab);
+        //
+        // // compute factor order
+        // void computeOrder();
 
     protected :
 
@@ -134,17 +145,17 @@ namespace countMatrixFactor {
         //      criteria     //
         //-------------------//
 
-        // compute log-likelihood
-        void computeLogLike(int iter);
-
-        // compute evidence lower bound
-        void computeELBO(int iter);
-
-        // compute deviance between estimated and saturated model
-        void computeDeviance(int iter);
-
-        // compute explained variance
-        void computeExpVar(int iter);
+        // // compute log-likelihood
+        // void computeLogLike(int iter);
+        //
+        // // compute evidence lower bound
+        // void computeELBO(int iter);
+        //
+        // // compute deviance between estimated and saturated model
+        // void computeDeviance(int iter);
+        //
+        // // compute explained variance
+        // void computeExpVar(int iter);
 
     };
 
@@ -152,8 +163,8 @@ namespace countMatrixFactor {
     //   convergence     //
     //-------------------//
 
-    // convergence condition
-    double convCondition(int order, const VectorXd &normGap, int iter, int drift);
+    // // convergence condition
+    // double convCondition(int order, const VectorXd &normGap, int iter, int drift);
 
 }
 

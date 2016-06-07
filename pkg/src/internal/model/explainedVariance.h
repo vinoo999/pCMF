@@ -21,7 +21,7 @@
 
 /*!
 * \file explainedVariance.h
-* \brief class definition for explained variance
+* \brief functions for explained variance computation
 * \author Ghislain Durif
 * \version 0.1
 * \date 22/04/2016
@@ -36,46 +36,6 @@ using Eigen::MatrixXi;              // variable size matrix, integer
 using Eigen::VectorXd;              // variable size matrix, double precision
 
 namespace countMatrixFactor {
-    /*!
-    * \class explained variance
-    * \brief class to define explained variance
-    */
-    class explainedVariance {
-    protected:
-        VectorXd m_expVar0;           /*!< proportion of explained variance as residual sum of squares */
-        VectorXd m_expVarU;           /*!< proportion of variance explained by columns of U (as the ratio between variance of the projection over total variance) */
-        VectorXd m_expVarV;           /*!< proportion of variance explained by columns of V (as the ratio between variance of the projection over total variance) */
-
-    public:
-        /*!
-        * \brief Constructor
-        *
-        * Constructor of the class explained variance
-        */
-        explainedVariance(int size);
-
-        /*!
-        * \brief Destructor
-        *
-        * Destructor of the class explained variance
-        */
-        ~explainedVariance();
-
-    public:
-        // getter
-        void getExpVar0(VectorXd &res);
-        void getExpVarU(VectorXd &res);
-        void getExpVarV(VectorXd &res);
-
-        /*!
-         * \brief compute explained variance
-         *
-         * Pure virtual member function, to be implemented
-         *
-         * @param[in] iter current iteration
-         */
-        virtual void computeExpVar(int iter) = 0;
-    };
 
     // functions, documented in src
 

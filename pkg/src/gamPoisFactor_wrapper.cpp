@@ -28,7 +28,7 @@
 #include <RcppEigen.h>
 #include <cstdio>
 #include "internal/variational.h"
-#include "internal/gamPoisFactor.h"
+// #include "internal/model/gamPoisFactor.h"
 
 using namespace countMatrixFactor;
 
@@ -64,27 +64,28 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
 
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;
-    variational<gamPoisFactor> myModel(n, p, K, iterMax, order,
-                                  stabRange, epsilon, verbose,
-                                  X, phi01, phi02, theta01, theta02,
-                                  alpha1, alpha2, beta1, beta2);
-
-    // initialization
-    Rcpp::Rcout << "Initialization" << std::endl;
-    myModel.Init();
-
-    // computations
-    Rcpp::Rcout << "Algorithm" << std::endl;
-    myModel.algorithm();
-
-    // factor order
-    Rcpp::Rcout << "factor order" << std::endl;
-    myModel.computeOrder();
-
-    // returns
-    Rcpp::Rcout << "Output" << std::endl;
+    variational<int> myModel(n, p, K, iterMax, order,
+                                       stabRange, epsilon, verbose);
+        // ,
+        //                                X, phi01, phi02, theta01, theta02,
+        //                                alpha1, alpha2, beta1, beta2);
+    //
+    // // initialization
+    // Rcpp::Rcout << "Initialization" << std::endl;
+    // myModel.Init();
+    //
+    // // computations
+    // Rcpp::Rcout << "Algorithm" << std::endl;
+    // myModel.algorithm();
+    //
+    // // factor order
+    // Rcpp::Rcout << "factor order" << std::endl;
+    // myModel.computeOrder();
+    //
+    // // returns
+    // Rcpp::Rcout << "Output" << std::endl;
     Rcpp::List results;
-    myModel.returnObject(results);
+    // myModel.returnObject(results);
 
     return results;
 

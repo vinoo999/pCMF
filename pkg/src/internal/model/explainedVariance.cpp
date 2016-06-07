@@ -18,7 +18,7 @@
 
 /*!
 * \file loglikelihood.cpp
-* \brief class definition for log-likelihood
+* \brief functions for explained variance computation
 * \author Ghislain Durif
 * \version 0.1
 * \date 22/04/2016
@@ -26,7 +26,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "internal/explainedVariance.h"
+#include "explainedVariance.h"
 
 #define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
@@ -37,48 +37,6 @@ using Eigen::VectorXd;              // variable size matrix, double precision
 using Eigen::PartialPivLU;              // for fast matrix inversion
 
 namespace countMatrixFactor {
-
-    //------------------------------------------------------------------------//
-    // CONSTRUCTOR
-    explainedVariance::explainedVariance(int size) {
-        m_expVar0 = VectorXd::Zero(size);
-        m_expVarU = VectorXd::Zero(size);
-        m_expVarV = VectorXd::Zero(size);
-    }
-
-    // DESTRCTOR
-    explainedVariance::~explainedVariance() {}
-
-    //------------------------------------------------------------------------//
-    // GETTER
-
-    /*!
-     * \brief getter for expVar0
-     *
-     * @param[out] res vector of explained variance as residual sum of squares
-     */
-    void explainedVariance::getExpVar0(VectorXd &res) {
-        res = m_expVar0;
-    }
-
-    /*!
-     * \brief getter for expVarU
-     *
-     * @param[out] res vector of explained variance by columns of U
-     */
-    void explainedVariance::getExpVarU(VectorXd &res) {
-        res = m_expVarU;
-    }
-
-    /*!
-     * \brief getter for expVarV
-     *
-     * @param[out] res vector of explained variance by columns of V
-     */
-    void explainedVariance::getExpVarV(VectorXd &res) {
-        res = m_expVarV;
-    }
-
 
     // FUNCTIONS
     /*!

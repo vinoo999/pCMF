@@ -18,7 +18,7 @@
 
 /*!
 * \file loglikelihood.cpp
-* \brief class definition for log-likelihood
+* \brief functions for log-likelihood computation
 * \author Ghislain Durif
 * \version 0.1
 * \date 22/04/2016
@@ -26,8 +26,8 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include "intenral/loglikelihood.h"
-#include "internal/intermediate.h"
+#include "loglikelihood.h"
+#include "intermediate.h"
 
 #define mlog() unaryExpr(std::ptr_fun<double,double>(log))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
@@ -39,87 +39,6 @@ using Eigen::MatrixXi;              // variable size matrix, integer
 using Eigen::VectorXd;              // variable size matrix, double precision
 
 namespace countMatrixFactor {
-
-    //------------------------------------------------------------------------//
-    // CONSTRUCTOR
-    loglikelihood::loglikelihood(int size) {
-        m_margLogLike = VectorXd::Zero(size);
-        m_condLogLike = VectorXd::Zero(size);
-        m_priorLogLike = VectorXd::Zero(size);
-        m_postLogLike = VectorXd::Zero(size);
-        m_compLogLike = VectorXd::Zero(size);
-        m_elbo = VectorXd::Zero(size);
-        m_deviance = VectorXd::Zero(size);
-    }
-
-    // DESTRUCTOR
-    loglikelihood::~loglikelihood() {}
-
-    //------------------------------------------------------------------------//
-    // GETTER
-    /*!
-     * \brief getter for marginal log-likelihood
-     *
-     * @param[in] size head size returned
-     * @param[out] res vector of marginal log-likelihood
-     */
-    void loglikelihood::getMarginal(VectorXd &res, int size) {
-        res = m_margLogLike.head(size);
-    }
-    /*!
-     * \brief getter for conditional log-likelihood
-     *
-     * @param[in] size head size returned
-     * @param[out] res vector of conditional log-likelihood
-     */
-    void loglikelihood::getConditional(VectorXd &res, int size) {
-        res = m_condLogLike.head(size);
-    }
-    /*!
-     * \brief getter for prior log-likelihood
-     *
-     * @param[in] size head size returned
-     * @param[out] res vector of prior log-likelihood
-     */
-    void loglikelihood::getPrior(VectorXd &res, int size) {
-        res = m_priorLogLike.head(size);
-    }
-    /*!
-     * \brief getter for posterior log-likelihood
-     *
-     * @param[in] size head size returned
-     * @param[out] res vector of posterior log-likelihood
-     */
-    void loglikelihood::getPosterior(VectorXd &res, int size) {
-        res = m_postLogLike.head(size);
-    }
-    /*!
-     * \brief getter for complete log-likelihood
-     *
-     * @param[in] size head size returned
-     * @param[out] res vector of complete log-likelihood
-     */
-    void loglikelihood::getComplete(VectorXd &res, int size) {
-        res = m_compLogLike.head(size);
-    }
-    /*!
-     * \brief getter for Evidence Lower Bound (ELBO)
-     *
-     * @param[in] size head size returned
-     * @param[out] res vector of elbo
-     */
-    void loglikelihood::getELBO(VectorXd &res, int size) {
-        res = m_elbo.head(size);
-    }
-    /*!
-     * \brief getter for Evidence Lower Bound (ELBO)
-     *
-     * @param[in] size head size returned
-     * @param[out] res vector of elbo
-     */
-    void loglikelihood::getDeviance(VectorXd &res, int size) {
-        res = m_deviance.head(size);
-    }
 
     //------------------------------------------------------------------------//
     // FUNCTIONS

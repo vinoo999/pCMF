@@ -30,7 +30,7 @@
 #include <cstdio>
 #include <boost/math/special_functions/digamma.hpp>
 #include <boost/math/special_functions/trigamma.hpp>
-#include "internal/intermediate.h"
+#include "intermediate.h"
 
 #define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 

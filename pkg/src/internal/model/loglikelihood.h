@@ -21,7 +21,7 @@
 
 /*!
 * \file loglikelihood.h
-* \brief class definition for log-likelihood
+* \brief functions for log-likelihood computation
 * \author Ghislain Durif
 * \version 0.1
 * \date 22/04/2016
@@ -36,74 +36,6 @@ using Eigen::MatrixXi;              // variable size matrix, integer
 using Eigen::VectorXd;              // variable size matrix, double precision
 
 namespace countMatrixFactor {
-    /*!
-    * \class loglikelihood
-    * \brief class to define all attributes and member functions regarding log-likelihood
-    */
-    class loglikelihood {
-    protected:
-
-        VectorXd m_margLogLike;     /*!< marginal log-likelihood of the data */
-        VectorXd m_condLogLike;     /*!< conditional log-likelihood of the data */
-        VectorXd m_priorLogLike;    /*!< log-likelihood of factor priors */
-        VectorXd m_postLogLike;     /*!< log-likelihood of factor posterior */
-        VectorXd m_compLogLike;     /*!< complete log-likelihood of the model */
-        VectorXd m_elbo;            /*!< Evidence lower bound of the model */
-        VectorXd m_deviance;        /*!< deviance between estimated and saturated model */
-
-        public:
-            /*!
-            * \brief Constructor
-            *
-            * Constructor of the class loglikelihood
-            */
-            loglikelihood(int size);
-
-            /*!
-            * \brief Destructor
-            *
-            * Destructor of the class gamDistrib
-            */
-            ~loglikelihood();
-
-        public:
-            // getter
-            void getMarginal(VectorXd &res, int size);
-            void getConditional(VectorXd &res, int size);
-            void getPrior(VectorXd &res, int size);
-            void getPosterior(VectorXd &res, int size);
-            void getComplete(VectorXd &res, int size);
-            void getELBO(VectorXd &res, int size);
-            void getDeviance(VectorXd &res, int size);
-
-            /*!
-             * \brief compute all different log-likelihood
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             *
-             * @param[in] iter current iteration
-             */
-            virtual void computeLogLike(int iter) = 0;
-
-            /*!
-             * \brief compute evidence lower bound
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             *
-             * @param[in] iter current iteration
-             */
-            virtual void computeELBO(int iter) = 0;
-
-            /*!
-             * \brief compute deviance between estimated and saturated model
-             *
-             * Pure virtual member function, to be implemented, depending on the model
-             *
-             * @param[in] iter current iteration
-             */
-            virtual void computeDeviance(int iter) = 0;
-
-        };
 
     // FUNCTIONS
     // local log-likelihood function
