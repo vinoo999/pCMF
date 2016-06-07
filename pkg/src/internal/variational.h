@@ -82,7 +82,7 @@ namespace countMatrixFactor {
 
     public:
         /*!
-        * \brief Constructor
+        * \brief Constructor for gamma Poisson Factor Model
         *
         * Constructor of the class variational
         *
@@ -113,6 +113,40 @@ namespace countMatrixFactor {
                     const MatrixXd &theta1, const MatrixXd &theta2,
                     const MatrixXd &alpha1, const MatrixXd &alpha2,
                     const MatrixXd &beta1, const MatrixXd &beta2);
+
+        /*!
+         * \brief Constructor for gamma Poisson Factor Model Penalized
+         *
+         * Constructor of the class variational
+         *
+         * \param n number of observations (rows)
+         * \param p number of variables (columns)
+         * \param K dimension of the latent subspace
+         * \param iterMax maomegamum number of iterations
+         * \param order derivative order on normalized gap to assess convergence
+         * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
+         * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
+         * \param epsilon precision for comparison when assessing convergence
+         * \param verbose boolean indicating verbosity in the output
+         * \param X n x p, count data matrix (const reference)
+         * \param phi1 n x K, initial values of first parameter of Gamma distribution on U (const reference)
+         * \param phi2 n x K, initial values of second parameter of Gamma distribution on U (const reference)
+         * \param theta1 n x K, initial values of first parameter of Gamma distribution on V (const reference)
+         * \param theta2 n x K, initial values of second parameter of Gamma distribution on V (const reference)
+         * \param alpha1 n x K, initial values of first parameter of Gamma prior on U (const reference)
+         * \param alpha2 n x K, initial values of second parameter of Gamma prior on U (const reference)
+         * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
+         * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
+         */
+        variational(int iterMax, int order,
+                    int stabRange, double epsilon, bool verbose,
+                    int n, int p, int K,
+                    const MatrixXi &X,
+                    const MatrixXd &phi1, const MatrixXd &phi2,
+                    const MatrixXd &theta1, const MatrixXd &theta2,
+                    const MatrixXd &alpha1, const MatrixXd &alpha2,
+                    const MatrixXd &beta1, const MatrixXd &beta2,
+                    const VectorXd &lambda_k, const VectorXd &mu_k);
 
         /*!
         * \brief Destructor
@@ -165,9 +199,11 @@ namespace countMatrixFactor {
     // convergence condition
     double convCondition(int order, const VectorXd &normGap, int iter, int drift);
 
+// ############################################################################################## //
 
+    // Class implementation
 
-    // CONSTRUCTOR
+    // CONSTRUCTOR 1
     template <typename model>
     variational<model>::variational(int iterMax, int order,
                                     int stabRange, double epsilon, bool verbose,
@@ -177,11 +213,57 @@ namespace countMatrixFactor {
                                     const MatrixXd &theta1, const MatrixXd &theta2,
                                     const MatrixXd &alpha1, const MatrixXd &alpha2,
                                     const MatrixXd &beta1, const MatrixXd &beta2)
-        : m_model(n, p, K,
-          X, phi1, phi2,
-          theta1, theta2,
-          alpha1, alpha2,
-          beta1, beta2)
+    : m_model(n, p, K,
+              X, phi1, phi2,
+              theta1, theta2,
+              alpha1, alpha2,
+              beta1, beta2)
+    {
+
+        // parameters
+        m_iterMax = iterMax;
+        m_iter = 0;
+        m_order = order;
+        m_stabRange = stabRange;
+        m_epsilon = epsilon;
+        m_verbose = verbose;
+
+        m_converged = false;
+        m_nbIter = 0;
+
+        // criterion
+        m_normGap = VectorXd::Zero(iterMax);
+
+        m_expVar0 = VectorXd::Zero(iterMax);
+        m_expVarU = VectorXd::Zero(iterMax);
+        m_expVarV = VectorXd::Zero(iterMax);
+
+        m_margLogLike = VectorXd::Zero(iterMax);
+        m_condLogLike = VectorXd::Zero(iterMax);
+        m_priorLogLike = VectorXd::Zero(iterMax);
+        m_postLogLike = VectorXd::Zero(iterMax);
+        m_compLogLike = VectorXd::Zero(iterMax);
+        m_elbo = VectorXd::Zero(iterMax);
+        m_deviance = VectorXd::Zero(iterMax);
+    }
+
+    // CONSTRUCTOR 2
+    template <typename model>
+    variational<model>::variational(int iterMax, int order,
+                                    int stabRange, double epsilon, bool verbose,
+                                    int n, int p, int K,
+                                    const MatrixXi &X,
+                                    const MatrixXd &phi1, const MatrixXd &phi2,
+                                    const MatrixXd &theta1, const MatrixXd &theta2,
+                                    const MatrixXd &alpha1, const MatrixXd &alpha2,
+                                    const MatrixXd &beta1, const MatrixXd &beta2,
+                                    const VectorXd &lambda_k, const VectorXd &mu_k)
+    : m_model(n, p, K,
+              X, phi1, phi2,
+              theta1, theta2,
+              alpha1, alpha2,
+              beta1, beta2,
+              lambda_k, mu_k)
     {
 
         // parameters
