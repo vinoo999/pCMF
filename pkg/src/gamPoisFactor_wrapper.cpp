@@ -69,23 +69,23 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
                                        n, p, K, X,
                                        phi01, phi02, theta01, theta02,
                                        alpha1, alpha2, beta1, beta2);
-    //
-    // // initialization
-    // Rcpp::Rcout << "Initialization" << std::endl;
-    // myModel.Init();
-    //
-    // // computations
-    // Rcpp::Rcout << "Algorithm" << std::endl;
-    // myModel.algorithm();
-    //
-    // // factor order
-    // Rcpp::Rcout << "factor order" << std::endl;
-    // myModel.computeOrder();
-    //
-    // // returns
-    // Rcpp::Rcout << "Output" << std::endl;
+
+    // initialization
+    Rcpp::Rcout << "Initialization" << std::endl;
+    myModel.Init();
+
+    // computations
+    Rcpp::Rcout << "Algorithm" << std::endl;
+    myModel.algorithm();
+
+    // factor order
+    Rcpp::Rcout << "factor order" << std::endl;
+    myModel.computeOrder();
+
+    // returns
+    Rcpp::Rcout << "Output" << std::endl;
     Rcpp::List results;
-    // myModel.returnObject(results);
+    myModel.returnObject(results);
 
     return results;
 
