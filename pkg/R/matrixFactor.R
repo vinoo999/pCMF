@@ -29,16 +29,16 @@
 #' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
 #'
 #'
-#' @seealso
+#' @seealso aaa
 #'
 #' @import Rcpp
 #' @import RcppEigen
 #' @useDynLib countMatrixFactor
 #'
-#' @param
+#' @param X
 #'
 #' @return return
-#' \item{}{}
+#' \item{Y}{Y}
 #'
 
 ### R wrapper for Gamma-Poisson Factor model

@@ -22,6 +22,7 @@
 #' plot the entries of a matrix as a heatmap
 #'
 #' @details
+#' hello world
 #'
 #' @author
 #' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
