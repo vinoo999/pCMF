@@ -17,18 +17,18 @@
 // MA 02111-1307, USA
 
 /*!
- * \file gamPoisFactor_wrapper.cpp
- * \brief definition of wrapper (to call in R) for standard Gamma Poisson Factor Model
- * \author Ghislain Durif
- * \version 0.1
- * \date 06/05/2016
- */
+* \file gamPoisFactor_wrapper.cpp
+* \brief definition of wrapper (to call in R) for standard Gamma Poisson Factor Model
+* \author Ghislain Durif
+* \version 0.1
+* \date 06/05/2016
+*/
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <cstdio>
 #include "internal/variational.h"
-// #include "internal/model/gamPoisFactor.h"
+#include "internal/model/gamPoisFactor.h"
 
 using namespace countMatrixFactor;
 
@@ -41,7 +41,7 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 
 
 // [[Rcpp::export]]
-SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
+SEXP gamPoisFactor_wrapper_test(SEXP Xin, int K,
                            SEXP phi01in, SEXP phi02in,
                            SEXP theta01in, SEXP theta02in,
                            SEXP alpha1in, SEXP alpha2in,
@@ -64,11 +64,11 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
 
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;
-    variational<int> myModel(n, p, K, iterMax, order,
-                                       stabRange, epsilon, verbose);
-        // ,
-        //                                X, phi01, phi02, theta01, theta02,
-        //                                alpha1, alpha2, beta1, beta2);
+    variational<gamPoisFactor> myModel(iterMax, order,
+                                       stabRange, epsilon, verbose,
+                                       n, p, K, X,
+                                       phi01, phi02, theta01, theta02,
+                                       alpha1, alpha2, beta1, beta2);
     //
     // // initialization
     // Rcpp::Rcout << "Initialization" << std::endl;

@@ -132,90 +132,90 @@ namespace countMatrixFactor {
 
     public:
 
-        // // initialization
-        // void Init();
-        //
-        // // create list with results to be return
-        // void returnObject(Rcpp::List &results);
-        //
-        // // compute factor order
-        // void computeOrder();
-        //
-        // //-------------------//
-        // //      criteria     //
-        // //-------------------//
-        //
-        // // compute conditonal log-likelihood
-        // double computeCondLogLike();
-        //
-        // // compute Prior log-likelihood
-        // double computePriorLogLike();
-        //
-        // // compute Posterior log-likelihood
-        // double computePostLogLike();
-        //
-        // // compute complete log-likelihood
-        // double computeCompLogLike();
-        //
-        // // compute complete log-likelihood
-        // double computeMargLogLike();
-        //
-        // // compute evidence lower bound
-        // double computeELBO();
-        //
-        // // compute deviance between estimated and saturated model
-        // double computeDeviance();
-        //
-        // // compute explained variance regarding residuals sum of squares
-        // double computeExpVar0();
-        //
-        // // compute explained variance regarding U
-        // double computeExpVarU();
-        //
-        // // compute explained variance regarding V
-        // double computeExpVarV();
-        //
-        // //-------------------//
-        // // parameter updates //
-        // //-------------------//
-        //
-        // // poisson rate
-        // void poissonRate();
-        //
-        // // multinomial parameters
-        // void multinomParam();
-        //
-        // // local parameters: phi (factor U)
-        // void localParam();
-        //
-        // // global parameters: theta (factor V)
-        // void globalParam();
-        //
-        // // update parameters between iterations
-        // void nextIterate();
-        //
-        // //-------------------//
-        // //     algorithm     //
-        // //-------------------//
-        //
-        // // compute normalized gap between two iterates
-        // double normGap();
-        //
-        // //-------------------//
-        // //   order factors   //
-        // //-------------------//
-        //
-        // // order factors according to expVar0
-        // void orderExpVar0(VectorXi &order);
-        //
-        // // order factors according to expVarU
-        // void orderExpVarU(VectorXi &order);
-        //
-        // // order factors according to expVarV
-        // void orderExpVarV(VectorXi &order);
-        //
-        // // order factors according to deviance
-        // void orderDeviance(VectorXi &order);
+        // initialization
+        void Init();
+
+        // create list with results to be return
+        void returnObject(Rcpp::List &results);
+
+        // compute factor order
+        void computeOrder();
+
+        //-------------------//
+        //      criteria     //
+        //-------------------//
+
+        // compute conditonal log-likelihood
+        double computeCondLogLike();
+
+        // compute Prior log-likelihood
+        double computePriorLogLike();
+
+        // compute Posterior log-likelihood
+        double computePostLogLike();
+
+        // compute complete log-likelihood
+        double computeCompLogLike();
+
+        // compute complete log-likelihood
+        double computeMargLogLike();
+
+        // compute evidence lower bound
+        double computeELBO();
+
+        // compute deviance between estimated and saturated model
+        double computeDeviance();
+
+        // compute explained variance regarding residuals sum of squares
+        double computeExpVar0();
+
+        // compute explained variance regarding U
+        double computeExpVarU();
+
+        // compute explained variance regarding V
+        double computeExpVarV();
+
+        //-------------------//
+        // parameter updates //
+        //-------------------//
+
+        // poisson rate
+        void poissonRate();
+
+        // multinomial parameters
+        void multinomParam();
+
+        // local parameters: phi (factor U)
+        void localParam();
+
+        // global parameters: theta (factor V)
+        void globalParam();
+
+        // update parameters between iterations
+        void nextIterate();
+
+        //-------------------//
+        //     algorithm     //
+        //-------------------//
+
+        // compute normalized gap between two iterates
+        double normGap();
+
+        //-------------------//
+        //   order factors   //
+        //-------------------//
+
+        // order factors according to expVar0
+        void orderExpVar0(VectorXi &order);
+
+        // order factors according to expVarU
+        void orderExpVarU(VectorXi &order);
+
+        // order factors according to expVarV
+        void orderExpVarV(VectorXi &order);
+
+        // order factors according to deviance
+        void orderDeviance(VectorXi &order);
 
     };
 
