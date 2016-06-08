@@ -78,7 +78,7 @@ namespace countMatrixFactor {
         MatrixXd Xprojcent(X.rows(), X.cols());
         double res;
         MatrixXd prod(U.transpose() * U + 0.00001 * MatrixXd::Identity(U.cols(), U.cols()));
-        Xproj = U * PartialPivLU<MatrixXd>(prod).inverse() * U.transpose() * X.cast<double>();
+        Xproj = X.cast<double>().transpose() * U * PartialPivLU<MatrixXd>(prod).inverse() * U.transpose();
         Xcent = X.cast<double>().rowwise() - X.cast<double>().colwise().mean();
         Xprojcent = Xproj.rowwise() - Xproj.colwise().mean();
         res = (Xprojcent.transpose() * Xprojcent).trace() / (Xcent.transpose() * Xcent).trace();
