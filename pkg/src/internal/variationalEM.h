@@ -102,7 +102,7 @@ namespace countMatrixFactor {
         */
         variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
                       int stabRange, double epsilon, bool verbose,
-                      int n, int p, int K, const MatrixXi &X,
+                      int n, int p, int K, bool ZI, const MatrixXi &X,
                       const MatrixXd &phi1, const MatrixXd &phi2,
                       const MatrixXd &theta1, const MatrixXd &theta2,
                       const MatrixXd &alpha1, const MatrixXd &alpha2,
@@ -135,7 +135,7 @@ namespace countMatrixFactor {
         */
         variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
                       int stabRange, double epsilon, bool verbose,
-                      int n, int p, int K, const MatrixXi &X,
+                      int n, int p, int K, bool ZI, const MatrixXi &X,
                       const MatrixXd &phi1, const MatrixXd &phi2,
                       const MatrixXd &theta1, const MatrixXd &theta2,
                       const MatrixXd &alpha1, const MatrixXd &alpha2,
@@ -174,13 +174,13 @@ namespace countMatrixFactor {
     template <typename model>
     variationalEM<model>::variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
                                         int stabRange, double epsilon, bool verbose,
-                                        int n, int p, int K, const MatrixXi &X,
+                                        int n, int p, int K, bool ZI, const MatrixXi &X,
                                         const MatrixXd &phi1, const MatrixXd &phi2,
                                         const MatrixXd &theta1, const MatrixXd &theta2,
                                         const MatrixXd &alpha1, const MatrixXd &alpha2,
                                         const MatrixXd &beta1, const MatrixXd &beta2)
     : variational<model>(iterMax, order, stabRange, epsilon, verbose,
-                          n, p, K, X,
+                          n, p, K, ZI, X,
                           phi1, phi2, theta1, theta2,
                           alpha1, alpha2, beta1, beta2),
       m_converged_Estep(iterMax, false),
@@ -215,14 +215,14 @@ namespace countMatrixFactor {
     template <typename model>
     variationalEM<model>::variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
                                     int stabRange, double epsilon, bool verbose,
-                                    int n, int p, int K, const MatrixXi &X,
+                                    int n, int p, int K, bool ZI, const MatrixXi &X,
                                     const MatrixXd &phi1, const MatrixXd &phi2,
                                     const MatrixXd &theta1, const MatrixXd &theta2,
                                     const MatrixXd &alpha1, const MatrixXd &alpha2,
                                     const MatrixXd &beta1, const MatrixXd &beta2,
                                     const VectorXd &lambda_k, const VectorXd &mu_k)
     : variational<model>(iterMax, order, stabRange, epsilon, verbose,
-                          n, p, K, X,
+                          n, p, K, ZI, X,
                           phi1, phi2, theta1, theta2,
                           alpha1, alpha2, beta1, beta2,
                           lambda_k, mu_k),

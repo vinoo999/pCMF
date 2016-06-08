@@ -53,6 +53,7 @@ namespace countMatrixFactor {
 
         // MODEL
         model m_model;
+        bool m_ZI;
 
         // parameters
         int m_iterMax;          /*!< maximum number of iterations */
@@ -107,7 +108,7 @@ namespace countMatrixFactor {
          */
         variational(int iterMax, int order,
                     int stabRange, double epsilon, bool verbose,
-                    int n, int p, int K,
+                    int n, int p, int K, bool ZI,
                     const MatrixXi &X,
                     const MatrixXd &phi1, const MatrixXd &phi2,
                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -143,7 +144,7 @@ namespace countMatrixFactor {
          */
         variational(int iterMax, int order,
                     int stabRange, double epsilon, bool verbose,
-                    int n, int p, int K,
+                    int n, int p, int K, bool ZI,
                     const MatrixXi &X,
                     const MatrixXd &phi1, const MatrixXd &phi2,
                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -210,7 +211,7 @@ namespace countMatrixFactor {
     template <typename model>
     variational<model>::variational(int iterMax, int order,
                                     int stabRange, double epsilon, bool verbose,
-                                    int n, int p, int K,
+                                    int n, int p, int K, bool ZI,
                                     const MatrixXi &X,
                                     const MatrixXd &phi1, const MatrixXd &phi2,
                                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -222,6 +223,7 @@ namespace countMatrixFactor {
               alpha1, alpha2,
               beta1, beta2)
     {
+        m_ZI = ZI;
 
         // parameters
         m_iterMax = iterMax;
@@ -254,7 +256,7 @@ namespace countMatrixFactor {
     template <typename model>
     variational<model>::variational(int iterMax, int order,
                                     int stabRange, double epsilon, bool verbose,
-                                    int n, int p, int K,
+                                    int n, int p, int K, bool ZI,
                                     const MatrixXi &X,
                                     const MatrixXd &phi1, const MatrixXd &phi2,
                                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -268,6 +270,7 @@ namespace countMatrixFactor {
               beta1, beta2,
               r_theta2, r_phi2)
     {
+        m_ZI=ZI;
 
         // parameters
         m_iterMax = iterMax;
