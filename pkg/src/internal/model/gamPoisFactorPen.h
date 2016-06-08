@@ -61,8 +61,8 @@ namespace countMatrixFactor {
 
     protected:
         // penalty constant
-        VectorXd m_lambda_k;        /*!< penalty constant for l2 constraint on theta_{jk,2} */
-        VectorXd m_mu_k;            /*!< penalty constant for l2 constraint on phi_{ik,2} */
+        VectorXd m_r_theta2;        /*!< penalty constant for l2 constraint on theta_{jk,2} */
+        VectorXd m_r_phi2;            /*!< penalty constant for l2 constraint on phi_{ik,2} */
 
         // variational parameters
         MatrixXd m_phi2inter;       /*!< n x K, intermediate values of second parameter of Gamma distribution on U */
@@ -79,7 +79,7 @@ namespace countMatrixFactor {
                          const MatrixXd &theta1, const MatrixXd &theta2,
                          const MatrixXd &alpha1, const MatrixXd &alpha2,
                          const MatrixXd &beta1, const MatrixXd &beta2,
-                         const VectorXd &lambda_k, const VectorXd &mu_k);
+                         const VectorXd &r_theta2, const VectorXd &r_phi2);
 
         /*!
         * \brief Destructor

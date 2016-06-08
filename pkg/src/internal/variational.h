@@ -86,15 +86,15 @@ namespace countMatrixFactor {
          * \brief Constructor of the template class variational for gamma Poisson Factor Model
          * @tparam model a gamma Poisson factor model
          *
-         * \param n number of observations (rows)
-         * \param p number of variables (columns)
-         * \param K dimension of the latent subspace
-         * \param iterMax maomegamum number of iterations
+         * \param iterMax maximum number of iterations
          * \param order derivative order on normalized gap to assess convergence
          * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
          * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
          * \param epsilon precision for comparison when assessing convergence
          * \param verbose boolean indicating verbosity in the output
+         * \param n number of observations (rows)
+         * \param p number of variables (columns)
+         * \param K dimension of the latent subspace
          * \param X n x p, count data matrix (const reference)
          * \param phi1 n x K, initial values of first parameter of Gamma distribution on U (const reference)
          * \param phi2 n x K, initial values of second parameter of Gamma distribution on U (const reference)
@@ -118,15 +118,15 @@ namespace countMatrixFactor {
          * \brief Constructor of the template class variational for Penalized (l2) gamma Poisson Factor Model
          * @tparam model a gamma Poisson factor model
          *
-         * \param n number of observations (rows)
-         * \param p number of variables (columns)
-         * \param K dimension of the latent subspace
-         * \param iterMax maomegamum number of iterations
+         * \param iterMax maximum number of iterations
          * \param order derivative order on normalized gap to assess convergence
          * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
          * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
          * \param epsilon precision for comparison when assessing convergence
          * \param verbose boolean indicating verbosity in the output
+         * \param n number of observations (rows)
+         * \param p number of variables (columns)
+         * \param K dimension of the latent subspace
          * \param X n x p, count data matrix (const reference)
          * \param phi1 n x K, initial values of first parameter of Gamma distribution on U (const reference)
          * \param phi2 n x K, initial values of second parameter of Gamma distribution on U (const reference)
@@ -136,6 +136,10 @@ namespace countMatrixFactor {
          * \param alpha2 n x K, initial values of second parameter of Gamma prior on U (const reference)
          * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
          * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
+         * \param r_theta2 vector of l2 constant penalty over theta_{2}, one for each factor
+         * \param r_phi2 vector of l2 constant penalty over pi_{2}, one for each factor
+         * \param r_theta2 vector of l2 penalty constraint on theta2
+         * \param r_phi2 vector of l2 penalty constraint on phi2
          */
         variational(int iterMax, int order,
                     int stabRange, double epsilon, bool verbose,
@@ -145,7 +149,7 @@ namespace countMatrixFactor {
                     const MatrixXd &theta1, const MatrixXd &theta2,
                     const MatrixXd &alpha1, const MatrixXd &alpha2,
                     const MatrixXd &beta1, const MatrixXd &beta2,
-                    const VectorXd &lambda_k, const VectorXd &mu_k);
+                    const VectorXd &r_theta2, const VectorXd &r_phi2);
 
         /*!
          * \brief Destructor
@@ -256,13 +260,13 @@ namespace countMatrixFactor {
                                     const MatrixXd &theta1, const MatrixXd &theta2,
                                     const MatrixXd &alpha1, const MatrixXd &alpha2,
                                     const MatrixXd &beta1, const MatrixXd &beta2,
-                                    const VectorXd &lambda_k, const VectorXd &mu_k)
+                                    const VectorXd &r_theta2, const VectorXd &r_phi2)
     : m_model(n, p, K,
               X, phi1, phi2,
               theta1, theta2,
               alpha1, alpha2,
               beta1, beta2,
-              lambda_k, mu_k)
+              r_theta2, r_phi2)
     {
 
         // parameters
