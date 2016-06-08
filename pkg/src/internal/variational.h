@@ -193,14 +193,14 @@ namespace countMatrixFactor {
         // compute explained variance
         void computeExpVar(int iter);
 
+        //-------------------//
+        //   convergence     //
+        //-------------------//
+
+        // convergence condition
+        static double convCondition(int order, const VectorXd &normGap, int iter, int topArray);
+
     };
-
-    //-------------------//
-    //   convergence     //
-    //-------------------//
-
-    // convergence condition
-    double convCondition(int order, const VectorXd &normGap, int iter, int drift);
 
 // ############################################################################################## //
 
@@ -358,13 +358,54 @@ namespace countMatrixFactor {
             // convergence
             //Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
             this->assessConvergence(nstab);
-            // increment values of parameters
+            // update values of parameters
             //Rcpp::Rcout << "algorithm: next iteration" << std::endl;
             m_model.nextIterate();
             // increment iteration
             m_iter++;
         }
 
+    }
+
+    /*!
+     * \brief assess convergence
+     * @tparam model a gamma Poisson factor model
+     *
+     * @param[in] iter current iteration
+     * @param[in,out] nstab number of successive iteration respecting the breaking condition
+     */
+    template <typename model>
+    void variational<model>::assessConvergence(int &nstab) {
+        // breaking condition: convergence or not
+        double res = m_model.normGap();
+        m_normGap(m_iter) = res;
+
+        // derivative order to consider
+        double condition = variational<model>::convCondition(m_order, m_normGap, m_iter, 0);
+
+        if(std::abs(condition) < m_epsilon) {
+            nstab++;
+        } else {
+            nstab=0;
+        }
+
+        if(nstab > m_stabRange) {
+            m_converged=true;
+            m_nbIter=m_iter;
+        } else {
+            if(m_iter == m_iterMax - 1) {
+                m_nbIter = m_iter;
+            }
+        }
+    }
+
+    /*!
+     * \brief compute factor order
+     * @tparam model a gamma Poisson factor model
+     */
+    template <typename model>
+    void variational<model>::computeOrder() {
+        m_model.computeOrder();
     }
 
     /*!
@@ -401,47 +442,6 @@ namespace countMatrixFactor {
 
         results = tmp2;
 
-    }
-
-    /*!
-     * \brief assess convergence
-     * @tparam model a gamma Poisson factor model
-     *
-     * @param[in] iter current iteration
-     * @param[in,out] nstab number of successive iteration respecting the breaking condition
-     */
-    template <typename model>
-    void variational<model>::assessConvergence(int &nstab) {
-        // breaking condition: convergence or not
-        double res = m_model.normGap();
-        m_normGap(m_iter) = res;
-
-        // derivative order to consider
-        double condition = convCondition(m_order, m_normGap, m_iter, 0);
-
-        if(std::abs(condition) < m_epsilon) {
-            nstab++;
-        } else {
-            nstab=0;
-        }
-
-        if(nstab > m_stabRange) {
-            m_converged=true;
-            m_nbIter=m_iter;
-        } else {
-            if(m_iter == m_iterMax - 1) {
-                m_nbIter = m_iter;
-            }
-        }
-    }
-
-    /*!
-     * \brief compute factor order
-     * @tparam model a gamma Poisson factor model
-     */
-    template <typename model>
-    void variational<model>::computeOrder() {
-        m_model.computeOrder();
     }
 
     //-------------------//
@@ -498,37 +498,36 @@ namespace countMatrixFactor {
         m_expVarV(iter) = m_model.computeExpVarV();
     }
 
-
-    //-------------------//
-    //   convergence     //
-    //-------------------//
-
     /*!
-     * \fn assess convergence condition
-     *
-     * convergence assessed on the normalized gap between two iterates
-     * order 0: value of normalized gap
-     * order 1: first empirical derivative of normalized gap (speed)
-     * order 2: second empirical derivative of normalized gap (acceleration)
-     *
-     * @return value of the condition
-     */
-    double convCondition(int order, const VectorXd &normGap, int iter, int drift) {
+    * \brief assess convergence condition
+    *
+    * convergence assessed on the normalized gap between two iterates
+    * order 0: value of normalized gap
+    * order 1: first empirical derivative of normalized gap (speed)
+    * order 2: second empirical derivative of normalized gap (acceleration)
+    *
+    * @return value of the condition
+    */
+    template <typename model>
+    double variational<model>::convCondition(int order, const VectorXd &normGap, int iter, int topArray) {
         double condition = 1;
+
+        iter = iter + topArray;
+
         switch(order) {
             case 0 : {
-                condition = normGap(iter-drift);
+                condition = normGap(iter);
             } break;
 
             case 1 : {
-                if(iter>1) {
-                    condition = normGap(iter-drift) - normGap(iter-drift-1);
+                if(iter>+1) {
+                    condition = normGap(iter) - normGap(iter-1);
                 }
             } break;
 
             case 2 : {
-                if(iter>2) {
-                    condition = normGap(iter-drift) - 2*normGap(iter-drift-1) + normGap(iter-drift-2);
+                if(iter>+2) {
+                    condition = normGap(iter) - 2*normGap(iter-1) + normGap(iter-2);
                 }
             } break;
         }
