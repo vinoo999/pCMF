@@ -64,6 +64,7 @@ namespace intermediate {
 
     // difference of squared euclidean norm (on parameters)
     double differenceNorm2(const MatrixXd &param1a, const MatrixXd &param2a, const MatrixXd &param1b, const MatrixXd &param2b);
+
 }
 
 #endif

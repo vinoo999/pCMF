@@ -176,5 +176,4 @@ namespace intermediate {
         return(res);
     }
 
-
 }
