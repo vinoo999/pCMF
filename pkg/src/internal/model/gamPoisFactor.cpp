@@ -38,6 +38,7 @@
 #define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
+#define mpsiInv() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,int,double>(intermediate::psiInv),6))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -351,6 +352,36 @@ namespace countMatrixFactor {
         m_theta2old = m_theta2cur;
     }
 
+    // local parameters: alpha (factor U)
+    void gamPoisFactor::localPriorParam() {
+        m_alpha1cur = (m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
+        m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
+    }
+
+    // global parameters: beta (factor V)
+    void gamPoisFactor::globalPriorParam() {
+        m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
+        m_beta2cur = m_beta1cur.array().rowwise() / m_EU.colwise().mean().array();
+    }
+
+    // update parameters between iterations in Estep
+    void gamPoisFactor::nextIterateEstep() {
+        m_phi1old = m_phi1cur;
+        m_phi2old = m_phi2cur;
+
+        m_theta1old = m_theta1cur;
+        m_theta2old = m_theta2cur;
+    }
+
+    // update parameters between iterations in Mstep
+    void gamPoisFactor::nextIterateMstep() {
+        m_alpha1old = m_alpha1cur;
+        m_alpha2old = m_alpha2cur;
+
+        m_beta1old = m_beta1cur;
+        m_beta2old = m_beta2cur;
+    }
+
 
     //-------------------//
     //     algorithm     //
@@ -364,6 +395,49 @@ namespace countMatrixFactor {
                                     + intermediate::parameterNorm2(m_theta1old, m_theta2old));
         double diffNorm = sqrt(intermediate::differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur)
                                    + intermediate::differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
+
+        double res = diffNorm / paramNorm;
+        return res;
+    }
+
+    /*!
+     * \brief compute normalized gap between two iterates in E-step of EM algo
+     */
+    double gamPoisFactor::normGapEstep() {
+        double paramNorm = sqrt(intermediate::parameterNorm2(m_phi1old, m_phi2old)
+                                    + intermediate::parameterNorm2(m_theta1old, m_theta2old));
+        double diffNorm = sqrt(intermediate::differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur)
+                                   + intermediate::differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
+
+        double res = diffNorm / paramNorm;
+        return res;
+    }
+
+    /*!
+     * \brief compute normalized gap between two iterates in M-step of EM algo
+     */
+    double gamPoisFactor::normGapMstep() {
+        double paramNorm = sqrt(intermediate::parameterNorm2(m_alpha1old, m_alpha2old)
+                                   + intermediate::parameterNorm2(m_beta1old, m_beta2old));
+        double diffNorm = sqrt(intermediate::differenceNorm2(m_alpha1old, m_alpha2old, m_alpha1cur, m_alpha2cur)
+                                   + intermediate::differenceNorm2(m_beta1old, m_beta2old, m_beta1cur, m_beta2cur));
+
+        double res = diffNorm / paramNorm;
+        return res;
+    }
+
+    /*!
+     * \brief compute normalized gap between two iterates in EM algo
+     */
+    double gamPoisFactor::normGapEM() {
+        double paramNorm = sqrt(intermediate::parameterNorm2(m_phi1old, m_phi2old)
+                                    + intermediate::parameterNorm2(m_theta1old, m_theta2old)
+                                    + intermediate::parameterNorm2(m_alpha1old, m_alpha2old)
+                                    + intermediate::parameterNorm2(m_beta1old, m_beta2old));
+        double diffNorm = sqrt(intermediate::differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur)
+                                   + intermediate::differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur)
+                                   + intermediate::differenceNorm2(m_alpha1old, m_alpha2old, m_alpha1cur, m_alpha2cur)
+                                   + intermediate::differenceNorm2(m_beta1old, m_beta2old, m_beta1cur, m_beta2cur));
 
         double res = diffNorm / paramNorm;
         return res;
@@ -633,7 +707,11 @@ namespace countMatrixFactor {
         Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
                                                Rcpp::Named("phi2") = m_phi2cur,
                                                Rcpp::Named("theta1") = m_theta1cur,
-                                               Rcpp::Named("theta2") = m_theta2cur);
+                                               Rcpp::Named("theta2") = m_theta2cur,
+                                               Rcpp::Named("alpha1") = m_alpha1cur,
+                                               Rcpp::Named("alpha2") = m_alpha2cur,
+                                               Rcpp::Named("beta1") = m_beta1cur,
+                                               Rcpp::Named("beta2") = m_beta2cur);
 
         Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
                                               Rcpp::Named("EV") = m_EV,

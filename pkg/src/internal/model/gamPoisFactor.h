@@ -194,12 +194,33 @@ namespace countMatrixFactor {
         // update parameters between iterations
         void nextIterate();
 
+        // local parameters: alpha (factor U)
+        void localPriorParam();
+
+        // global parameters: beta (factor V)
+        void globalPriorParam();
+
+        // update parameters between iterations
+        void nextIterateEstep();
+
+        // update parameters between iterations
+        void nextIterateMstep();
+
         //-------------------//
         //     algorithm     //
         //-------------------//
 
-        // compute normalized gap between two iterates
+        // compute normalized gap between two iterates in variational algo
         double normGap();
+
+        // compute normalized gap between two iterates in E-step of EM algo
+        double normGapEstep();
+
+        // compute normalized gap between two iterates in M-step of EM algo
+        double normGapMstep();
+
+        // compute normalized gap between two iterates in EM algo
+        double normGapEM();
 
         //-------------------//
         //   order factors   //
