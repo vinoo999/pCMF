@@ -54,7 +54,7 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=5, iterMax_Estep=50, iterMax_Mstep=50, epsilon=1e-4, algo="EM")
+                    iterMax=50, iterMax_Estep=50, iterMax_Mstep=50, epsilon=1e-4, algo="EM")
 
 str(res1)
 
@@ -62,96 +62,40 @@ print(res1$criteria_k$kDeviance)
 myOrder = res1$order$orderDeviance
 print(myOrder)
 
-# tmp = sapply(1:ncomp, function(k) {
-#     lambda = res1$U[,k] %*% t(res1$V[,k])
-#     summary(log(lambda))
-#     return(sum(data1$X * log(lambda) + data1$X * log(data1$X) - lambda - data1$X))
-# })
-#
-# library(fields)
-#
-# lambda = res1$U[,1] %*% t(res1$V[,1])
-# lambda0 = data1$X
-# lambda0[lambda0==0] = 1
-# dim(lambda0)
-# min(lambda0)
-# summary(log(lambda))
-# image.plot(log(lambda))
-#
-# sum(is.na(log(lambda)))
-#
-# hist(res1$U[,1])
-# hist(res1$V[,1])
-# hist(lambda)
-# sum(lambda==0)
-#
-# image.plot(data1$X * log(data1$X))
-# image.plot(data1$X * log(lambda))
-# hist(colSums(data1$X * log(data1$X)))
-#
-#
-# image.plot(data1$X * lambda)
-#
-# min(lambda0 * lambda)
-#
-# sum(is.na(data1$X * lambda))
-#
-# image.plot(log(lambda0 * lambda))
-#
-# sum(data1$X * log(lambda) + data1$X * log(lambda0) - lambda - data1$X)
-#
-# min(data1$X * (log(lambda0 * lambda) -1) - lambda)
-# max(data1$X * (log(lambda0 * lambda) -1) - lambda)
-# hist(data1$X * (log(lambda0 * lambda) -1) - lambda)
-#
-# hist(log(lambda0 / lambda) -1)
-# hist(data1$X * (log(lambda0 / lambda) -1))
-# sum((data1$X * (log(lambda0 / lambda) -1))<0)
-# sum((data1$X * (log(lambda0 / lambda) -1))>0)
-# sum(data1$X * (log(lambda0 / lambda) -1))
-#
-# sum(data1$X * (log(lambda0 / lambda) -1) - lambda)
 
 
-# tmp/1E6
-#
-# tmp = data1$X - lambda
-# hist(tmp)
-# hist(data1$X)
-# hist(lambda)
+###### comparison of the results
 
-# plot(res1$criteria_k$kExpVarU)
+setwd(FIGUREDIR)
 
-#
-# ###### comparison of the results
-#
-# setwd(FIGUREDIR)
-#
-# ## log-likelihood
-# plot(res1$logLikelihood$condLogLike, xlab="iteration", ylab="conditional log likelihood", col="blue", type="l")
-#
-# plot(res1$logLikelihood$margLogLike, xlab="iteration", ylab="complete log likelihood", col="blue", type="l")
-#
-# plot(res1$logLikelihood$elbo, xlab="iteration", ylab="elbo", col="blue", type="l")
-#
-# ## norm gap
-# plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-#
-# ## exp var
-# plot(res1$expVariance$expVar0, xlab="iteration", ylab="expVar0", col="blue", type="b")
-# plot(res1$expVariance$expVarU, xlab="iteration", ylab="expVarU", col="blue", type="b")
-# plot(res1$expVariance$expVarV, xlab="iteration", ylab="expVarV", col="blue", type="b")
-#
-# ## depending on K
-# plot(res1$order$kDeviance, xlab="k", ylab="deviance", col="blue", type="b")
-# plot(res1$order$kExpVar0, xlab="k", ylab="expVar0", col="blue", type="b")
-# plot(res1$order$kExpVarU, xlab="k", ylab="expVarU", col="blue", type="b")
-# plot(res1$order$kExpVarV, xlab="k", ylab="expVarV", col="blue", type="b")
-#
-# ## order
-# res1$order$orderDeviance
-# res1$order$orderExpVar0
-# res1$order$orderExpVarU
-# res1$order$orderExpVarV
-#
-#
+## log-likelihood
+plot(res1$logLikelihood$condLogLike, xlab="iteration", ylab="conditional log likelihood", col="blue", type="l")
+
+plot(res1$logLikelihood$margLogLike, xlab="iteration", ylab="complete log likelihood", col="blue", type="l")
+
+plot(res1$logLikelihood$elbo, xlab="iteration", ylab="elbo", col="blue", type="l")
+
+## norm gap
+plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+
+plot(res1$EM$normGap_Estep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+plot(res1$EM$normGap_Mstep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+
+## exp var
+plot(res1$expVariance$expVar0, xlab="iteration", ylab="expVar0", col="blue", type="b")
+plot(res1$expVariance$expVarU, xlab="iteration", ylab="expVarU", col="blue", type="b")
+plot(res1$expVariance$expVarV, xlab="iteration", ylab="expVarV", col="blue", type="b")
+
+## depending on K
+plot(res1$criteria_k$kDeviance, xlab="k", ylab="deviance", col="blue", type="b")
+plot(res1$criteria_k$kExpVar0, xlab="k", ylab="expVar0", col="blue", type="b")
+plot(res1$criteria_k$kExpVarU, xlab="k", ylab="expVarU", col="blue", type="b")
+plot(res1$criteria_k$kExpVarV, xlab="k", ylab="expVarV", col="blue", type="b")
+
+## order
+res1$order$orderDeviance
+res1$order$orderExpVar0
+res1$order$orderExpVarU
+res1$order$orderExpVarV
+
+
