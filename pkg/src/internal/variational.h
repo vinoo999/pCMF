@@ -21,7 +21,7 @@
 
 /*!
 * \file variational.h
-* \brief tamplete class definition for variational algorithm
+* \brief template class definition for variational algorithm
 * \author Ghislain Durif
 * \version 0.1
 * \date 06/06/2016
@@ -44,7 +44,8 @@ namespace countMatrixFactor {
 
     /*!
     * \class variational
-    * \brief tamplate class to process variational inference on a given model
+    * \brief template class to process variational inference on a given model
+    * @tparam model a gamma Poisson factor model
     */
     template <typename model>
     class variational {
@@ -82,29 +83,28 @@ namespace countMatrixFactor {
 
     public:
         /*!
-        * \brief Constructor for gamma Poisson Factor Model
-        *
-        * Constructor of the class variational
-        *
-        * \param n number of observations (rows)
-        * \param p number of variables (columns)
-        * \param K dimension of the latent subspace
-        * \param iterMax maomegamum number of iterations
-        * \param order derivative order on normalized gap to assess convergence
-        * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
-        * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
-        * \param epsilon precision for comparison when assessing convergence
-        * \param verbose boolean indicating verbosity in the output
-        * \param X n x p, count data matrix (const reference)
-        * \param phi1 n x K, initial values of first parameter of Gamma distribution on U (const reference)
-        * \param phi2 n x K, initial values of second parameter of Gamma distribution on U (const reference)
-        * \param theta1 n x K, initial values of first parameter of Gamma distribution on V (const reference)
-        * \param theta2 n x K, initial values of second parameter of Gamma distribution on V (const reference)
-        * \param alpha1 n x K, initial values of first parameter of Gamma prior on U (const reference)
-        * \param alpha2 n x K, initial values of second parameter of Gamma prior on U (const reference)
-        * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
-        * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
-        */
+         * \brief Constructor of the template class variational for gamma Poisson Factor Model
+         * @tparam model a gamma Poisson factor model
+         *
+         * \param n number of observations (rows)
+         * \param p number of variables (columns)
+         * \param K dimension of the latent subspace
+         * \param iterMax maomegamum number of iterations
+         * \param order derivative order on normalized gap to assess convergence
+         * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
+         * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
+         * \param epsilon precision for comparison when assessing convergence
+         * \param verbose boolean indicating verbosity in the output
+         * \param X n x p, count data matrix (const reference)
+         * \param phi1 n x K, initial values of first parameter of Gamma distribution on U (const reference)
+         * \param phi2 n x K, initial values of second parameter of Gamma distribution on U (const reference)
+         * \param theta1 n x K, initial values of first parameter of Gamma distribution on V (const reference)
+         * \param theta2 n x K, initial values of second parameter of Gamma distribution on V (const reference)
+         * \param alpha1 n x K, initial values of first parameter of Gamma prior on U (const reference)
+         * \param alpha2 n x K, initial values of second parameter of Gamma prior on U (const reference)
+         * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
+         * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
+         */
         variational(int iterMax, int order,
                     int stabRange, double epsilon, bool verbose,
                     int n, int p, int K,
@@ -115,9 +115,8 @@ namespace countMatrixFactor {
                     const MatrixXd &beta1, const MatrixXd &beta2);
 
         /*!
-         * \brief Constructor for gamma Poisson Factor Model Penalized
-         *
-         * Constructor of the class variational
+         * \brief Constructor of the template class variational for Penalized (l2) gamma Poisson Factor Model
+         * @tparam model a gamma Poisson factor model
          *
          * \param n number of observations (rows)
          * \param p number of variables (columns)
@@ -149,15 +148,15 @@ namespace countMatrixFactor {
                     const VectorXd &lambda_k, const VectorXd &mu_k);
 
         /*!
-        * \brief Destructor
-        *
-        * Destructor of the class gamPoisFactor
-        */
+         * \brief Destructor
+         *
+         * Destructor of the template class
+         */
         ~variational();
 
     public:
 
-        // Initialization of sufficient statistics
+        // Initialization of model
         void Init();
 
         // run algorithm
@@ -298,16 +297,18 @@ namespace countMatrixFactor {
     variational<model>::~variational() {}
 
     /*!
-    * \brief Initialization of sufficient statistics
-    */
+     * \brief Initialization of sufficient statistics
+     * @tparam model a gamma Poisson factor model
+     */
     template <typename model>
     void variational<model>::Init() {
         m_model.Init();
     }
 
     /*!
-    * \brief run algorithm
-    */
+     * \brief run algorithm
+     * @tparam model a gamma Poisson factor model
+     */
     template <typename model>
     void variational<model>::algorithm() {
 
@@ -363,8 +364,9 @@ namespace countMatrixFactor {
     }
 
     /*!
-    * \brief create list of object to return
-    */
+     * \brief create list of object to return
+     * @tparam model a gamma Poisson factor model
+     */
     template <typename model>
     void variational<model>::returnObject(Rcpp::List &results) {
 
@@ -398,11 +400,12 @@ namespace countMatrixFactor {
     }
 
     /*!
-    * \brief assess convergence
-    *
-    * @param[in] iter current iteration
-    * @param[in,out] nstab number of successive iteration respecting the breaking condition
-    */
+     * \brief assess convergence
+     * @tparam model a gamma Poisson factor model
+     *
+     * @param[in] iter current iteration
+     * @param[in,out] nstab number of successive iteration respecting the breaking condition
+     */
     template <typename model>
     void variational<model>::assessConvergence(int &nstab) {
         // breaking condition: convergence or not
@@ -429,11 +432,9 @@ namespace countMatrixFactor {
     }
 
     /*!
-    * \brief assess convergence
-    *
-    * @param[in] iter current iteration
-    * @param[in,out] nstab number of successive iteration respecting the breaking condition
-    */
+     * \brief compute factor order
+     * @tparam model a gamma Poisson factor model
+     */
     template <typename model>
     void variational<model>::computeOrder() {
         m_model.computeOrder();
@@ -444,10 +445,11 @@ namespace countMatrixFactor {
     //-------------------//
 
     /*!
-    * \brief compute log-likelihood
-    *
-    * @param[in] iter current iteration
-    */
+     * \brief compute log-likelihood
+     * @tparam model a gamma Poisson factor model
+     *
+     * @param[in] iter current iteration
+     */
     template <typename model>
     void variational<model>::computeLogLike(int iter) {
         m_condLogLike(iter) = m_model.computeCondLogLike();
@@ -458,30 +460,33 @@ namespace countMatrixFactor {
     }
 
     /*!
-    * \brief compute evidence lower bound
-    *
-    * @param[in] iter current iteration
-    */
+     * \brief compute evidence lower bound
+     * @tparam model a gamma Poisson factor model
+     *
+     * @param[in] iter current iteration
+     */
     template <typename model>
     void variational<model>::computeELBO(int iter) {
         m_elbo(iter) = m_model.computeELBO();
     }
 
     /*!
-    * \brief compute deviance between estimated and saturated model
-    *
-    * @param[in] iter current iteration
-    */
+     * \brief compute deviance between estimated and saturated model
+     * @tparam model a gamma Poisson factor model
+     *
+     * @param[in] iter current iteration
+     */
     template <typename model>
     void variational<model>::computeDeviance(int iter) {
         m_deviance(iter) = m_model.computeDeviance();
     }
 
     /*!
-    * \brief compute explained variance
-    *
-    * @param[in] iter current iteration
-    */
+     * \brief compute explained variance
+     * @tparam model a gamma Poisson factor model
+     *
+     * @param[in] iter current iteration
+     */
     template <typename model>
     void variational<model>::computeExpVar(int iter) {
         m_expVar0(iter) = m_model.computeExpVar0();
