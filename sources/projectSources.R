@@ -22,8 +22,8 @@ project.sources = function(subpath="pkg") {
     file.list = system(paste0("cd ", src.path, " && git ls-files | grep \"\\\\.cpp\""), intern=TRUE)
 
     fileToCompile = c("gamPoisFactor_wrapper.cpp",
-                      "gamPoisFactorPen_wrapper.cpp")
-                      # "gamPoisFactorEM_wrapper.cpp")
+                      "gamPoisFactorPen_wrapper.cpp",
+                      "gamPoisFactorEM_wrapper.cpp")
 
     file.list = file.list[file.list %in% fileToCompile]
 
