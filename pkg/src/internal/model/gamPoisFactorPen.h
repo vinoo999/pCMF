@@ -96,7 +96,7 @@ namespace countMatrixFactor {
         // create list with results to be return
         void returnObject(Rcpp::List &results);
 
-    protected:
+    public:
 
         //-------------------//
         // parameter updates //
@@ -105,11 +105,13 @@ namespace countMatrixFactor {
         // local parameters: phi (factor U)
         void localParam();
 
-        // penalized local parameters: phi (factor U)
-        void penLocalParam();
-
         // global parameters: theta (factor V)
         void globalParam();
+
+    protected:
+
+        // penalized local parameters: phi (factor U)
+        void penLocalParam();
 
         // penalized global parameters: theta (factor V)
         void penGlobalParam();
