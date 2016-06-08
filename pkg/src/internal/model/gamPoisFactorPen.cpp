@@ -192,7 +192,11 @@ namespace countMatrixFactor {
         Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
                                                Rcpp::Named("phi2") = m_phi2cur,
                                                Rcpp::Named("theta1") = m_theta1cur,
-                                               Rcpp::Named("theta2") = m_theta2cur);
+                                               Rcpp::Named("theta2") = m_theta2cur,
+                                               Rcpp::Named("alpha1") = m_alpha1cur,
+                                               Rcpp::Named("alpha2") = m_alpha2cur,
+                                               Rcpp::Named("beta1") = m_beta1cur,
+                                               Rcpp::Named("beta2") = m_beta2cur);
 
         Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
                                               Rcpp::Named("EV") = m_EV,
