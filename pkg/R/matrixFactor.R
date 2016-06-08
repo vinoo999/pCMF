@@ -23,7 +23,7 @@
 #' Description
 #'
 #' @details
-#' Wrapper for Cpp function
+#' Factorization of count matrix
 #'
 #' @author
 #' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
@@ -35,7 +35,16 @@
 #' @import RcppEigen
 #' @useDynLib countMatrixFactor
 #'
-#' @param X
+#' @param X matrix n x p of counts
+#' @param K number of factors
+#' @param phi01 n x K, initial values of first parameter of Gamma distribution on U
+#' @param phi02 n x K, initial values of second parameter of Gamma distribution on U
+#' @param theta01 n x K, initial values of first parameter of Gamma distribution on V
+#' @param theta02 n x K, initial values of second parameter of Gamma distribution on V
+#' @param alpha1 n x K, initial values of first parameter of Gamma prior on U
+#' @param alpha2 n x K, initial values of second parameter of Gamma prior on U
+#' @param beta1 n x K, initial values of first parameter of Gamma prior on V
+#' @param beta2 n x K, initial values of second parameter of Gamma prior on V
 #'
 #' @return return
 #' \item{Y}{Y}

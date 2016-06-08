@@ -11,7 +11,25 @@ matrixFactor(X, K, phi01, phi02, theta01, theta02, alpha1, alpha2, beta1, beta2,
   algo = "EM")
 }
 \arguments{
-\item{X}{}
+\item{X}{matrix n x p of counts}
+
+\item{K}{number of factors}
+
+\item{phi01}{n x K, initial values of first parameter of Gamma distribution on U}
+
+\item{phi02}{n x K, initial values of second parameter of Gamma distribution on U}
+
+\item{theta01}{n x K, initial values of first parameter of Gamma distribution on V}
+
+\item{theta02}{n x K, initial values of second parameter of Gamma distribution on V}
+
+\item{alpha1}{n x K, initial values of first parameter of Gamma prior on U}
+
+\item{alpha2}{n x K, initial values of second parameter of Gamma prior on U}
+
+\item{beta1}{n x K, initial values of first parameter of Gamma prior on V}
+
+\item{beta2}{n x K, initial values of second parameter of Gamma prior on V}
 }
 \value{
 return
@@ -21,7 +39,7 @@ return
 Description
 }
 \details{
-Wrapper for Cpp function
+Factorization of count matrix
 }
 \author{
 Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
