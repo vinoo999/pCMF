@@ -41,7 +41,7 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 
 
 // [[Rcpp::export]]
-SEXP gamPoisFactor_wrapper(SEXP Xin, int K,
+SEXP gamPoisFactorPen_wrapper(SEXP Xin, int K,
                            SEXP phi01in, SEXP phi02in,
                            SEXP theta01in, SEXP theta02in,
                            SEXP alpha1in, SEXP alpha2in,
