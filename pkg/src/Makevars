@@ -1,0 +1,10 @@
+SOURCES_CPP = $(wildcard internal/*.cpp internal/*/*.cpp)
+PKG_CPPFLAGS= -I${R_HOME}/include -I.
+PKG_LIBS = -L${R_HOME}/lib
+
+OBJECTS =$(SOURCES_CPP:.cpp=.o)
+
+all : $(SHLIB)
+#PKG_CFLAGS= -Wall
+
+clean : rm -f *.o

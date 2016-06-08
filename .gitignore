@@ -10,3 +10,5 @@ MD5
 
 *.Rcheck
 *.tar.gz
+
+install/*
