@@ -307,14 +307,49 @@ namespace countMatrixFactor {
 
     /*!
      * \brief update rule for multinomial parameters in variational inference
+     *
+     * m_EZ_i_{jk} = sum_i E[Z_{ijk}]
+     * m_EZ_j_{ik} = sum_j E[Z_{ijk}]
      */
     void gamPoisFactor::multinomParam() {
 
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / (m_ElogU.mexp() * m_ElogV.mexp().transpose()).array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / (m_ElogU.mexp() * m_ElogV.mexp().transpose()).array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+        MatrixXd sum_k(m_ElogU.mexp() * m_ElogV.mexp().transpose());
+
+        // Rcpp::Rcout << "dim = " << sum_k.rows() << " x " << sum_k.cols()  << std::endl;
+
+        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / sum_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / sum_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+
+        // test
+        // for(int i=0; i<m_N; i++) {
+        //     for(int k = 0; k<m_K; k++) {
+        //         double test = 0;
+        //         for(int j=0; j<m_P; j++) {
+        //             test += m_X(i,j) * std::exp(m_ElogV(j,k)) / sum_k(i,j);
+        //         }
+        //         test *= std::exp(m_ElogU(i,k));
+        //
+        //         if(test != m_EZ_j(i,k)) {
+        //             Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
+        //         }
+        //     }
+        // }
+        //
+        // for(int j=0; j<m_P; j++) {
+        //     for(int k = 0; k<m_K; k++) {
+        //         double test = 0;
+        //         for(int i=0; i<m_N; i++) {
+        //             test += m_X(i,j) * std::exp(m_ElogU(i,k)) / sum_k(i,j);
+        //         }
+        //         test *= std::exp(m_ElogV(j,k));
+        //         if(test != m_EZ_i(j,k)) {
+        //             Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
+        //         }
+        //     }
+        // }
     }
 
     /*!
