@@ -291,8 +291,7 @@ namespace countMatrixFactor {
                                                   Rcpp::Named("params") = params,
                                                   Rcpp::Named("stats") = stats,
                                                   Rcpp::Named("order") = order,
-                                                  Rcpp::Named("criteria_k") = criteria_k,
-                                                  Rcpp::Named("pen") = pen);
+                                                  Rcpp::Named("criteria_k") = criteria_k);
 
         SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
 
