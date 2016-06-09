@@ -348,9 +348,7 @@ namespace countMatrixFactor {
 
             // ZI proba (if ZI model)
             //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
-            if(m_ZI) {
-                m_model.ZIproba();
-            }
+            m_model.ZIproba();
 
             // log-likelihood
             //Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
