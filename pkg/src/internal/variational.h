@@ -346,6 +346,12 @@ namespace countMatrixFactor {
             //Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
             m_model.poissonRate();
 
+            // ZI proba (if ZI model)
+            //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+            if(m_ZI) {
+                m_model.ZIproba();
+            }
+
             // log-likelihood
             //Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
             this->computeLogLike(m_iter);
