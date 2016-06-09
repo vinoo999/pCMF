@@ -13,9 +13,9 @@ source("sources/projectSources.R")
 ######################
 
 ## generating the data
-n = 100
-p = 50
-K = 10
+n = 20
+p = 10
+K = 4
 
 ## need of a priori values for gamma distribution
 signalBlock = matrix(c(1,3,4,2), nrow=2, ncol=2)
@@ -142,10 +142,10 @@ print(myOrder)
 # plot(res1$expVariance$expVarV, xlab="iteration", ylab="expVarV", col="blue", type="b")
 #
 # ## depending on K
-# plot(res1$order$kDeviance, xlab="k", ylab="deviance", col="blue", type="b")
-# plot(res1$order$kExpVar0, xlab="k", ylab="expVar0", col="blue", type="b")
-# plot(res1$order$kExpVarU, xlab="k", ylab="expVarU", col="blue", type="b")
-# plot(res1$order$kExpVarV, xlab="k", ylab="expVarV", col="blue", type="b")
+# plot(res1$criteria_k$kDeviance, xlab="k", ylab="deviance", col="blue", type="b")
+# plot(res1$criteria_k$kExpVar0, xlab="k", ylab="expVar0", col="blue", type="b")
+# plot(res1$criteria_k$kExpVarU, xlab="k", ylab="expVarU", col="blue", type="b")
+# plot(res1$criteria_k$kExpVarV, xlab="k", ylab="expVarV", col="blue", type="b")
 #
 # ## order
 # res1$order$orderDeviance
