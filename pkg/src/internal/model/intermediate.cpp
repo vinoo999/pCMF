@@ -63,6 +63,48 @@ namespace intermediate {
     }
 
     /*!
+     * \fn exponential that throw error when under or overflowing
+     *
+     * @param[in] x real
+     * @return the value of exp(x)
+     */
+    double myExp(double x) {
+        if(std::abs(x) > 700) {
+            Rcpp::stop("under or overflow in exponential");
+            return(-1);
+        } else {
+            return exp(x);
+        }
+    }
+
+    /*!
+     * \fn logit function
+     *
+     * log(x/(1-x))
+     *
+     * @param[in] x real between 0 and 1
+     * @return the value of logit(x)
+     */
+    double logit(double x) {
+        return std::log(x/(1-x));
+    }
+
+    /*!
+     * \fn logit inverse function
+     *
+     * exp(x)/(1+exp(x)) = 1/(1+exp(-x))
+     *
+     * @param[in] x real between 0 and 1
+     * @return the value of logit(x)
+     */
+    double logitinv(double x) {
+        if (x > 16) return 1;
+        if (x < -16) return 0;
+        return 1 / (1 + std::exp(-x));
+    }
+
+
+    /*!
      * \fn erase zeros in matrix
      *
      * @param[in,out] X matrix of data (count)
@@ -76,20 +118,6 @@ namespace intermediate {
                     X(i,j) = X(i,j) + 1;
                 }
             }
-        }
-    }
-
-    /*!
-     * \fn exponential that throw error when under or overflowing
-     *
-     * @param[in] x real
-     */
-    double myExp(double x) {
-        if(std::abs(x) > 700) {
-            Rcpp::stop("under or overflow in exponential");
-            return(-1);
-        } else {
-            return exp(x);
         }
     }
 
