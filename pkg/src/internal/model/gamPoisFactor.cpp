@@ -377,6 +377,11 @@ namespace countMatrixFactor {
     }
 
     /*!
+     * \brief update rule for Bernoulli parameter (of ZI indicator) in variational inference (does nothing if non ZI model)
+     */
+    void gamPoisFactor::ZIproba() {}
+
+    /*!
      * \brief update parameters between iterations
      */
     void gamPoisFactor::nextIterate() {

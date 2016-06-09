@@ -191,6 +191,9 @@ namespace countMatrixFactor {
         // global parameters: theta (factor V)
         void globalParam();
 
+        // zi proba
+        void ZIproba();
+
         // update parameters between iterations
         void nextIterate();
 
