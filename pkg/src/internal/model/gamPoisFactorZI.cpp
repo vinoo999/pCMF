@@ -149,8 +149,8 @@ namespace countMatrixFactor {
 
         MatrixXd sum_k(m_ElogU.mexp() * m_ElogV.mexp().transpose());
 
-        m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.array()) / sum_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.array()) / sum_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+        m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.transpose().array()) / sum_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.transpose().array()) / sum_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
         // test
 
@@ -187,7 +187,7 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorZI::localParam() {
         m_phi1cur = m_alpha1cur.array() + m_EZ_j.array();
-        m_phi2cur = m_alpha2cur.rowwise() + (m_EV.array().colwise() * m_prob.array()).colwise().sum();
+        m_phi2cur = m_alpha2cur.array().rowwise() + (m_EV.array().colwise() * m_prob.array()).colwise().sum();
 
         // test
         for(int i=0; i<m_N; i++) {
