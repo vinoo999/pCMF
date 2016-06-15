@@ -111,14 +111,7 @@ namespace countMatrixFactor {
         }
 
         m_prob0 = m_prob0.array() / m_N;
-
-        for(int j=0; j<m_P; j++) {
-            for(int i=0; i<m_N; i++) {
-                if(m_X(i,j) == 0) {
-                    m_prob(i,j) = m_prob0(j);
-                }
-            }
-        }
+        m_prob = m_prob0;
 
         // sufficient statistics
         Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
