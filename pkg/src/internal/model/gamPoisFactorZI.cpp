@@ -63,6 +63,7 @@ namespace countMatrixFactor {
 
         m_prob0 = VectorXd::Zero(p);
         m_prob = VectorXd::Zero(p);
+        m_freq = VectorXd::Zero(p);
 
     }
 
@@ -105,13 +106,14 @@ namespace countMatrixFactor {
         for(int j=0; j<m_P; j++) {
             for(int i=0; i<m_N; i++) {
                 if(m_X(i,j) != 0) {
-                    m_prob0(j) = m_prob0(j)+1;
+                    m_freq(j) = m_freq(j)+1;
                 }
             }
         }
 
-        m_prob0 = m_prob0.array() / m_N;
-        m_prob = m_prob0;
+        m_freq = m_freq.array() / m_N;
+        m_prob0 = m_freq;
+        m_prob = m_freq;
 
         // sufficient statistics
         Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
@@ -224,28 +226,17 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorZI::ZIproba() {
 
-        VectorXd logit_prob = VectorXd::Zero(m_P);
-        logit_prob = m_prob0.array() * m_prob0.mlogit().array() - (1/m_N) * (m_X.cast<double>().mdirac().transpose() * (m_EU * m_EV.transpose())).array();
-
-        Rcpp::Rcout << "m_prob0.array() * m_prob0.mlogit().array() = " << std::endl;
-        Rcpp::Rcout << m_prob0.array() * m_prob0.mlogit().array() << std::endl;
-
-        Rcpp::Rcout << "m_prob0.array() * m_prob0.mlogit().array() = " << std::endl;
-        Rcpp::Rcout << m_prob0.array() * m_prob0.mlogit().array() << std::endl;
-
-        m_prob = logit_prob.mlogitinv();
-
-        //test
         MatrixXd sum_k(m_EU * m_EV.transpose());
         for(int j=0; j<m_P; j++) {
-            double test = 0;
-            for(int i = 0; i<m_N; i++) {
-                test += intermediate::dirac(m_X(i,j)) * sum_k(i,j);
+            if((m_prob0(j) < 1) && (m_prob0(j) > 0)) {
+                double tmp = 0;
+                for(int i = 0; i<m_N; i++) {
+                    tmp += intermediate::dirac(m_X(i,j)) * sum_k(i,j);
+                }
+                m_prob(j) = intermediate::logitinv((1-m_freq(j)) * intermediate::logit(m_prob0(j)) - (1/m_N) * tmp);
             }
-            test = m_prob0(j) * intermediate::logit(m_prob0(j)) - (1/m_N) * test;
-            if(test != m_prob(j)) {
-                Rcpp::Rcout << "test = " << test << " m_prob = " <<  m_prob(j) << std::endl;
-            }
+
+            Rcpp::Rcout << " m_prob = " <<  m_prob(j) << std::endl;
         }
     }
 
@@ -269,6 +260,7 @@ namespace countMatrixFactor {
                                                Rcpp::Named("beta1") = m_beta1cur,
                                                Rcpp::Named("beta2") = m_beta2cur,
                                                Rcpp::Named("prob") = m_prob,
+                                               Rcpp::Named("freq") = m_freq,
                                                Rcpp::Named("prob0") = m_prob0);
 
         Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,

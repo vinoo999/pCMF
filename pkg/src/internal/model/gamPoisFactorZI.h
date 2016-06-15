@@ -60,6 +60,7 @@ namespace countMatrixFactor {
     protected:
         VectorXd m_prob;        /*!< vector of probability for variational distribution of Y */
         VectorXd m_prob0;       /*!< vector of probability for prior distribution of Y */
+        VectorXd m_freq;        /*!< vector of frequence of non null values in each column of X */
 
     public:
         /*!
