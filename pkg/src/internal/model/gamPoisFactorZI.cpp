@@ -104,7 +104,7 @@ namespace countMatrixFactor {
         // Bernoulli proba
         for(int j=0; j<m_P; j++) {
             for(int i=0; i<m_N; i++) {
-                if(m_X(i,j) == 0) {
+                if(m_X(i,j) != 0) {
                     m_prob0(j) = m_prob0(j)+1;
                 }
             }
@@ -233,6 +233,13 @@ namespace countMatrixFactor {
 
         VectorXd logit_prob = VectorXd::Zero(m_P);
         logit_prob = m_prob0.array() * m_prob0.mlogit().array() - (1/m_N) * (m_X.cast<double>().mdirac().transpose() * (m_EU * m_EV.transpose())).array();
+
+        Rcpp::Rcout << "m_prob0.array() * m_prob0.mlogit().array() = " << std::endl;
+        Rcpp::Rcout << m_prob0.array() * m_prob0.mlogit().array() << std::endl;
+
+        Rcpp::Rcout << "m_prob0.array() * m_prob0.mlogit().array() = " << std::endl;
+        Rcpp::Rcout << m_prob0.array() * m_prob0.mlogit().array() << std::endl;
+
         m_prob = logit_prob.mlogitinv();
 
         //test
