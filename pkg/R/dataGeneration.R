@@ -81,7 +81,7 @@ dataGeneration = function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob0
 
     ## generating the Bernoulli variables if necessary
     if(ZI) {
-        Y = sapply(prob0, function(p) return(rbinom(n=n,size=1,prob=1-p)))
+        Y = sapply(prob0, function(p) return(rbinom(n=n,size=1,prob=p)))
     } else {
         Y = matrix(1, nrow=n, ncol=p)
     }
