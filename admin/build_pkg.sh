@@ -12,10 +12,10 @@ find $WORKDIR -type f -name "*.o" | xargs -I {} rm {}
 find $WORKDIR -type f -name "*.so" | xargs -I {} rm {}
 
 ## compile attributes
-Rscript --verbose compileAttributes.R $WORKDIR
+Rscript --verbose $WORKDIR/admin/compileAttributes.R $WORKDIR
 
 ## compute MD5 sum
-Rscript --verbose computeMD5sum.R $WORKDIR
+Rscript --verbose $WORKDIR/admin/computeMD5sum.R $WORKDIR
 
 ## build package
 R CMD build $WORKDIR/pkg
