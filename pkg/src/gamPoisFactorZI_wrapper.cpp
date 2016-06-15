@@ -41,7 +41,7 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 
 
 // [[Rcpp::export]]
-SEXP gamPoisFactor_wrapper(SEXP Xin, int K, bool ZI,
+SEXP gamPoisFactorZI_wrapper(SEXP Xin, int K, bool ZI,
                            SEXP phi01in, SEXP phi02in,
                            SEXP theta01in, SEXP theta02in,
                            SEXP alpha1in, SEXP alpha2in,
@@ -65,10 +65,10 @@ SEXP gamPoisFactor_wrapper(SEXP Xin, int K, bool ZI,
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;
     variational<gamPoisFactorZI> myModel(iterMax, order,
-                                       stabRange, epsilon, verbose,
-                                       n, p, K, ZI, X,
-                                       phi01, phi02, theta01, theta02,
-                                       alpha1, alpha2, beta1, beta2);
+                                         stabRange, epsilon, verbose,
+                                         n, p, K, ZI, X,
+                                         phi01, phi02, theta01, theta02,
+                                         alpha1, alpha2, beta1, beta2);
 
     // initialization
     Rcpp::Rcout << "Initialization" << std::endl;
