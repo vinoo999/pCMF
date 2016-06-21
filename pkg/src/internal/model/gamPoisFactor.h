@@ -191,8 +191,8 @@ namespace countMatrixFactor {
         // global parameters: theta (factor V)
         void globalParam();
 
-        // zi proba
-        void ZIproba();
+        // parameter update variational standard
+        void updateVarational();
 
         // update parameters between iterations
         void nextIterate();
@@ -202,6 +202,12 @@ namespace countMatrixFactor {
 
         // global parameters: beta (factor V)
         void globalPriorParam();
+
+        // parameter update variational EM (E-step)
+        void updateEstep();
+
+        // parameter update variational EM (M-step)
+        void updateMstep();
 
         // update parameters between iterations
         void nextIterateEstep();

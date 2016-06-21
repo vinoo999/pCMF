@@ -377,9 +377,28 @@ namespace countMatrixFactor {
     }
 
     /*!
-     * \brief update rule for Bernoulli parameter (of ZI indicator) in variational inference (does nothing if non ZI model)
+     * \brief parameter update in standard variational
      */
-    void gamPoisFactor::ZIproba() {}
+    void gamPoisFactor::updateVarational() {
+
+        // Multinomial parameters
+        //Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        this->multinomParam();
+
+        // local parameters
+        // U : param phi
+        //Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        this->localParam();
+
+        // global parameters
+        // V : param theta
+        //Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        this->globalParam();
+
+        // Poisson rate
+        //Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
+        this->poissonRate();
+    }
 
     /*!
      * \brief update parameters between iterations
@@ -392,16 +411,58 @@ namespace countMatrixFactor {
         m_theta2old = m_theta2cur;
     }
 
-    // local parameters: alpha (factor U)
+    /*!
+     * \brief local parameter update: alpha (factor U)
+     */
     void gamPoisFactor::localPriorParam() {
         m_alpha1cur = (m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
         m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
     }
 
-    // global parameters: beta (factor V)
+    /*!
+     * \brief global parameter update: beta (factor V)
+     */
     void gamPoisFactor::globalPriorParam() {
         m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
         m_beta2cur = m_beta1cur.array().rowwise() / m_EU.colwise().mean().array();
+    }
+
+    /*!
+     * \brief parameter update in variational EM (E-step)
+     */
+    void gamPoisFactor::updateEstep() {
+        // Multinomial parameters
+        // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        this->multinomParam();
+
+        // local parameters
+        // U : param phi
+        // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        this->localParam();
+
+        // global parameters
+        // V : param theta
+        // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        this->globalParam();
+
+        // Poisson rate
+        // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
+        this->poissonRate();
+    }
+
+    /*!
+     * \brief parameter update in variational EM (M-step)
+     */
+    void gamPoisFactor::updateMstep() {
+        // local parameters
+        // U : param phi
+        // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        this->localPriorParam();
+
+        // global parameters
+        // V : param theta
+        // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        this->globalPriorParam();
     }
 
     // update parameters between iterations in Estep
