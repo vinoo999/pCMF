@@ -66,7 +66,7 @@ SEXP gamPoisFactorZI_wrapper(SEXP Xin, int K, bool ZI,
     Rcpp::Rcout << "Declaration" << std::endl;
     variational<gamPoisFactorZI> myModel(iterMax, order,
                                          stabRange, epsilon, verbose,
-                                         n, p, K, ZI, X,
+                                         n, p, K, X,
                                          phi01, phi02, theta01, theta02,
                                          alpha1, alpha2, beta1, beta2);
 
