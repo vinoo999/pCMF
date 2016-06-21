@@ -57,9 +57,10 @@ namespace countMatrixFactor {
 
     protected:
         // dimensions
-        int m_N;      /*!< number of observations (rows) */
-        int m_P;      /*!< number of variables (columns) */
-        int m_K;      /*!< dimension of the latent subspace */
+        int m_N;            /*!< number of observations (rows) */
+        int m_P;            /*!< number of variables (columns) */
+        int m_K;            /*!< dimension of the latent subspace */
+        bool m_ZI;          /*!< is the model zero-inflated or not */
 
         // data
         MatrixXi m_X;           /*!< n x p, count data matrix */
@@ -129,6 +130,13 @@ namespace countMatrixFactor {
          * Destructor of the class gamPoisFactor
          */
         ~gamPoisFactor();
+
+        /*!
+         * \brief getter for ZI boolean
+         */
+        bool getZI();
+
+
 
     public:
 

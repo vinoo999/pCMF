@@ -60,7 +60,7 @@ namespace countMatrixFactor {
     : gamPoisFactor::gamPoisFactor(n, p, K, X, phi1, phi2, theta1, theta2,
       alpha1, alpha2, beta1, beta2)
     {
-
+        m_ZI = true;
         m_prob0 = VectorXd::Zero(p);
         m_prob = VectorXd::Zero(p);
         m_freq = VectorXd::Zero(p);

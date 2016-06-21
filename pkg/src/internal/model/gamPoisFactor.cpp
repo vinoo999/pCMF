@@ -62,6 +62,7 @@ namespace countMatrixFactor {
         m_N = n;
         m_P = p;
         m_K = K;
+        m_ZI = false;
 
         // data
         m_X = MatrixXi(X);
@@ -120,6 +121,12 @@ namespace countMatrixFactor {
 
     // DESTRUCTOR
     gamPoisFactor::~gamPoisFactor() {}
+
+    // GETTER
+    // getter for ZI boolean
+    bool gamPoisFactor::getZI() {
+        return m_ZI;
+    }
 
     // member functions: documented in src
 
