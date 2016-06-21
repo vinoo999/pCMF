@@ -20,7 +20,7 @@
 #' @title matrixFactor
 #'
 #' @description
-#' Description
+#' R wrapper for Gamma-Poisson Factor model
 #'
 #' @details
 #' Factorization of count matrix
@@ -50,10 +50,6 @@
 #' \item{Y}{Y}
 #'
 #' @export
-#'
-
-### R wrapper for Gamma-Poisson Factor model
-
 matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
                         alpha1, alpha2, beta1, beta2,
                         lambda = NULL, mu = NULL,

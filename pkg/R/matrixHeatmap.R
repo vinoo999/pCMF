@@ -31,7 +31,6 @@
 #'
 #' @param mat the matrix to plot
 #'
-
 #' @export
 matrixHeatmap <- function(mat, ...) {
     image.plot(t(apply(mat, 2, rev)), xaxt="n", yaxt="n", ...)

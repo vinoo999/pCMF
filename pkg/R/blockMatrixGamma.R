@@ -46,8 +46,6 @@
 #' \item{idRows}{vector indicating the division of columns into blocks}
 #'
 #' @export
-#'
-
 blockMatrixGamma = function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) {
 
     ###### verification on input paramters
