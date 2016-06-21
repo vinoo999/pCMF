@@ -52,8 +52,7 @@ namespace countMatrixFactor {
     protected:
 
         // MODEL
-        model m_model;
-        bool m_ZI;
+        model m_model;          /*!< the model on wich the template is built */
 
         // parameters
         int m_iterMax;          /*!< maximum number of iterations */
@@ -108,7 +107,7 @@ namespace countMatrixFactor {
          */
         variational(int iterMax, int order,
                     int stabRange, double epsilon, bool verbose,
-                    int n, int p, int K, bool ZI,
+                    int n, int p, int K,
                     const MatrixXi &X,
                     const MatrixXd &phi1, const MatrixXd &phi2,
                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -144,7 +143,7 @@ namespace countMatrixFactor {
          */
         variational(int iterMax, int order,
                     int stabRange, double epsilon, bool verbose,
-                    int n, int p, int K, bool ZI,
+                    int n, int p, int K,
                     const MatrixXi &X,
                     const MatrixXd &phi1, const MatrixXd &phi2,
                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -211,7 +210,7 @@ namespace countMatrixFactor {
     template <typename model>
     variational<model>::variational(int iterMax, int order,
                                     int stabRange, double epsilon, bool verbose,
-                                    int n, int p, int K, bool ZI,
+                                    int n, int p, int K,
                                     const MatrixXi &X,
                                     const MatrixXd &phi1, const MatrixXd &phi2,
                                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -223,8 +222,6 @@ namespace countMatrixFactor {
               alpha1, alpha2,
               beta1, beta2)
     {
-        m_ZI = ZI;
-
         // parameters
         m_iterMax = iterMax;
         m_iter = 0;
@@ -256,7 +253,7 @@ namespace countMatrixFactor {
     template <typename model>
     variational<model>::variational(int iterMax, int order,
                                     int stabRange, double epsilon, bool verbose,
-                                    int n, int p, int K, bool ZI,
+                                    int n, int p, int K,
                                     const MatrixXi &X,
                                     const MatrixXd &phi1, const MatrixXd &phi2,
                                     const MatrixXd &theta1, const MatrixXd &theta2,
@@ -270,8 +267,6 @@ namespace countMatrixFactor {
               beta1, beta2,
               r_theta2, r_phi2)
     {
-        m_ZI=ZI;
-
         // parameters
         m_iterMax = iterMax;
         m_iter = 0;
@@ -422,7 +417,7 @@ namespace countMatrixFactor {
                                                    Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
                                                    Rcpp::Named("converged") = m_converged,
                                                    Rcpp::Named("nbIter") = m_nbIter,
-                                                   Rcpp::Named("ZI") = m_ZI);
+                                                   Rcpp::Named("ZI") = m_model.getZI());
 
         SEXP tmp1 = Rcpp::Language("c", returnObj1, returnObj2).eval();
 
