@@ -189,13 +189,15 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorPen::returnObject(Rcpp::List &results) {
 
+        Rcpp::List returnObj1;
+        gamPoisFactor::returnObject(returnObj1);
+
         Rcpp::List pen = Rcpp::List::create(Rcpp::Named("r_theta2") = m_r_theta2,
                                             Rcpp::Named("r_phi2") = m_r_phi2);
 
-        Rcpp::List returnObj;
-        gamPoisFactor::returnObject(returnObj);
+        Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("penalty") = pen);
 
-        SEXP tmp1 = Rcpp::Language("c", returnObj, pen).eval();
+        SEXP tmp1 = Rcpp::Language("c", returnObj1, returnObj2).eval();
 
         SEXP tmp2 = Rcpp::Language("c", results, tmp1).eval();
 

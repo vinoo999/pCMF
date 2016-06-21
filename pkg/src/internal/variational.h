@@ -402,8 +402,8 @@ namespace countMatrixFactor {
     template <typename model>
     void variational<model>::returnObject(Rcpp::List &results) {
 
-        Rcpp::List res;
-        m_model.returnObject(res);
+        Rcpp::List returnObj1;
+        m_model.returnObject(returnObj1);
 
         Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = m_margLogLike.head(m_nbIter),
                                                       Rcpp::Named("condLogLike") = m_condLogLike.head(m_nbIter),
@@ -416,14 +416,14 @@ namespace countMatrixFactor {
                                                     Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
                                                     Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
 
-        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("logLikelihood") = logLikelihood,
-                                                  Rcpp::Named("expVariance") = expVariance,
-                                                  Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
-                                                  Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
-                                                  Rcpp::Named("converged") = m_converged,
-                                                  Rcpp::Named("nbIter") = m_nbIter);
+        Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("logLikelihood") = logLikelihood,
+                                                   Rcpp::Named("expVariance") = expVariance,
+                                                   Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
+                                                   Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
+                                                   Rcpp::Named("converged") = m_converged,
+                                                   Rcpp::Named("nbIter") = m_nbIter);
 
-        SEXP tmp1 = Rcpp::Language("c", res, returnObj).eval();
+        SEXP tmp1 = Rcpp::Language("c", returnObj1, returnObj2).eval();
 
         SEXP tmp2 = Rcpp::Language("c", results, tmp1).eval();
 

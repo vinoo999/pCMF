@@ -507,34 +507,17 @@ namespace countMatrixFactor {
     template <typename model>
     void variationalEM<model>::returnObject(Rcpp::List &results) {
 
-        Rcpp::List res;
-        this->m_model.returnObject(res);
-
-        Rcpp::List logLikelihood = Rcpp::List::create(Rcpp::Named("margLogLike") = this->m_margLogLike.head(m_nbGlobalIter),
-                                                      Rcpp::Named("condLogLike") = this->m_condLogLike.head(m_nbGlobalIter),
-                                                      Rcpp::Named("priorLogLike") = this->m_priorLogLike.head(m_nbGlobalIter),
-                                                      Rcpp::Named("postLogLike") = this->m_postLogLike.head(m_nbGlobalIter),
-                                                      Rcpp::Named("compLogLike") = this->m_compLogLike.head(m_nbGlobalIter),
-                                                      Rcpp::Named("elbo") = this->m_elbo.head(m_nbGlobalIter));
-
-        Rcpp::List expVariance = Rcpp::List::create(Rcpp::Named("expVar0") = this->m_expVar0.head(m_nbGlobalIter),
-                                                    Rcpp::Named("expVarU") = this->m_expVarU.head(m_nbGlobalIter),
-                                                    Rcpp::Named("expVarV") = this->m_expVarV.head(m_nbGlobalIter));
+        Rcpp::List returnObj1;
+        variational<model>::returnObject(returnObj1);
 
         Rcpp::List EM = Rcpp::List::create(Rcpp::Named("normGap_Estep") = m_normGap_Estep.head(m_nbIter_Estep.sum()+this->m_nbIter),
                                            Rcpp::Named("normGap_Mstep") = m_normGap_Mstep.head(m_nbIter_Mstep.sum()+this->m_nbIter),
                                            Rcpp::Named("nbIter_Estep") = m_nbIter_Estep.head(this->m_nbIter),
                                            Rcpp::Named("nbIter_Mstep") = m_nbIter_Estep.head(this->m_nbIter));
 
-        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("logLikelihood") = logLikelihood,
-                                                  Rcpp::Named("expVariance") = expVariance,
-                                                  Rcpp::Named("EM") = EM,
-                                                  Rcpp::Named("normGap") = this->m_normGap.head(this->m_nbIter),
-                                                  Rcpp::Named("deviance") = this->m_deviance.head(m_nbGlobalIter),
-                                                  Rcpp::Named("converged") = this->m_converged,
-                                                  Rcpp::Named("nbIter") = this->m_nbIter);
+        Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("EM") = EM);
 
-        SEXP tmp1 = Rcpp::Language("c", res, returnObj).eval();
+        SEXP tmp1 = Rcpp::Language("c", returnObj1, returnObj2).eval();
 
         SEXP tmp2 = Rcpp::Language("c", results, tmp1).eval();
 
