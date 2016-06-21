@@ -240,6 +240,88 @@ namespace countMatrixFactor {
         }
     }
 
+    /*!
+     * \brief update rule for Bernoulli parameter (of ZI indicator) in prior
+     */
+    void gamPoisFactorZI::priorZIproba() {
+
+        m_prob0 = m_prob;
+    }
+
+    /*!
+     * \brief parameter update in standard variational
+     */
+    void gamPoisFactorZI::updateVarational() {
+
+        // Multinomial parameters
+        //Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        this->multinomParam();
+
+        // ZI proba
+        //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+        this->ZIproba();
+
+        // local parameters
+        // U : param phi
+        //Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        this->localParam();
+
+        // global parameters
+        // V : param theta
+        //Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        this->globalParam();
+
+        // Poisson rate
+        //Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
+        this->poissonRate();
+    }
+
+    /*!
+     * \brief parameter update in variational EM (E-step)
+     */
+    void gamPoisFactorZI::updateEstep() {
+        // Multinomial parameters
+        // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        this->multinomParam();
+
+        // ZI proba
+        //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+        this->ZIproba();
+
+        // local parameters
+        // U : param phi
+        // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        this->localParam();
+
+        // global parameters
+        // V : param theta
+        // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        this->globalParam();
+
+        // Poisson rate
+        // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
+        this->poissonRate();
+    }
+
+    /*!
+     * \brief parameter update in variational EM (M-step)
+     */
+    void gamPoisFactorZI::updateMstep() {
+        // ZI proba
+        //Rcpp::Rcout << "algorithm: ZI proba prior" << std::endl;
+        this->priorZIproba();
+
+        // local parameters
+        // U : param phi
+        // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        this->localPriorParam();
+
+        // global parameters
+        // V : param theta
+        // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        this->globalPriorParam();
+    }
+
     //-------------------//
     //       return      //
     //-------------------//

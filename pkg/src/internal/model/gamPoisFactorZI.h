@@ -107,6 +107,18 @@ namespace countMatrixFactor {
         // zi proba
         void ZIproba();
 
+        // zi proba in prior
+        void priorZIproba();
+
+        // parameter update variational standard
+        void updateVarational();
+
+        // parameter update variational EM (E-step)
+        void updateEstep();
+
+        // parameter update variational EM (M-step)
+        void updateMstep();
+
     };
 
 }
