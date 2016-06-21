@@ -189,44 +189,17 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorPen::returnObject(Rcpp::List &results) {
 
-        Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
-                                               Rcpp::Named("phi2") = m_phi2cur,
-                                               Rcpp::Named("theta1") = m_theta1cur,
-                                               Rcpp::Named("theta2") = m_theta2cur,
-                                               Rcpp::Named("alpha1") = m_alpha1cur,
-                                               Rcpp::Named("alpha2") = m_alpha2cur,
-                                               Rcpp::Named("beta1") = m_beta1cur,
-                                               Rcpp::Named("beta2") = m_beta2cur);
-
-        Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
-                                              Rcpp::Named("EV") = m_EV,
-                                              Rcpp::Named("ElogU") = m_ElogU,
-                                              Rcpp::Named("ElogV") = m_ElogV);
-
-        Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
-                                              Rcpp::Named("orderExpVar0") = m_orderExpVar0,
-                                              Rcpp::Named("orderExpVarU") = m_orderExpVarU,
-                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV);
-
-        Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
-                                                   Rcpp::Named("kExpVar0") = m_kExpVar0,
-                                                   Rcpp::Named("kExpVarU") = m_kExpVarU,
-                                                   Rcpp::Named("kExpVarV") = m_kExpVarV);
-
         Rcpp::List pen = Rcpp::List::create(Rcpp::Named("r_theta2") = m_r_theta2,
                                             Rcpp::Named("r_phi2") = m_r_phi2);
 
-        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
-                                                  Rcpp::Named("V") = m_EV,
-                                                  Rcpp::Named("params") = params,
-                                                  Rcpp::Named("stats") = stats,
-                                                  Rcpp::Named("order") = order,
-                                                  Rcpp::Named("criteria_k") = criteria_k,
-                                                  Rcpp::Named("pen") = pen);
+        Rcpp::List returnObj;
+        gamPoisFactor::returnObject(returnObj);
 
-        SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
+        SEXP tmp1 = Rcpp::Language("c", returnObj, pen).eval();
 
-        results = tmp;
+        SEXP tmp2 = Rcpp::Language("c", results, tmp1).eval();
+
+        results = tmp2;
     }
 
 }
