@@ -36,7 +36,7 @@ return
 \item{Y}{Y}
 }
 \description{
-Description
+R wrapper for Gamma-Poisson Factor model
 }
 \details{
 Factorization of count matrix
