@@ -42,8 +42,9 @@
 #' \item{idRows}{vector indicating the division of rows into blocks}
 #' \item{idRows}{vector indicating the division of columns into blocks}
 #'
-
 #' @export
+#'
+
 blockMatrix = function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) {
 
     ###### verification on input paramters

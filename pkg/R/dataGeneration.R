@@ -64,8 +64,9 @@
 #' \item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
 #' \item{prob0}{vector of Bernoulli probability for zero-inflation}
 #'
-
 #' @export
+#'
+
 dataGeneration = function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob0=NULL) {
 
     if(ZI && is.null(prob0)) {

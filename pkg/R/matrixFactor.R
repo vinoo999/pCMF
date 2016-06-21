@@ -49,10 +49,11 @@
 #' @return return
 #' \item{Y}{Y}
 #'
+#' @export
+#'
 
 ### R wrapper for Gamma-Poisson Factor model
 
-#' @export
 matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
                         alpha1, alpha2, beta1, beta2,
                         lambda = NULL, mu = NULL,
