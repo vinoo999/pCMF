@@ -276,24 +276,8 @@ namespace countMatrixFactor {
                 // Rcpp::Rcout << "E-step : iter " << iter << std::endl;
             }
 
-            // Multinomial parameters
-            // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
-            this->m_model.multinomParam();
-
-            // local parameters
-            // U : param phi
-            // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
-            this->m_model.localParam();
-
-            // global parameters
-            // V : param theta
-            // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
-            this->m_model.globalParam();
-
-            // Poisson rate
-            // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
-            this->m_model.poissonRate();
-
+            // parameter update
+            this->m_model.updateEstep();
             // log-likelihood
             // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
             this->computeLogLike(m_globalIter);
@@ -337,15 +321,8 @@ namespace countMatrixFactor {
                 // Rcpp::Rcout << "M-step : iter " << iter << std::endl;
             }
 
-            // local parameters
-            // U : param phi
-            // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
-            this->m_model.localPriorParam();
-
-            // global parameters
-            // V : param theta
-            // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
-            this->m_model.globalPriorParam();
+            // parameter update
+            this->m_model.updateMstep();
 
             /// log-likelihood
             // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;

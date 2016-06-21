@@ -328,28 +328,8 @@ namespace countMatrixFactor {
                 Rcpp::Rcout << "iter " << m_iter << std::endl;
             }
 
-            // Multinomial parameters
-            //Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
-            m_model.multinomParam();
-
-            // local parameters
-            // U : param phi
-            //Rcpp::Rcout << "algorithm: local parameters" << std::endl;
-            m_model.localParam();
-
-            // global parameters
-            // V : param theta
-            //Rcpp::Rcout << "algorithm: global parameters" << std::endl;
-            m_model.globalParam();
-
-            // Poisson rate
-            //Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
-            m_model.poissonRate();
-
-            // ZI proba (if ZI model)
-            //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
-            m_model.ZIproba();
-
+            // parameter updates
+            m_model.updateVarational();
             // log-likelihood
             //Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
             this->computeLogLike(m_iter);
