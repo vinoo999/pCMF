@@ -1,0 +1,6 @@
+curve(log(1-x), from=-1, to=1)
+abline(h=0, v=0)
+abline(a=0, b=-1, col="grey20")
+curve(-x-x^2/2, from=-1, to=1, add=TRUE, col="red")
+curve(-x-x^2/2-x^3/3, from=-1, to=1, add=TRUE, col="blue")
+curve(-x-x^2/2-x^3/3-x^4/4, from=-1, to=1, add=TRUE, col="olivedrab")
