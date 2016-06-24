@@ -23,7 +23,9 @@ project.sources = function(subpath="pkg") {
 
     fileToCompile = c("gamPoisFactor_wrapper.cpp",
                       "gamPoisFactorPen_wrapper.cpp",
-                      "gamPoisFactorEM_wrapper.cpp")
+                      "gamPoisFactorEM_wrapper.cpp",
+                      "gamPoisFactorZI_wrapper.cpp",
+                      "gamPoisFactorEM_ZI_wrapper.cpp")
 
     file.list = file.list[file.list %in% fileToCompile]
 
