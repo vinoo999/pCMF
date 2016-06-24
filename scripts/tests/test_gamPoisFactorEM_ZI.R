@@ -1,6 +1,3 @@
-### PCA on count
-
-# testing model 1
 
 rm(list=ls())
 
@@ -62,41 +59,8 @@ res1 = matrixFactor(data1$X, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
                     iterMax=100, epsilon=1e-4,
-                    ZI=TRUE, algo = "variational")
+                    ZI=TRUE, algo = "EM")
 
 str(res1)
 
 myOrder = res1$order$orderExpVarU
-
-###### comparison of the results
-
-# setwd(FIGUREDIR)
-#
-# ## log-likelihood
-# plot(res1$logLikelihood$condLogLike, xlab="iteration", ylab="conditional log likelihood", col="blue", type="l")
-#
-# plot(res1$logLikelihood$margLogLike, xlab="iteration", ylab="complete log likelihood", col="blue", type="l")
-#
-# plot(res1$logLikelihood$elbo, xlab="iteration", ylab="elbo", col="blue", type="l")
-#
-# ## norm gap
-# plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-#
-# ## exp var
-# plot(res1$expVariance$expVar0, xlab="iteration", ylab="expVar0", col="blue", type="b")
-# plot(res1$expVariance$expVarU, xlab="iteration", ylab="expVarU", col="blue", type="b")
-# plot(res1$expVariance$expVarV, xlab="iteration", ylab="expVarV", col="blue", type="b")
-#
-# ## depending on K
-# plot(res1$criteria_k$kDeviance, xlab="k", ylab="deviance", col="blue", type="b")
-# plot(res1$criteria_k$kExpVar0, xlab="k", ylab="expVar0", col="blue", type="b")
-# plot(res1$criteria_k$kExpVarU, xlab="k", ylab="expVarU", col="blue", type="b")
-# plot(res1$criteria_k$kExpVarV, xlab="k", ylab="expVarV", col="blue", type="b")
-#
-# ## order
-# res1$order$orderDeviance
-# res1$order$orderExpVar0
-# res1$order$orderExpVarU
-# res1$order$orderExpVarV
-#
-#
