@@ -148,33 +148,32 @@ namespace countMatrixFactor {
         m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.transpose().array()) / sum_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
         // test
-
-        for(int i=0; i<m_N; i++) {
-            for(int k = 0; k<m_K; k++) {
-                double test = 0;
-                for(int j=0; j<m_P; j++) {
-                    test += m_prob(j) * m_X(i,j) * std::exp(m_ElogV(j,k)) / sum_k(i,j);
-                }
-                test *= std::exp(m_ElogU(i,k));
-
-                if(test != m_EZ_j(i,k)) {
-                    Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
-                }
-            }
-        }
-
-        for(int j=0; j<m_P; j++) {
-            for(int k = 0; k<m_K; k++) {
-                double test = 0;
-                for(int i=0; i<m_N; i++) {
-                    test += m_prob(j) * m_X(i,j) * std::exp(m_ElogU(i,k)) / sum_k(i,j);
-                }
-                test *= std::exp(m_ElogV(j,k));
-                if(test != m_EZ_i(j,k)) {
-                    Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
-                }
-            }
-        }
+        // for(int i=0; i<m_N; i++) {
+        //     for(int k = 0; k<m_K; k++) {
+        //         double test = 0;
+        //         for(int j=0; j<m_P; j++) {
+        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogV(j,k)) / sum_k(i,j);
+        //         }
+        //         test *= std::exp(m_ElogU(i,k));
+        //
+        //         if(test != m_EZ_j(i,k)) {
+        //             Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
+        //         }
+        //     }
+        // }
+        //
+        // for(int j=0; j<m_P; j++) {
+        //     for(int k = 0; k<m_K; k++) {
+        //         double test = 0;
+        //         for(int i=0; i<m_N; i++) {
+        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogU(i,k)) / sum_k(i,j);
+        //         }
+        //         test *= std::exp(m_ElogV(j,k));
+        //         if(test != m_EZ_i(j,k)) {
+        //             Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
+        //         }
+        //     }
+        // }
     }
 
     /*!
@@ -185,14 +184,14 @@ namespace countMatrixFactor {
         m_phi2cur = m_alpha2cur.array().rowwise() + (m_EV.array().colwise() * m_prob.array()).colwise().sum();
 
         // test
-        for(int i=0; i<m_N; i++) {
-           for(int k = 0; k<m_K; k++) {
-               double test = m_alpha2cur(i,k) + m_prob.dot(m_EV.col(k));
-               if(test != m_phi2cur(i,k)) {
-                   Rcpp::Rcout << "test = " << test << " m_phi2cur = " <<  m_phi2cur(i,k) << std::endl;
-               }
-           }
-        }
+        // for(int i=0; i<m_N; i++) {
+        //    for(int k = 0; k<m_K; k++) {
+        //        double test = m_alpha2cur(i,k) + m_prob.dot(m_EV.col(k));
+        //        if(test != m_phi2cur(i,k)) {
+        //            Rcpp::Rcout << "test = " << test << " m_phi2cur = " <<  m_phi2cur(i,k) << std::endl;
+        //        }
+        //    }
+        // }
 
         // expectation and log-expectation
         Egam(m_phi1cur, m_phi2cur, m_EU);
@@ -207,14 +206,14 @@ namespace countMatrixFactor {
         m_theta2cur = ((MatrixXd::Zero(m_N, m_K).rowwise() + m_EU.colwise().sum()).array().colwise() * m_prob.array()) + m_beta2cur.array();
 
         // test
-        for(int j=0; j<m_P; j++) {
-            for(int k = 0; k<m_K; k++) {
-                double test = m_beta2cur(j,k) + m_prob(j) * m_EU.col(k).sum();
-                if(test != m_theta2cur(j,k)) {
-                    Rcpp::Rcout << "test = " << test << " m_theta2cur = " <<  m_theta2cur(j,k) << std::endl;
-                }
-            }
-        }
+        // for(int j=0; j<m_P; j++) {
+        //     for(int k = 0; k<m_K; k++) {
+        //         double test = m_beta2cur(j,k) + m_prob(j) * m_EU.col(k).sum();
+        //         if(test != m_theta2cur(j,k)) {
+        //             Rcpp::Rcout << "test = " << test << " m_theta2cur = " <<  m_theta2cur(j,k) << std::endl;
+        //         }
+        //     }
+        // }
 
         // expectation and log-expectation
         Egam(m_theta1cur, m_theta2cur, m_EV);
@@ -236,7 +235,7 @@ namespace countMatrixFactor {
                 m_prob(j) = intermediate::logitinv((1-m_freq(j)) * intermediate::logit(m_prob0(j)) - (1/m_N) * tmp);
             }
 
-            Rcpp::Rcout << " m_prob = " <<  m_prob(j) << std::endl;
+            // Rcpp::Rcout << " m_prob = " <<  m_prob(j) << std::endl;
         }
     }
 
@@ -244,7 +243,6 @@ namespace countMatrixFactor {
      * \brief update rule for Bernoulli parameter (of ZI indicator) in prior
      */
     void gamPoisFactorZI::priorZIproba() {
-
         m_prob0 = m_prob;
     }
 
@@ -333,43 +331,20 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorZI::returnObject(Rcpp::List &results) {
 
-        Rcpp::List params = Rcpp::List::create(Rcpp::Named("phi1") = m_phi1cur,
-                                               Rcpp::Named("phi2") = m_phi2cur,
-                                               Rcpp::Named("theta1") = m_theta1cur,
-                                               Rcpp::Named("theta2") = m_theta2cur,
-                                               Rcpp::Named("alpha1") = m_alpha1cur,
-                                               Rcpp::Named("alpha2") = m_alpha2cur,
-                                               Rcpp::Named("beta1") = m_beta1cur,
-                                               Rcpp::Named("beta2") = m_beta2cur,
-                                               Rcpp::Named("prob") = m_prob,
-                                               Rcpp::Named("freq") = m_freq,
-                                               Rcpp::Named("prob0") = m_prob0);
+        Rcpp::List returnObj1;
+        gamPoisFactor::returnObject(returnObj1);
 
-        Rcpp::List stats = Rcpp::List::create(Rcpp::Named("EU") = m_EU,
-                                              Rcpp::Named("EV") = m_EV,
-                                              Rcpp::Named("ElogU") = m_ElogU,
-                                              Rcpp::Named("ElogV") = m_ElogV);
+        Rcpp::List ZI = Rcpp::List::create(Rcpp::Named("prob") = m_prob,
+                                           Rcpp::Named("freq") = m_freq,
+                                           Rcpp::Named("prob0") = m_prob0);
 
-        Rcpp::List order = Rcpp::List::create(Rcpp::Named("orderDeviance") = m_orderDeviance,
-                                              Rcpp::Named("orderExpVar0") = m_orderExpVar0,
-                                              Rcpp::Named("orderExpVarU") = m_orderExpVarU,
-                                              Rcpp::Named("orderExpVarV") = m_orderExpVarV);
+        Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("ZIparams") = ZI);
 
-        Rcpp::List criteria_k = Rcpp::List::create(Rcpp::Named("kDeviance") = m_kDeviance,
-                                                   Rcpp::Named("kExpVar0") = m_kExpVar0,
-                                                   Rcpp::Named("kExpVarU") = m_kExpVarU,
-                                                   Rcpp::Named("kExpVarV") = m_kExpVarV);
+        SEXP tmp1 = Rcpp::Language("c", returnObj1, returnObj2).eval();
 
-        Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
-                                                  Rcpp::Named("V") = m_EV,
-                                                  Rcpp::Named("params") = params,
-                                                  Rcpp::Named("stats") = stats,
-                                                  Rcpp::Named("order") = order,
-                                                  Rcpp::Named("criteria_k") = criteria_k);
+        SEXP tmp2 = Rcpp::Language("c", results, tmp1).eval();
 
-        SEXP tmp = Rcpp::Language("c", results, returnObj).eval();
+        results = tmp2;
 
-        results = tmp;
     }
-
 }
