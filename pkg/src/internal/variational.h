@@ -416,8 +416,7 @@ namespace countMatrixFactor {
                                                    Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
                                                    Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
                                                    Rcpp::Named("converged") = m_converged,
-                                                   Rcpp::Named("nbIter") = m_nbIter,
-                                                   Rcpp::Named("ZI") = m_model.getZI());
+                                                   Rcpp::Named("nbIter") = m_nbIter);
 
         SEXP tmp1 = Rcpp::Language("c", returnObj1, returnObj2).eval();
 
