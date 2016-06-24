@@ -63,10 +63,17 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
 
     if(algo == "EM") {
         print("EM ok")
-        results = gamPoisFactorEM_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                          alpha1, alpha2, beta1, beta2,
-                                          iterMax, iterMax_Estep, iterMax_Mstep ,epsilon,
-                                          order, stabRange, verbose)
+        if(ZI) {
+            results = gamPoisFactorEM_ZI_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                 alpha1, alpha2, beta1, beta2,
+                                                 iterMax, iterMax_Estep, iterMax_Mstep ,epsilon,
+                                                 order, stabRange, verbose)
+        } else {
+            results = gamPoisFactorEM_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
+                                              alpha1, alpha2, beta1, beta2,
+                                              iterMax, iterMax_Estep, iterMax_Mstep ,epsilon,
+                                              order, stabRange, verbose)
+        }
     }
 
     if(algo == "variational") {
