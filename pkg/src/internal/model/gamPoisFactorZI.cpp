@@ -232,7 +232,10 @@ namespace countMatrixFactor {
                 for(int i = 0; i<m_N; i++) {
                     tmp += intermediate::dirac(m_X(i,j)) * sum_k(i,j);
                 }
-                m_prob(j) = intermediate::logitinv((1-m_freq(j)) * intermediate::logit(m_prob0(j)) - (1/m_N) * tmp);
+                // tmp = sum_k.col(j).sum();
+                m_prob(j) = intermediate::logitinv((1-m_freq(j)) * intermediate::logit(m_prob0(j)) - ((double) 1 / (double) m_N) * tmp);
+                // m_prob(j) = intermediate::logitinv(intermediate::logit(m_prob0(j)) - ((double) 1 / (double) m_N) * tmp);
+
             }
 
             // Rcpp::Rcout << " m_prob = " <<  m_prob(j) << std::endl;
