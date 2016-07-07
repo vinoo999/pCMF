@@ -1,4 +1,4 @@
-# project hierarchical clustering
+# project count matrix factor
 # sourcing all files (R and Cpp)
 
 project.sources = function(subpath="pkg") {
