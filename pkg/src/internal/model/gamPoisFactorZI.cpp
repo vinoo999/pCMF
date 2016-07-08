@@ -61,9 +61,18 @@ namespace countMatrixFactor {
       alpha1, alpha2, beta1, beta2)
     {
         m_ZI = true;
+
+        // ZI probabilities and frequencies
         m_prob0 = VectorXd::Zero(p);
         m_prob = VectorXd::Zero(p);
         m_freq = VectorXd::Zero(p);
+
+        // sufficient stats
+        MatrixXd m_EZ_logU_k = MatrixXd::Zero(n,p);
+        MatrixXd m_EZ_logV_k = MatrixXd::Zero(n,p);
+        MatrixXd m_EU_EV_k = MatrixXd::Zero(n,p);
+        MatrixXd m_ElogU_ElogV_k = MatrixXd::Zero(n,p);
+        MatrixXd m_ElgamZ_k = MatrixXd::Zero(n,p);
 
     }
 
@@ -142,17 +151,17 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        MatrixXd sum_k(m_ElogU.mexp() * m_ElogV.mexp().transpose());
+        m_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
 
-        m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.transpose().array()) / sum_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.transpose().array()) / sum_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+        m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.transpose().array()) / m_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array().rowwise() * m_prob.transpose().array()) / m_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
         // test
         // for(int i=0; i<m_N; i++) {
         //     for(int k = 0; k<m_K; k++) {
         //         double test = 0;
         //         for(int j=0; j<m_P; j++) {
-        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogV(j,k)) / sum_k(i,j);
+        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogV(j,k)) / m_ElogU_ElogV_k(i,j);
         //         }
         //         test *= std::exp(m_ElogU(i,k));
         //
@@ -166,7 +175,7 @@ namespace countMatrixFactor {
         //     for(int k = 0; k<m_K; k++) {
         //         double test = 0;
         //         for(int i=0; i<m_N; i++) {
-        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogU(i,k)) / sum_k(i,j);
+        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogU(i,k)) / m_ElogU_ElogV_k(i,j);
         //         }
         //         test *= std::exp(m_ElogV(j,k));
         //         if(test != m_EZ_i(j,k)) {
@@ -225,7 +234,14 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorZI::ZIproba() {
 
-        MatrixXd sum_k(m_EU * m_EV.transpose());
+        // sufficient stats
+        m_EZ_logU_k;
+        m_EZ_logV_k;
+        m_EU_EV_k = m_EU * m_EV.transpose();
+        m_ElgamZ_k;
+
+
+
         for(int j=0; j<m_P; j++) {
             if((m_prob0(j) < 1) && (m_prob0(j) > 0)) {
                 double tmp = 0;
