@@ -56,6 +56,9 @@ namespace intermediate {
     // logit inverse function
     double logitinv(double x);
 
+    // compute E[log(Z!)] where Z follows a binomial distribution
+    double lgamBinom(int N, double p);
+
     // check if exponential can be applied to a matrix
     void checkExp(const MatrixXd &A);
 
