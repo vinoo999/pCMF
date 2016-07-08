@@ -15,3 +15,8 @@ p = 0.8
 logit(p)
 
 expit(0.9)
+
+
+
+curve(logit(x), from=0, to=1)
+curve(expit(x), from=-5, to=5)
