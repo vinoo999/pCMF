@@ -85,8 +85,8 @@ namespace countMatrixFactor {
         MatrixXd m_EV;            /*!< p x K, Expectation of V */
         MatrixXd m_ElogV;         /*!< p x K, Expectation of log V */
 
-        MatrixXd m_EZ_i;          /*!< p x k, \sum_i X_{ij} xi_{ijk} = \sum_i E[Z_{ijk}] */
-        MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} xi_{ijk} = \sum_j E[Z_{ijk}] */
+        MatrixXd m_EZ_i;          /*!< p x k, \sum_i X_{ij} omega_{ijk} = \sum_i E[Z_{ijk}] */
+        MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} omega_{ijk} = \sum_j E[Z_{ijk}] */
 
         // prior parameter
         MatrixXd m_alpha1cur;      /*!< n x K, current values of first parameter of Gamma prior on U */
