@@ -31,6 +31,7 @@
 #include <boost/math/special_functions/digamma.hpp>
 #include <boost/math/special_functions/trigamma.hpp>
 #include <boost/math/special_functions/binomial.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 #include "intermediate.h"
 
 #define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
@@ -39,6 +40,7 @@
 using boost::math::digamma;
 using boost::math::trigamma;
 using boost::math::binomial_coefficient;
+using boost::math::factorial;
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -117,9 +119,14 @@ namespace intermediate {
      */
     double lgamBinom(int N, double p) {
         double res=0;
-        for(int l=0; l < N+1; l++) {
-            res += lgamma(l+1) * binomial_coefficient<double>(N, l) * std::pow(p,l) * std::pow(1-p, N-l);
+        if(N < 75) {
+            for(int l=0; l < N+1; l++) {
+                res += std::log(factorial<double>((double) l)) * binomial_coefficient<double>((double) N, (double) l) * std::pow(p,l) * std::pow(1-p, N-l);
+            }
+        } else {
+            res = lgamma(N*p + 1);
         }
+
         return res;
     }
 
