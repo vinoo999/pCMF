@@ -838,6 +838,7 @@ namespace countMatrixFactor {
 
         Rcpp::List returnObj = Rcpp::List::create(Rcpp::Named("U") = m_EU,
                                                   Rcpp::Named("V") = m_EV,
+                                                  Rcpp::Named("lambda") = m_lambda,
                                                   Rcpp::Named("params") = params,
                                                   Rcpp::Named("stats") = stats,
                                                   Rcpp::Named("order") = order,
