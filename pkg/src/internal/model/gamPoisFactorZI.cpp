@@ -284,7 +284,7 @@ namespace countMatrixFactor {
 
         Rcpp::Rcout << "m_prob" << std::endl;
         for(int j=0; j<m_P; j++) {
-            if((m_prob0(j) < 0.9) && (m_prob0(j) > 0)) {
+            if((m_prob0(j) < 1) && (m_prob0(j) > 0)) {
                 // Rcpp::Rcout << "sum_K E[U_{ik}] E[V_{jk}] = " << m_EU_EV_k.col(j).transpose() << std::endl;
                 // double Epois = m_EZ_logU_k.col(j).sum() + m_EZ_logV_k.col(j).sum() - m_EU_EV_k.col(j).sum() - m_ElgamZ_k.col(j).sum();
                 // double tmp = std::log(m_prob0(j)) - ((double) 1 / (double) m_N) * Epois - m_freq(j) * std::log(1-m_prob0(j));
@@ -297,8 +297,18 @@ namespace countMatrixFactor {
 
                 // m_prob(j) = m_freq(j) / (1 - std::exp((-1) * (m_EU_EV_k.col(j).sum())));
 
-                double tmp = intermediate::logit(m_prob0(j)) - intermediate::logit(std::exp((-1) * (m_EU_EV_k.col(j).sum())));
-                m_prob(j) = intermediate::logitinv(tmp);
+                // double tmp = intermediate::logit(m_prob0(j)) - std::log( 1 - std::exp((-1) * (m_EU_EV_k.col(j).sum())));
+                // m_prob(j) = intermediate::logitinv(tmp);
+
+                double tmp = 0;
+                for(int i = 0; i<m_N; i++) {
+                    tmp += std::log(1 - std::exp((-1) * m_EU_EV_k(i,j))) * intermediate::dirac(m_X(i,j));
+                    // Rcpp::Rcout << "tmp = " << tmp << std::endl;
+                }
+                // double tmp = std::log( 1 - std::exp((-1) * (m_EU_EV_k.col(j).sum())));
+                Rcpp::Rcout << "tmp = " << tmp/(m_N * (1-m_freq(j))) << std::endl;
+                double tmp2 = intermediate::logit(m_prob0(j)) - tmp/(m_N * (1-m_freq(j)));
+                m_prob(j) = intermediate::logitinv(tmp2);
             }
         }
         Rcpp::Rcout << " m_prob = " <<  m_prob.transpose() << std::endl;
@@ -308,7 +318,7 @@ namespace countMatrixFactor {
      * \brief update rule for Bernoulli parameter (of ZI indicator) in prior
      */
     void gamPoisFactorZI::priorZIproba() {
-        m_prob0 = m_prob;
+        // m_prob0 = m_prob;
     }
 
     /*!
