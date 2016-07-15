@@ -8,6 +8,8 @@ MD5
 *.o
 *.so
 
+*.out
+
 *.Rcheck
 *.tar.gz
 
