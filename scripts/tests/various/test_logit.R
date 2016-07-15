@@ -20,3 +20,7 @@ expit(0.9)
 
 curve(logit(x), from=0, to=1)
 curve(expit(x), from=-5, to=5)
+
+curve(log(1-exp(-x)), from = 0, to = 10)
+curve(exp(-x)/(1-exp(-x)), from = 0, to = 10)
+curve(1-exp(-x)/(1-exp(-x))^2, from = 0, to = 10)
