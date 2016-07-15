@@ -30,7 +30,7 @@ signalBlock = matrix(rev(c(1,3,4,2)), nrow=2, ncol=2)
 blockBeta1 = blockMatrix(nrow=p, ncol=K, nRowBlock=2, nColBlock=2, signalBlock=signalBlock)
 beta1 = blockBeta1$mat
 beta2 = matrix(1, nrow=p, ncol=K)
-prob0 = round(runif(p, 0.4, 0.6), digits=2)
+prob0 = round(runif(p, 0.2, 0.6), digits=2)
 
 ## generating the data
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2, ZI=TRUE, prob0=prob0)
@@ -46,7 +46,7 @@ cbind(apply(data1$X,2,function(x) sum(x!=0)), prob0)
 
 ####### TESTING ALGO
 
-ncomp=K
+ncomp=2
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)
@@ -66,14 +66,14 @@ max(data1$X)
 res1 = matrixFactor(data1$X, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
-                    iterMax=200, epsilon=1e-4,
-                    ZI=TRUE, algo = "variational")
+                    iterMax=500, epsilon=1e-4,
+                    ZI=TRUE, algo = "EM")
 
 str(res1)
 
 cbind(apply(data1$X,2,function(x) sum(x!=0)), prob0, res1$ZIparams$prob)
 
-myOrder = res1$order$orderExpVarU
+myOrder = res1$order$orderExpVarV
 
 ###### comparison of the results
 
@@ -106,5 +106,12 @@ myOrder = res1$order$orderExpVarU
 # res1$order$orderExpVarU
 # res1$order$orderExpVarV
 #
-# ## score
-# plot(res1$U, col=blockAlpha1$idRows)
+## score
+plot(res1$U, col=blockAlpha1$idRows)
+
+
+res2 = prcomp(data1$X)
+str(res2)
+V2 = res2$rotation[,1:ncomp]
+U2 = data1$X %*% V2
+plot(U2, col=blockAlpha1$idRows)
