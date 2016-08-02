@@ -102,8 +102,8 @@ namespace intermediate {
      * @return the value of logit(x)
      */
     double logitinv(double x) {
-        if (x > 16) return 1;
-        if (x < -16) return 0;
+        if (x > 30) return 1;
+        if (x < -30) return 0;
         return 1 / (1 + std::exp(-x));
     }
 
