@@ -18,7 +18,7 @@
 
 /*!
 * \file gamPoisFactorZI.cpp
-* \brief class definition for penalized Gamma Poisson Factor Model
+* \brief class implementation for zero-inflated Gamma Poisson Factor Model
 * \author Ghislain Durif
 * \version 0.1
 * \date 09/05/2016

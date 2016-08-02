@@ -47,7 +47,7 @@ namespace countMatrixFactor {
      *  U ~ Gamma(alpha)
      *  V ~ Gamma(beta)
      *  Z_{ij.} | X,U,V ~ Multinom((omega_{ijk})_k)
-     *  Y_{ij} ~ Bernoulli(prob0_j)
+     *  D_{ij} ~ Bernoulli(prob0_j)
      * Variational distribution
      *  Z_{ijk} | X,U,V ~ Multinom(omega_{ijk})
      *  U_{ik} ~ Gamma(phi_{ik})
@@ -60,9 +60,9 @@ namespace countMatrixFactor {
     protected:
 
         // ZI probabilities and frequencies
-        VectorXd m_prob;        /*!< vector of probability for variational distribution of Y */
-        VectorXd m_prob0;       /*!< vector of probability for prior distribution of Y */
-        VectorXd m_freq;        /*!< vector of frequence of non null values in each column of X */
+        VectorXd m_prob;        /*!< vector of probability for variational distribution of D */
+        VectorXd m_prob0;       /*!< vector of probability for prior distribution of D */
+        VectorXd m_freq;        /*!< vector of frequence of non null values in each column of D */
 
         // sufficient stats
         MatrixXd m_EZ_logU_k;       /*!< n x p, \sum_k E[Z_{ijk}] * E[log U_{ik}] */
