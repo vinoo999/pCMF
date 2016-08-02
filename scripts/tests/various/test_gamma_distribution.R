@@ -6,6 +6,26 @@ curve(dgamma(x, shape=1, rate=1), from=0, to=10, col="red", add=TRUE)
 curve(dgamma(x, shape=1, rate=0.5), from=0, to=10, col="blue", add=TRUE)
 curve(dgamma(x, shape=1, rate=0.1), from=0, to=10, col="grey20", add=TRUE)
 
+curve(dgamma(x, shape=1, rate=1), from=0, to=10, col="olivedrab")
+curve(dgamma(x, shape=1, rate=2), from=0, to=10, col="red", add=TRUE)
+curve(dgamma(x, shape=1, rate=5), from=0, to=10, col="blue", add=TRUE)
+curve(dgamma(x, shape=1, rate=100), from=0, to=10, col="grey20", add=TRUE)
+
+curve(dgamma(x, shape=0.5, rate=1), from=0, to=10, col="olivedrab")
+curve(dgamma(x, shape=0.5, rate=2), from=0, to=10, col="red", add=TRUE)
+curve(dgamma(x, shape=0.5, rate=5), from=0, to=10, col="blue", add=TRUE)
+curve(dgamma(x, shape=0.5, rate=50), from=0, to=10, col="grey20", add=TRUE)
+
+curve(dgamma(x, shape=2, rate=1), from=0, to=10, col="olivedrab")
+curve(dgamma(x, shape=2, rate=2), from=0, to=10, col="red", add=TRUE)
+curve(dgamma(x, shape=2, rate=5), from=0, to=10, col="blue", add=TRUE)
+curve(dgamma(x, shape=2, rate=50), from=0, to=10, col="grey20", add=TRUE)
+
+curve(dgamma(x, shape=3, rate=1), from=0, to=10, col="olivedrab")
+curve(dgamma(x, shape=3, rate=2), from=0, to=10, col="red", add=TRUE)
+curve(dgamma(x, shape=3, rate=5), from=0, to=10, col="blue", add=TRUE)
+curve(dgamma(x, shape=3, rate=50), from=0, to=10, col="grey20", add=TRUE)
+
 curve(dgamma(x, shape=0.5, rate=2), from=0, to=0.50, col="olivedrab")
 curve(dgamma(x, shape=0.5, rate=1), from=0, to=0.50, col="red", add=TRUE)
 curve(dgamma(x, shape=0.5, rate=0.5), from=0, to=0.50, col="blue", add=TRUE)
