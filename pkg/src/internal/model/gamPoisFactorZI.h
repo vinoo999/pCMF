@@ -60,16 +60,9 @@ namespace countMatrixFactor {
     protected:
 
         // ZI probabilities and frequencies
-        VectorXd m_prob;        /*!< vector of probability for variational distribution of D */
-        VectorXd m_prob0;       /*!< vector of probability for prior distribution of D */
-        VectorXd m_freq;        /*!< vector of frequence of non null values in each column of D */
-
-        // sufficient stats
-        MatrixXd m_EZ_logU_k;       /*!< n x p, \sum_k E[Z_{ijk}] * E[log U_{ik}] */
-        MatrixXd m_EZ_logV_k;       /*!< n x p, \sum_k E[Z_{ijk}] * E[log V_{jk}] */
-        MatrixXd m_EU_EV_k;         /*!< n x p, \sum_k E[U_{ik}] * E[V_{jk}] */
-        MatrixXd m_ElogU_ElogV_k;   /*!< n x p, \sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})]) */
-        MatrixXd m_ElgamZ_k;        /*!< n x p, \sum_k E[log(Z_{ijk}!)] */
+        VectorXd m_probZI;          /*!< n x p, matrix of probability for variational distribution of D */
+        VectorXd m_probZIprior;     /*!< vector of probability for prior distribution of D */
+        VectorXd m_freqZI;          /*!< vector of frequence of non null values in each column of X */
 
     public:
         /*!
@@ -100,9 +93,9 @@ namespace countMatrixFactor {
 
     public:
 
-        //-------------------//
-        // parameter updates //
-        //-------------------//
+        //--------------------------------------------//
+        // parameter updates for standard variational //
+        //--------------------------------------------//
 
         // multinomial parameters
         void multinomParam();
@@ -116,14 +109,21 @@ namespace countMatrixFactor {
         // zi proba
         void ZIproba();
 
-        // zi proba in prior
-        void priorZIproba();
-
         // parameter update variational standard
         void updateVarational();
 
+        //--------------------------------------//
+        // parameter updates for variational EM //
+        //--------------------------------------//
+
+        // zi proba in prior
+        void priorZIproba();
+
         // parameter update variational EM (E-step)
         void updateEstep();
+
+        // parameter update variational EM (M-step explicite, without iteration)
+        void updateMstepExplicite();
 
         // parameter update variational EM (M-step)
         void updateMstep();
