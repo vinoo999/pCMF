@@ -94,6 +94,8 @@ namespace countMatrixFactor {
         m_EZ_i = MatrixXd::Zero(p,K);
         m_EZ_j = MatrixXd::Zero(n,K);
 
+        m_exp_ElogU_ElogV_k = MatrixXd::Zero(n,p);
+
         // prior parameter
         m_alpha1cur = MatrixXd(alpha1);
         m_alpha2cur = MatrixXd(alpha1);
@@ -135,6 +137,10 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::Init() {
 
+        // Gamma prior parameter (to avoid scaling issue)
+        m_alpha1cur = m_alpha1cur.array() / m_K;
+        m_beta1cur = m_beta1cur.array() / m_K;
+
         // Gamma variational parameter
         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
         for(int k=0; k<m_K; k++) {
@@ -167,8 +173,14 @@ namespace countMatrixFactor {
         Egam(m_theta1cur, m_theta2cur, m_EV);
         Elgam(m_theta1cur, m_theta2cur, m_ElogV);
 
+        // E[log U] + E[log V]
+        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+
         // Multinomial Z parameters
         this->multinomParam();
+
+        // Poisson rate
+        this->poissonRate();
     }
 
     //-------------------//
@@ -211,7 +223,6 @@ namespace countMatrixFactor {
     * @return the current value (double)
     */
     double gamPoisFactor::computeCompLogLike() {
-        // return m_condLogLike(iter) + m_postLogLike(iter);
         double res = poisLogLike(m_X, m_lambda) + gammaLogLike(m_EU, m_phi1cur, m_phi2cur) + gammaLogLike(m_EV, m_theta1cur, m_theta2cur);
         return res;
     }
@@ -237,9 +248,9 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_EU * m_EV.transpose() ).sum() );
+        double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
         //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
-        double res2 = ( m_X.cast<double>().array() * (m_ElogU.mexp() * m_ElogV.mexp().transpose()).mlog().array()).sum();
+        double res2 = ( m_X.cast<double>().array() * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
         //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
 
         double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
@@ -301,9 +312,9 @@ namespace countMatrixFactor {
         return res;
     }
 
-    //-------------------//
-    // parameter updates //
-    //-------------------//
+    //--------------------------------------------//
+    // parameter updates for standard variational //
+    //--------------------------------------------//
 
     /*!
      * \brief update rule for poisson rates in variational inference
@@ -323,12 +334,13 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        MatrixXd sum_k(m_ElogU.mexp() * m_ElogV.mexp().transpose());
+        // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
+        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
 
         // Rcpp::Rcout << "dim = " << sum_k.rows() << " x " << sum_k.cols()  << std::endl;
 
-        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / sum_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / sum_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
         // test
         // for(int i=0; i<m_N; i++) {
@@ -418,6 +430,10 @@ namespace countMatrixFactor {
         m_theta2old = m_theta2cur;
     }
 
+    //--------------------------------------//
+    // parameter updates for variational EM //
+    //--------------------------------------//
+
     /*!
      * \brief local parameter update: alpha (factor U)
      */
@@ -431,7 +447,7 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::globalPriorParam() {
         m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
-        m_beta2cur = m_beta1cur.array().rowwise() / m_EU.colwise().mean().array();
+        m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
     }
 
     /*!
@@ -456,6 +472,22 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
     }
+
+    /*!
+     * \brief  parameter initialization for M-step in variational EM
+     */
+    void gamPoisFactor::initMstep() {
+        m_alpha1cur = m_phi1cur.colwise().mean();
+        m_alpha2cur = m_phi2cur.colwise().mean();
+
+        m_beta1cur = m_theta1cur.colwise().mean();
+        m_beta2cur = m_theta2cur.colwise().mean();
+    }
+
+    /*!
+     * \brief parameter update in variational EM (explicite M-step, without iteration)
+     */
+    void gamPoisFactor::updateMstepExplicite() {}
 
     /*!
      * \brief parameter update in variational EM (M-step)

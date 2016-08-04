@@ -79,14 +79,16 @@ namespace countMatrixFactor {
         MatrixXd m_theta2old;     /*!< p x K, previous values of second parameter of Gamma distribution on V */
 
         // sufficient statistics
-        MatrixXd m_EU;            /*!< n x K, Expectation of U */
-        MatrixXd m_ElogU;         /*!< n x K, Expectation of log U */
+        MatrixXd m_EU;              /*!< n x K, Expectation of U */
+        MatrixXd m_ElogU;           /*!< n x K, Expectation of log U */
 
-        MatrixXd m_EV;            /*!< p x K, Expectation of V */
-        MatrixXd m_ElogV;         /*!< p x K, Expectation of log V */
+        MatrixXd m_EV;              /*!< p x K, Expectation of V */
+        MatrixXd m_ElogV;           /*!< p x K, Expectation of log V */
 
-        MatrixXd m_EZ_i;          /*!< p x k, \sum_i X_{ij} omega_{ijk} = \sum_i E[Z_{ijk}] */
-        MatrixXd m_EZ_j;          /*!< n x k, \sum_j X_{ij} omega_{ijk} = \sum_j E[Z_{ijk}] */
+        MatrixXd m_EZ_i;            /*!< p x k, \sum_i X_{ij} omega_{ijk} = \sum_i E[Z_{ijk}] */
+        MatrixXd m_EZ_j;            /*!< n x k, \sum_j X_{ij} omega_{ijk} = \sum_j E[Z_{ijk}] */
+
+        MatrixXd m_exp_ElogU_ElogV_k;   /*!< n x p, \sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})]) */
 
         // prior parameter
         MatrixXd m_alpha1cur;      /*!< n x K, current values of first parameter of Gamma prior on U */
@@ -183,9 +185,9 @@ namespace countMatrixFactor {
         // compute explained variance regarding V
         double computeExpVarV();
 
-        //-------------------//
-        // parameter updates //
-        //-------------------//
+        //--------------------------------------------//
+        // parameter updates for standard variational //
+        //--------------------------------------------//
 
         // poisson rate
         void poissonRate();
@@ -205,22 +207,32 @@ namespace countMatrixFactor {
         // update parameters between iterations
         void nextIterate();
 
+        //--------------------------------------//
+        // parameter updates for variational EM //
+        //--------------------------------------//
+
         // local parameters: alpha (factor U)
         void localPriorParam();
 
         // global parameters: beta (factor V)
         void globalPriorParam();
 
-        // parameter update variational EM (E-step)
+        // parameter update in variational EM (E-step)
         void updateEstep();
 
-        // parameter update variational EM (M-step)
+        // parameter initialization for M-step in variational EM
+        void initMstep();
+
+        // parameter update in variational EM (M-step explicite, without iteration)
+        void updateMstepExplicite();
+
+        // parameter update in variational EM (M-step)
         void updateMstep();
 
-        // update parameters between iterations
+        // update parameters between iterations (E-step)
         void nextIterateEstep();
 
-        // update parameters between iterations
+        // update parameters between iterations (M-step)
         void nextIterateMstep();
 
         //-------------------//
