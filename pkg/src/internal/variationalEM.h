@@ -315,6 +315,9 @@ namespace countMatrixFactor {
         int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
         int iter = 0;
 
+        this->m_model.initMstep();
+        this->m_model.updateMstepExplicite();
+
         while( (iter < m_iterMax_Mstep) && (m_converged_Mstep[this->m_iter]==false)) {
 
             if(this->m_verbose==true) {
