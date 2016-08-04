@@ -13,8 +13,8 @@ source("sources/projectSources.R")
 ######################
 
 ## generating the data
-n = 20
-p = 10
+n = 100
+p = 50
 K = 4
 
 ## need of a priori values for gamma distribution
