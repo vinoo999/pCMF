@@ -54,7 +54,7 @@ namespace intermediate {
     double logit(double x);
 
     // logit inverse function
-    double logitinv(double x);
+    double expit(double x);
 
     // compute E[log(Z!)] where Z follows a binomial distribution
     double lgamBinom(int N, double p);

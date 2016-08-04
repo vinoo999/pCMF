@@ -101,7 +101,7 @@ namespace intermediate {
      * @param[in] x real between 0 and 1
      * @return the value of logit(x)
      */
-    double logitinv(double x) {
+    double expit(double x) {
         if (x > 30) return 1;
         if (x < -30) return 0;
         return 1 / (1 + std::exp(-x));
