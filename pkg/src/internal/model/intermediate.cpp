@@ -149,6 +149,17 @@ namespace intermediate {
     }
 
     /*!
+     * \fn threshold at t
+     *
+     * @param[in] x input value
+     * @param[in] t threshold
+     * @return max(x,t)
+     */
+    double threshold(double x, double t) {
+        return(std::max(x,t));
+    }
+
+    /*!
      * \fn check if exponential can be applied to a matrix
      *
      * throw error when potential under or overflowing

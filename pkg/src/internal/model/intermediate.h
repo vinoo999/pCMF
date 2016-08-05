@@ -47,6 +47,9 @@ namespace intermediate {
     // erase zero
     void eraseZero(MatrixXd &X);
 
+    // threshold at t
+    double threshold(double x, double t);
+
     // exponential that throw error when under or overflowing
     double myExp(double x);
 
