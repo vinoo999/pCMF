@@ -59,20 +59,11 @@ namespace countMatrixFactor {
     class variationalEM : public variational<model> {
     protected:
 
-        int m_iterMax_Estep;        /*!< max nb of iterations in E-step (variational) */
-        int m_iterMax_Mstep;        /*!< max nb of iterations in M-step */
-
-        VectorXd m_nbIter_Estep;    /*!< nb of iterations in each E-step */
-        VectorXd m_nbIter_Mstep;    /*!< nb of iterations in each M-step */
-
         int m_globalIter;       /*!< current inner iterations (counting all E-steps and M-steps) */
         int m_nbGlobalIter;     /*!< number of inner effective iterations */
 
-        vector<bool> m_converged_Estep;       /*!< status of convergence of each E-step */
-        vector<bool> m_converged_Mstep;       /*!< status of convergence of each M-step */
-
-        VectorXd m_normGap_Estep;         /*!< normalized gap between two iterates (to assess convergence) in E-step */
-        VectorXd m_normGap_Mstep;         /*!< normalized gap between two iterates (to assess convergence) in M-step */
+        VectorXd m_normGap_Estep;         /*!< normalized gap between two iterates in E-step */
+        VectorXd m_normGap_Mstep;         /*!< normalized gap between two iterates in M-step */
 
 
     public:
@@ -81,7 +72,6 @@ namespace countMatrixFactor {
         * @tparam model a gamma Poisson factor model
         *
         * \param iterMax maximum number of iterations
-        * \param iterMax_Estep maximum number of iterations
         * \param order derivative order on normalized gap to assess convergence
         * (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
         * \param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
@@ -100,7 +90,7 @@ namespace countMatrixFactor {
         * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
         * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
         */
-        variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
+        variationalEM(int iterMax, int order,
                       int stabRange, double epsilon, bool verbose,
                       int n, int p, int K, const MatrixXi &X,
                       const MatrixXd &phi1, const MatrixXd &phi2,
@@ -133,7 +123,7 @@ namespace countMatrixFactor {
         * \param r_theta2 vector of l2 penalty constraint on theta2
         * \param r_phi2 vector of l2 penalty constraint on phi2
         */
-        variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
+        variationalEM(int iterMax, int order,
                       int stabRange, double epsilon, bool verbose,
                       int n, int p, int K, const MatrixXi &X,
                       const MatrixXd &phi1, const MatrixXd &phi2,
@@ -161,8 +151,6 @@ namespace countMatrixFactor {
 
         // assess convergence
         void assessConvergence(int &nstab);
-        void assessConvergenceEstep(int iter, int &nstab);
-        void assessConvergenceMstep(int iter, int &nstab);
 
     };
 
@@ -172,7 +160,7 @@ namespace countMatrixFactor {
 
     // CONSTRUCTOR 1
     template <typename model>
-    variationalEM<model>::variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
+    variationalEM<model>::variationalEM(int iterMax, int order,
                                         int stabRange, double epsilon, bool verbose,
                                         int n, int p, int K, const MatrixXi &X,
                                         const MatrixXd &phi1, const MatrixXd &phi2,
@@ -182,76 +170,60 @@ namespace countMatrixFactor {
     : variational<model>(iterMax, order, stabRange, epsilon, verbose,
                           n, p, K, X,
                           phi1, phi2, theta1, theta2,
-                          alpha1, alpha2, beta1, beta2),
-      m_converged_Estep(iterMax, false),
-      m_converged_Mstep(iterMax, false)
+                          alpha1, alpha2, beta1, beta2)
     {
-        m_iterMax_Estep = iterMax_Estep;
-        m_iterMax_Mstep = iterMax_Mstep;
-
-        m_nbIter_Estep = VectorXd::Zero(iterMax);
-        m_nbIter_Mstep = VectorXd::Zero(iterMax);
-
         m_globalIter = 0;
 
-        m_normGap_Estep = VectorXd::Zero(iterMax * iterMax_Estep);
-        m_normGap_Mstep = VectorXd::Zero(iterMax * iterMax_Mstep);
+        m_normGap_Estep = VectorXd::Zero(iterMax);
+        m_normGap_Mstep = VectorXd::Zero(iterMax);
 
         // criteria
-        this->m_expVar0 = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_expVarU = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_expVarV = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        this->m_expVar0 = VectorXd::Zero(iterMax * 2);
+        this->m_expVarU = VectorXd::Zero(iterMax * 2);
+        this->m_expVarV = VectorXd::Zero(iterMax * 2);
 
-        this->m_margLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_condLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_priorLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_postLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_compLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_elbo = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_deviance = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        this->m_margLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_condLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_priorLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_postLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_compLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_elbo = VectorXd::Zero(iterMax * 2);
+        this->m_deviance = VectorXd::Zero(iterMax * 2);
     }
 
     // CONSTRUCTOR 2
     template <typename model>
-    variationalEM<model>::variationalEM(int iterMax, int iterMax_Estep, int iterMax_Mstep, int order,
-                                    int stabRange, double epsilon, bool verbose,
-                                    int n, int p, int K, const MatrixXi &X,
-                                    const MatrixXd &phi1, const MatrixXd &phi2,
-                                    const MatrixXd &theta1, const MatrixXd &theta2,
-                                    const MatrixXd &alpha1, const MatrixXd &alpha2,
-                                    const MatrixXd &beta1, const MatrixXd &beta2,
-                                    const VectorXd &lambda_k, const VectorXd &mu_k)
+    variationalEM<model>::variationalEM(int iterMax, int order,
+                                        int stabRange, double epsilon, bool verbose,
+                                        int n, int p, int K, const MatrixXi &X,
+                                        const MatrixXd &phi1, const MatrixXd &phi2,
+                                        const MatrixXd &theta1, const MatrixXd &theta2,
+                                        const MatrixXd &alpha1, const MatrixXd &alpha2,
+                                        const MatrixXd &beta1, const MatrixXd &beta2,
+                                        const VectorXd &lambda_k, const VectorXd &mu_k)
     : variational<model>(iterMax, order, stabRange, epsilon, verbose,
                           n, p, K, X,
                           phi1, phi2, theta1, theta2,
                           alpha1, alpha2, beta1, beta2,
-                          lambda_k, mu_k),
-      m_converged_Estep(iterMax, false),
-      m_converged_Mstep(iterMax, false)
+                          lambda_k, mu_k)
     {
-        m_iterMax_Estep = iterMax_Estep;
-        m_iterMax_Mstep = iterMax_Mstep;
-
-        m_nbIter_Estep = VectorXd::Zero(iterMax);
-        m_nbIter_Mstep = VectorXd::Zero(iterMax);
-
         m_globalIter = 0;
 
-        m_normGap_Estep = VectorXd::Zero(iterMax * iterMax_Estep);
-        m_normGap_Mstep = VectorXd::Zero(iterMax * iterMax_Mstep);
+        m_normGap_Estep = VectorXd::Zero(iterMax);
+        m_normGap_Mstep = VectorXd::Zero(iterMax);
 
         // criteria
-        this->m_expVar0 = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_expVarU = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_expVarV = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        this->m_expVar0 = VectorXd::Zero(iterMax * 2);
+        this->m_expVarU = VectorXd::Zero(iterMax * 2);
+        this->m_expVarV = VectorXd::Zero(iterMax * 2);
 
-        this->m_margLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_condLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_priorLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_postLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_compLogLike = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_elbo = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
-        this->m_deviance = VectorXd::Zero(iterMax * (iterMax_Estep + iterMax_Mstep));
+        this->m_margLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_condLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_priorLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_postLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_compLogLike = VectorXd::Zero(iterMax * 2);
+        this->m_elbo = VectorXd::Zero(iterMax * 2);
+        this->m_deviance = VectorXd::Zero(iterMax * 2);
     }
 
     // DESTRUCTOR
@@ -266,42 +238,24 @@ namespace countMatrixFactor {
     template <typename model>
     void variationalEM<model>::Estep() {
 
-        // Iteration
-        int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
-        int iter = 0;
-
-        while( (iter < m_iterMax_Estep) && (m_converged_Estep[this->m_iter]==false)) {
-
-            if(this->m_verbose==true) {
-                // Rcpp::Rcout << "E-step : iter " << iter << std::endl;
-            }
-
-            // parameter update
-            this->m_model.updateEstep();
-            // log-likelihood
-            // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
-            this->computeLogLike(m_globalIter);
-            // ELBO
-            // Rcpp::Rcout << "algorithm: ELBO" << std::endl;
-            this->computeELBO(m_globalIter);
-            // deviance
-            // Rcpp::Rcout << "algorithm: deviance" << std::endl;
-            this->computeDeviance(m_globalIter);
-            // explained variance
-            // Rcpp::Rcout << "algorithm: explained variance" << std::endl;
-            this->computeExpVar(m_globalIter);
-            // convergence
-            // Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
-            this->assessConvergenceEstep(iter, nstab);
-            // update values of parameters
-            // Rcpp::Rcout << "algorithm: next iteration" << std::endl;
-            if(m_converged_Estep[this->m_iter] == false && iter < m_iterMax_Estep - 1) {
-                this->m_model.nextIterateEstep();
-            }
-            // increment iteration
-            iter++;
-            m_globalIter++;
-        }
+        // parameter update
+        this->m_model.updateEstep();
+        // log-likelihood
+        // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
+        this->computeLogLike(m_globalIter);
+        // ELBO
+        // Rcpp::Rcout << "algorithm: ELBO" << std::endl;
+        this->computeELBO(m_globalIter);
+        // deviance
+        // Rcpp::Rcout << "algorithm: deviance" << std::endl;
+        this->computeDeviance(m_globalIter);
+        // explained variance
+        // Rcpp::Rcout << "algorithm: explained variance" << std::endl;
+        this->computeExpVar(m_globalIter);
+        // normalized gap
+        m_normGap_Estep(this->m_iter) = this->m_model.normGapEstep();
+        // inner iteration
+        m_globalIter++;
     }
 
     /*!
@@ -311,46 +265,25 @@ namespace countMatrixFactor {
     template <typename model>
     void variationalEM<model>::Mstep() {
 
-        // Iteration
-        int nstab = 0; // number of successive iteration where the normalized gap betwwen two iteration is close to zero (convergence when nstab > rstab)
-        int iter = 0;
+        // parameter update
+        this->m_model.updateMstep();
 
-        this->m_model.initMstep();
-        this->m_model.updateMstepExplicite();
-
-        while( (iter < m_iterMax_Mstep) && (m_converged_Mstep[this->m_iter]==false)) {
-
-            if(this->m_verbose==true) {
-                // Rcpp::Rcout << "M-step : iter " << iter << std::endl;
-            }
-
-            // parameter update
-            this->m_model.updateMstep();
-
-            /// log-likelihood
-            // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
-            this->computeLogLike(m_globalIter);
-            // ELBO
-            // Rcpp::Rcout << "algorithm: ELBO" << std::endl;
-            this->computeELBO(m_globalIter);
-            // deviance
-            // Rcpp::Rcout << "algorithm: deviance" << std::endl;
-            this->computeDeviance(m_globalIter);
-            // explained variance
-            // Rcpp::Rcout << "algorithm: explained variance" << std::endl;
-            this->computeExpVar(m_globalIter);
-            // convergence
-            // Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
-            this->assessConvergenceMstep(iter, nstab);
-            // update values of parameters
-            // Rcpp::Rcout << "algorithm: next iteration" << std::endl;
-            if(m_converged_Mstep[this->m_iter] == false && iter < m_iterMax_Mstep - 1) {
-                this->m_model.nextIterateMstep();
-            }
-            // increment iteration
-            iter++;
-            m_globalIter++;
-        }
+        /// log-likelihood
+        // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
+        this->computeLogLike(m_globalIter);
+        // ELBO
+        // Rcpp::Rcout << "algorithm: ELBO" << std::endl;
+        this->computeELBO(m_globalIter);
+        // deviance
+        // Rcpp::Rcout << "algorithm: deviance" << std::endl;
+        this->computeDeviance(m_globalIter);
+        // explained variance
+        // Rcpp::Rcout << "algorithm: explained variance" << std::endl;
+        this->computeExpVar(m_globalIter);
+        // normalized gap
+        m_normGap_Mstep(this->m_iter) = this->m_model.normGapMstep();
+        // inner iteration
+        m_globalIter++;
     }
 
 
@@ -389,83 +322,6 @@ namespace countMatrixFactor {
             this->m_iter++;
         }
 
-    }
-
-
-    /*!
-     * \brief assess convergence in E-step (variational)
-     * @tparam model a gamma Poisson factor model
-     *
-     * @param[in] iter current iteration
-     * @param[in,out] nstab number of successive iteration respecting the breaking condition
-     */
-    template <typename model>
-    void variationalEM<model>::assessConvergenceEstep(int iter, int &nstab) {
-        // breaking condition: convergence or not
-        // Rcpp::Rcout << "norm gap" << std::endl;
-        double res = this->m_model.normGapEstep();
-        // Rcpp::Rcout << "index = " << this->m_iter * m_iterMax_Estep + iter << std::endl;
-        m_normGap_Estep(this->m_iter * m_iterMax_Estep + iter) = res;
-        // Rcpp::Rcout << "norm gap = " << m_normGap_Estep(this->m_iter * m_iterMax_Estep + iter) << std::endl;
-
-        // derivative order to consider
-        double condition = variational<model>::convCondition(this->m_order, m_normGap_Estep, iter, this->m_iter * m_iterMax_Estep);
-
-        if(std::abs(condition) < this->m_epsilon) {
-            nstab++;
-        } else {
-            nstab=0;
-        }
-
-        if(nstab > this->m_stabRange) {
-            m_converged_Estep[this->m_iter] = true;
-            m_nbIter_Estep(this->m_iter) = iter;
-        } else {
-            if(iter == m_iterMax_Estep - 1) {
-                // Rcpp::Rcout << "convergence ?" << std::endl;
-                // Rcpp::Rcout << "iter = " << iter << std::endl;
-                // Rcpp::Rcout << "m_iter = " << this->m_iter << std::endl;
-                m_nbIter_Estep(this->m_iter) = iter;
-            }
-        }
-    }
-
-    /*!
-     * \brief assess convergence in M-step
-     * @tparam model a gamma Poisson factor model
-     *
-     * @param[in] iter current iteration
-     * @param[in,out] nstab number of successive iteration respecting the breaking condition
-     */
-    template <typename model>
-    void variationalEM<model>::assessConvergenceMstep(int iter, int &nstab) {
-        // breaking condition: convergence or not
-        // Rcpp::Rcout << "norm gap" << std::endl;
-        double res = this->m_model.normGapMstep();
-        // Rcpp::Rcout << "index = " << this->m_iter * m_iterMax_Mstep + iter << std::endl;
-        m_normGap_Mstep(this->m_iter * m_iterMax_Mstep + iter) = res;
-        // Rcpp::Rcout << "norm gap = " << m_normGap_Mstep(this->m_iter * m_iterMax_Mstep + iter) << std::endl;
-
-        // derivative order to consider
-        double condition = variational<model>::convCondition(this->m_order, m_normGap_Mstep, iter, this->m_iter * m_iterMax_Estep);
-
-        if(std::abs(condition) < this->m_epsilon) {
-            nstab++;
-        } else {
-            nstab=0;
-        }
-
-        if(nstab > this->m_stabRange) {
-            m_converged_Mstep[this->m_iter] = true;
-            m_nbIter_Mstep(this->m_iter) = iter;
-        } else {
-            if(iter == m_iterMax_Mstep - 1) {
-                // Rcpp::Rcout << "convergence ?" << std::endl;
-                // Rcpp::Rcout << "iter = " << iter << std::endl;
-                // Rcpp::Rcout << "m_iter = " << this->m_iter << std::endl;
-                m_nbIter_Mstep(this->m_iter) = iter;
-            }
-        }
     }
 
     /*!
@@ -513,10 +369,8 @@ namespace countMatrixFactor {
         Rcpp::List returnObj1;
         variational<model>::returnObject(returnObj1);
 
-        Rcpp::List EM = Rcpp::List::create(Rcpp::Named("normGap_Estep") = m_normGap_Estep.head(m_nbIter_Estep.sum()+this->m_nbIter),
-                                           Rcpp::Named("normGap_Mstep") = m_normGap_Mstep.head(m_nbIter_Mstep.sum()+this->m_nbIter),
-                                           Rcpp::Named("nbIter_Estep") = m_nbIter_Estep.head(this->m_nbIter),
-                                           Rcpp::Named("nbIter_Mstep") = m_nbIter_Estep.head(this->m_nbIter));
+        Rcpp::List EM = Rcpp::List::create(Rcpp::Named("normGap_Estep") = m_normGap_Estep.head(this->m_nbIter),
+                                           Rcpp::Named("normGap_Mstep") = m_normGap_Mstep.head(this->m_nbIter));
 
         Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("EM") = EM);
 

@@ -79,7 +79,8 @@ SEXP gamPoisFactorEM_Pen_wrapper(SEXP Xin, int K, bool ZI,
                                  SEXP theta01in, SEXP theta02in,
                                  SEXP alpha1in, SEXP alpha2in,
                                  SEXP beta1in, SEXP beta2in,
-                                 int iterMax, int iterMax_Estep, int iterMax_Mstep, double epsilon,
+                                 SEXP lambda_in, SEXP mu_in,
+                                 int iterMax, double epsilon,
                                  int order, int stabRange, bool verbose) {
 
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
@@ -92,16 +93,20 @@ SEXP gamPoisFactorEM_Pen_wrapper(SEXP Xin, int K, bool ZI,
     MatrixXd beta1 = Rcpp::as< Map<MatrixXd> >(beta1in);
     MatrixXd beta2 = Rcpp::as< Map<MatrixXd> >(beta2in);
 
+    VectorXd lambda = Rcpp::as< Map<VectorXd> >(lambda_in);
+    VectorXd mu = Rcpp::as< Map<VectorXd> >(mu_in);
+
     int n = X.rows();
     int p = X.cols();
 
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;
-    variationalEM<gamPoisFactorPen> myModel(iterMax, iterMax_Estep, iterMax_Mstep, order,
+    variationalEM<gamPoisFactorPen> myModel(iterMax, order,
                                             stabRange, epsilon, verbose,
                                             n, p, K, X,
                                             phi01, phi02, theta01, theta02,
-                                            alpha1, alpha2, beta1, beta2);
+                                            alpha1, alpha2, beta1, beta2,
+                                            lambda, mu);
 
     // initialization
     Rcpp::Rcout << "Initialization" << std::endl;
