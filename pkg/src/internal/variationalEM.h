@@ -240,6 +240,7 @@ namespace countMatrixFactor {
 
         // parameter update
         this->m_model.updateEstep();
+
         // log-likelihood
         // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
         this->computeLogLike(m_globalIter);
