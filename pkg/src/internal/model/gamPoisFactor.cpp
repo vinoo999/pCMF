@@ -39,6 +39,7 @@
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
 #define mpsiInv() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,int,double>(intermediate::psiInv),6))
+#define mthreshold() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(intermediate::threshold),1E-12))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -138,8 +139,10 @@ namespace countMatrixFactor {
     void gamPoisFactor::Init() {
 
         // Gamma prior parameter (to avoid scaling issue)
-        m_alpha1cur = m_alpha1cur.array() / m_K;
-        m_beta1cur = m_beta1cur.array() / m_K;
+        // m_alpha1cur = m_alpha1cur.array() / m_K;
+        // m_beta1cur = m_beta1cur.array() / m_K;
+
+        // Rcpp::Rcout << "X = " << m_X << std::endl << std::endl;
 
         // Gamma variational parameter
         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
@@ -172,9 +175,6 @@ namespace countMatrixFactor {
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
         Egam(m_theta1cur, m_theta2cur, m_EV);
         Elgam(m_theta1cur, m_theta2cur, m_ElogV);
-
-        // E[log U] + E[log V]
-        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
 
         // Multinomial Z parameters
         this->multinomParam();
@@ -343,32 +343,32 @@ namespace countMatrixFactor {
         m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
         // test
-        // for(int i=0; i<m_N; i++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int j=0; j<m_P; j++) {
-        //             test += m_X(i,j) * std::exp(m_ElogV(j,k)) / sum_k(i,j);
-        //         }
-        //         test *= std::exp(m_ElogU(i,k));
-        //
-        //         if(test != m_EZ_j(i,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
-        //         }
-        //     }
-        // }
-        //
-        // for(int j=0; j<m_P; j++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int i=0; i<m_N; i++) {
-        //             test += m_X(i,j) * std::exp(m_ElogU(i,k)) / sum_k(i,j);
-        //         }
-        //         test *= std::exp(m_ElogV(j,k));
-        //         if(test != m_EZ_i(j,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
-        //         }
-        //     }
-        // }
+        for(int i=0; i<m_N; i++) {
+            for(int k = 0; k<m_K; k++) {
+                double test = 0;
+                for(int j=0; j<m_P; j++) {
+                    test += m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k (i,j);
+                    // Rcpp::Rcout << "X(i,j) = " << m_X(i,j) << " / Z_{ijk} = " << m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k (i,j) << std::endl;
+                }
+
+                if(test != m_EZ_j(i,k)) {
+                    // Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
+                }
+            }
+        }
+
+        for(int j=0; j<m_P; j++) {
+            for(int k = 0; k<m_K; k++) {
+                double test = 0;
+                for(int i=0; i<m_N; i++) {
+                    test += m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k (i,j);
+                }
+
+                if(test != m_EZ_i(j,k)) {
+                    // Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
+                }
+            }
+        }
     }
 
     /*!
@@ -401,22 +401,41 @@ namespace countMatrixFactor {
     void gamPoisFactor::updateVarational() {
 
         // Multinomial parameters
-        //Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        // Rcpp::Rcout << "variational: Multinomial parameters" << std::endl;
         this->multinomParam();
+
+        // Rcpp::Rcout << "sum_i E[Z_{ijk}] = " << m_EZ_i << std::endl;
+        // Rcpp::Rcout << "sum_j E[Z_{ijk}] = " << m_EZ_j << std::endl << std::endl;
+
+        // Rcpp::Rcout << "sum_k exp(E[log U_{ik}]) * exp(E[log V_{jk}]) = " << m_exp_ElogU_ElogV_k << std::endl << std::endl;
 
         // local parameters
         // U : param phi
-        //Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        // Rcpp::Rcout << "variational: local parameters" << std::endl;
         this->localParam();
+
+        // Rcpp::Rcout << "phi1 = " << m_phi1cur << std::endl;
+        // Rcpp::Rcout << "phi2 = " << m_phi2cur << std::endl;
+
+        // Rcpp::Rcout << "E[U_{ik}] = " << m_EU << std::endl;
+        // Rcpp::Rcout << "E[log U_{ik}] = " << m_ElogU << std::endl << std::endl;
 
         // global parameters
         // V : param theta
-        //Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        // Rcpp::Rcout << "variational: global parameters" << std::endl;
         this->globalParam();
 
+        // Rcpp::Rcout << "theta1 = " << m_theta1cur << std::endl;
+        // Rcpp::Rcout << "theta2 = " << m_theta2cur << std::endl;
+
+        // Rcpp::Rcout << "E[V_{jk}] = " << m_EV << std::endl;
+        // Rcpp::Rcout << "E[log V_{jk}] = " << m_ElogV << std::endl << std::endl;
+
         // Poisson rate
-        //Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
+        // Rcpp::Rcout << "variationaml: Poisson rate" << std::endl;
         this->poissonRate();
+
+        // Rcpp::Rcout << "sum_k E[U_{ik}] E[V_{jk}] = " << m_lambda << std::endl << std::endl;
     }
 
     /*!
@@ -439,55 +458,25 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::localPriorParam() {
         m_alpha1cur = (m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
-        m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
+        // m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
+        m_alpha2cur = (m_N * m_alpha1cur.array()).mthreshold().array().rowwise() / m_EU.colwise().sum().array();
     }
 
     /*!
      * \brief global parameter update: beta (factor V)
      */
     void gamPoisFactor::globalPriorParam() {
-        m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
-        m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
+        m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).mpsiInv();
+        // m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
+        m_beta2cur = (m_N * m_beta1cur.array()).mthreshold().array().rowwise() / m_EV.colwise().sum().array();
     }
 
     /*!
      * \brief parameter update in variational EM (E-step)
      */
     void gamPoisFactor::updateEstep() {
-        // Multinomial parameters
-        // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
-        this->multinomParam();
-
-        // local parameters
-        // U : param phi
-        // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
-        this->localParam();
-
-        // global parameters
-        // V : param theta
-        // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
-        this->globalParam();
-
-        // Poisson rate
-        // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
-        this->poissonRate();
+        this->updateVarational();
     }
-
-    /*!
-     * \brief  parameter initialization for M-step in variational EM
-     */
-    void gamPoisFactor::initMstep() {
-        m_alpha1cur = m_phi1cur.colwise().mean();
-        m_alpha2cur = m_phi2cur.colwise().mean();
-
-        m_beta1cur = m_theta1cur.colwise().mean();
-        m_beta2cur = m_theta2cur.colwise().mean();
-    }
-
-    /*!
-     * \brief parameter update in variational EM (explicite M-step, without iteration)
-     */
-    void gamPoisFactor::updateMstepExplicite() {}
 
     /*!
      * \brief parameter update in variational EM (M-step)
@@ -498,10 +487,18 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
         this->localPriorParam();
 
+        Rcpp::Rcout << "alpha1 = " << m_alpha1cur << std::endl;
+        Rcpp::Rcout << "alpha2 = " << m_alpha2cur << std::endl << std::endl;
+
         // global parameters
         // V : param theta
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalPriorParam();
+
+        Rcpp::Rcout << "beta1 = " << m_beta1cur << std::endl;
+        Rcpp::Rcout << "beta2 = " << m_beta2cur << std::endl << std::endl;
+
+
     }
 
     // update parameters between iterations in Estep

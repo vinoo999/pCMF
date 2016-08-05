@@ -220,12 +220,6 @@ namespace countMatrixFactor {
         // parameter update in variational EM (E-step)
         void updateEstep();
 
-        // parameter initialization for M-step in variational EM
-        void initMstep();
-
-        // parameter update in variational EM (M-step explicite, without iteration)
-        void updateMstepExplicite();
-
         // parameter update in variational EM (M-step)
         void updateMstep();
 
