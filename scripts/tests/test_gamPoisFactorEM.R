@@ -13,9 +13,9 @@ source("sources/projectSources.R")
 ######################
 
 ## generating the data
-n = 100
-p = 50
-K = 10
+n = 10
+p = 5
+K = 4
 
 ## need of a priori values for gamma distribution
 signalBlock = matrix(c(1,3,4,2), nrow=2, ncol=2)
@@ -54,13 +54,17 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=50, iterMax_Estep=50, iterMax_Mstep=50, epsilon=1e-4, algo="EM")
+                    iterMax=100, epsilon=1e-4, algo="EM")
 
 str(res1)
 
 print(res1$criteria_k$kDeviance)
 myOrder = res1$order$orderDeviance
 print(myOrder)
+
+print(res1$normGap)
+print(res1$EM$normGap_Estep)
+print(res1$EM$normGap_Mstep)
 
 
 
