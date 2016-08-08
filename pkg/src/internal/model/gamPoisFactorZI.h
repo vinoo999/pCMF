@@ -60,7 +60,7 @@ namespace countMatrixFactor {
     protected:
 
         // ZI probabilities and frequencies
-        VectorXd m_probZI;          /*!< n x p, matrix of probability for variational distribution of D */
+        MatrixXd m_probZI;          /*!< n x p, matrix of probability for variational distribution of D */
         VectorXd m_probZIprior;     /*!< vector of probability for prior distribution of D */
         VectorXd m_freqZI;          /*!< vector of frequence of non null values in each column of X */
 
@@ -121,9 +121,6 @@ namespace countMatrixFactor {
 
         // parameter update variational EM (E-step)
         void updateEstep();
-
-        // parameter update variational EM (M-step explicite, without iteration)
-        void updateMstepExplicite();
 
         // parameter update variational EM (M-step)
         void updateMstep();
