@@ -26,11 +26,11 @@ blockAlpha1 = blockMatrix(nrow=n, ncol=K, nRowBlock=2, nColBlock=2, signalBlock=
 alpha1 = blockAlpha1$mat
 alpha2 = matrix(1, nrow=n, ncol=K)
 
-signalBlock = matrix(rev(c(1,3,4,2)), nrow=2, ncol=2)
+signalBlock = matrix(rev(c(0.01,0.03,0.04,0.02)), nrow=2, ncol=2)
 blockBeta1 = blockMatrix(nrow=p, ncol=K, nRowBlock=2, nColBlock=2, signalBlock=signalBlock)
 beta1 = blockBeta1$mat
 beta2 = matrix(1, nrow=p, ncol=K)
-prob0 = round(runif(p, 0.2, 0.6), digits=2)
+prob0 = round(runif(p, 0.3, 0.7), digits=2)
 
 ## generating the data
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2, ZI=TRUE, prob0=prob0)
@@ -67,11 +67,11 @@ res1 = matrixFactor(data1$X, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
                     iterMax=500, epsilon=1e-4,
-                    ZI=TRUE, algo = "EM")
+                    ZI=TRUE, algo = "variational")
 
 str(res1)
 
-cbind(apply(data1$X,2,function(x) sum(x!=0)), prob0, res1$ZIparams$prob)
+cbind(apply(data1$X,2,function(x) sum(x!=0)), prob0, res1$ZIparams$probPrior)
 
 myOrder = res1$order$orderExpVarV
 
@@ -107,11 +107,11 @@ myOrder = res1$order$orderExpVarV
 # res1$order$orderExpVarV
 #
 ## score
-plot(res1$U, col=blockAlpha1$idRows)
-
-
-res2 = prcomp(data1$X)
-str(res2)
-V2 = res2$rotation[,1:ncomp]
-U2 = data1$X %*% V2
-plot(U2, col=blockAlpha1$idRows)
+# plot(res1$U, col=blockAlpha1$idRows)
+#
+#
+# res2 = prcomp(data1$X)
+# str(res2)
+# V2 = res2$rotation[,1:ncomp]
+# U2 = data1$X %*% V2
+# plot(U2, col=blockAlpha1$idRows)
