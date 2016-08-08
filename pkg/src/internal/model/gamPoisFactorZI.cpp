@@ -51,10 +51,10 @@ namespace countMatrixFactor {
 
     // CONSTRUCTOR
     gamPoisFactorZI::gamPoisFactorZI(int n, int p, int K, const MatrixXi &X,
-                                       const MatrixXd &phi1, const MatrixXd &phi2,
-                                       const MatrixXd &theta1, const MatrixXd &theta2,
-                                       const MatrixXd &alpha1, const MatrixXd &alpha2,
-                                       const MatrixXd &beta1, const MatrixXd &beta2)
+                                     const MatrixXd &phi1, const MatrixXd &phi2,
+                                     const MatrixXd &theta1, const MatrixXd &theta2,
+                                     const MatrixXd &alpha1, const MatrixXd &alpha2,
+                                     const MatrixXd &beta1, const MatrixXd &beta2)
     : gamPoisFactor::gamPoisFactor(n, p, K, X, phi1, phi2, theta1, theta2,
       alpha1, alpha2, beta1, beta2)
     {
@@ -78,8 +78,8 @@ namespace countMatrixFactor {
     void gamPoisFactorZI::Init() {
 
         // Gamma prior parameter (to avoid scaling issue)
-        m_alpha2cur = m_alpha2cur.array() * std::sqrt(m_K);
-        m_beta2cur = m_beta2cur.array() * std::sqrt(m_K);
+        m_alpha1cur = m_alpha1cur.array() / m_K;
+        m_beta1cur = m_beta1cur.array() / m_K;
 
         // Gamma variational parameter
         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
@@ -118,7 +118,12 @@ namespace countMatrixFactor {
         m_freqZI = m_freqZI.array() / m_N;
         m_probZIprior = m_freqZI;
 
+        // Rcpp::Rcout << "m_freqZI = " << m_freqZI << std::endl;
+        // Rcpp::Rcout << "m_freqZI.transpose() = " << m_freqZI.head(10).transpose().replicate(m_N,1) << std::endl;
+
         m_probZI = m_freqZI.transpose().replicate(m_N,1);
+
+        // Rcpp::Rcout << "m_probZI = " << m_probZI.leftCols(15) << std::endl;
 
         // sufficient statistics
         Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
@@ -126,9 +131,6 @@ namespace countMatrixFactor {
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
         Egam(m_theta1cur, m_theta2cur, m_EV);
         Elgam(m_theta1cur, m_theta2cur, m_ElogV);
-
-        // E[log U] + E[log V]
-        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
 
         // Multinomial Z parameters
         this->multinomParam();
@@ -163,7 +165,7 @@ namespace countMatrixFactor {
         //     for(int k = 0; k<m_K; k++) {
         //         double test = 0;
         //         for(int j=0; j<m_P; j++) {
-        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogV(j,k)) / m_ElogU_ElogV_k(i,j);
+        //             test += m_probZI(i,j) * m_X(i,j) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
         //         }
         //         test *= std::exp(m_ElogU(i,k));
         //
@@ -177,7 +179,7 @@ namespace countMatrixFactor {
         //     for(int k = 0; k<m_K; k++) {
         //         double test = 0;
         //         for(int i=0; i<m_N; i++) {
-        //             test += m_prob(j) * m_X(i,j) * std::exp(m_ElogU(i,k)) / m_ElogU_ElogV_k(i,j);
+        //             test += m_probZI(i,j) * m_X(i,j) * std::exp(m_ElogU(i,k)) / m_exp_ElogU_ElogV_k(i,j);
         //         }
         //         test *= std::exp(m_ElogV(j,k));
         //         if(test != m_EZ_i(j,k)) {
@@ -247,11 +249,13 @@ namespace countMatrixFactor {
                     } else if(m_probZIprior(j) == 0) {
                         m_probZI(i,j) = 0;
                     } else {
-                        m_probZI(i,j) = intermediate::expit( intermediate::logit(m_probZIprior(j) - m_lambda(i,j)));
+                        m_probZI(i,j) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_lambda(i,j)),1E-12);
                     }
                 }
             }
         }
+
+        // Rcpp::Rcout << "m_probZI = " << m_probZI.leftCols(15) << std::endl;
     }
 
     /*!
@@ -290,7 +294,7 @@ namespace countMatrixFactor {
      * \brief update rule for Bernoulli parameter (of ZI indicator) in prior
      */
     void gamPoisFactorZI::priorZIproba() {
-        m_probZIprior = m_probZI.colwise().sum().array() / m_N;
+        m_probZIprior = m_probZI.colwise().mean();
     }
 
     /*!
@@ -321,18 +325,13 @@ namespace countMatrixFactor {
     }
 
     /*!
-     * \brief parameter update in variational EM (explicite M-step, without iteration)
-     */
-    void gamPoisFactorZI::updateMstepExplicite() {
-        // ZI proba
-        //Rcpp::Rcout << "algorithm: ZI proba prior" << std::endl;
-        this->priorZIproba();
-    }
-
-    /*!
      * \brief parameter update in variational EM (M-step)
      */
     void gamPoisFactorZI::updateMstep() {
+        // ZI proba
+        //Rcpp::Rcout << "algorithm: ZI proba prior" << std::endl;
+        this->priorZIproba();
+
         // local parameters
         // U : param phi
         // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
