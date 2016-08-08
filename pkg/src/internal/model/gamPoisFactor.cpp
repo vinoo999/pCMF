@@ -39,6 +39,8 @@
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
 #define mpsiInv() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,int,double>(intermediate::psiInv),6))
+#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,int,double>(std::pow),2))
+#define msqrt() unaryExpr(std::ptr_fun<double,double>(std::sqrt))
 #define mthreshold() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(intermediate::threshold),1E-12))
 
 // [[Rcpp::depends(RcppEigen)]]
@@ -139,8 +141,8 @@ namespace countMatrixFactor {
     void gamPoisFactor::Init() {
 
         // Gamma prior parameter (to avoid scaling issue)
-        // m_alpha1cur = m_alpha1cur.array() / m_K;
-        // m_beta1cur = m_beta1cur.array() / m_K;
+        m_alpha1cur = m_alpha1cur.array() / m_K;
+        m_beta1cur = m_beta1cur.array() / m_K;
 
         // Rcpp::Rcout << "X = " << m_X << std::endl << std::endl;
 
@@ -458,8 +460,25 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::localPriorParam() {
         m_alpha1cur = (m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
-        // m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
-        m_alpha2cur = (m_N * m_alpha1cur.array()).mthreshold().array().rowwise() / m_EU.colwise().sum().array();
+        // m_alpha1cur = ((m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).array() - 0.5).mthreshold().mpsiInv();
+
+        m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
+        // m_alpha2cur = (m_N * m_alpha1cur.array()).mthreshold().array().rowwise() / (m_EU.colwise().sum().array() + 10).array();
+
+        // VectorXd ElogU(m_ElogU.colwise().mean());
+        // VectorXd EU(m_EU.colwise().mean());
+        // // m_beta1cur = ((m_beta2cur.mlog().array() - ((double) 0.5 / (double) m_P) * m_beta2cur.cwiseInverse().array()).rowwise() + m_ElogU.colwise().mean()).mpsiInv();
+        // // m_beta2cur = (m_P * m_beta1cur.array() + ((std::pow(m_P,2) * m_beta1cur.msquare().array()) + 8 * 1 * (m_beta1cur.array().rowwise() * EU).array() ).msqrt().array()).array().rowwise() / EU.array();
+        //
+        // double lambda = 0;
+        // int i = 0;
+        // for(int k = 0; k<m_K; k++) {
+        //     m_beta1cur(i,k) = intermediate::psiInv(std::log(m_beta2cur(i,k)) - lambda / ((double) m_P * m_beta2cur(i,k)) + ElogU(k), 6);
+        //     m_beta2cur(i,k) = (m_beta1cur(i,k) + std::sqrt( std::pow(m_beta1cur(i,k), 2) + (double) 8.0 * lambda * EU(k) * m_beta1cur(i,k) / (double) m_P)) / (2.0 * EU(k));
+        // }
+        //
+        // m_beta1cur = m_beta1cur.row(1).replicate(m_P,1);
+        // m_beta2cur = m_beta2cur.row(1).replicate(m_P,1);
     }
 
     /*!
@@ -467,8 +486,25 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::globalPriorParam() {
         m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).mpsiInv();
-        // m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
-        m_beta2cur = (m_N * m_beta1cur.array()).mthreshold().array().rowwise() / m_EV.colwise().sum().array();
+        // m_beta1cur = ((m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).array() - 0.5).mthreshold().mpsiInv();
+
+        m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
+        // m_beta2cur = (m_P * m_beta1cur.array()).mthreshold().array().rowwise() / (m_EV.colwise().sum().array() + 10).array();
+
+        // VectorXd ElogV(m_ElogV.colwise().mean());
+        // VectorXd EV(m_EV.colwise().mean());
+        // m_beta1cur = ((m_beta2cur.mlog().array() - ((double) 0.5 / (double) m_P) * m_beta2cur.cwiseInverse().array()).rowwise() + m_ElogV.colwise().mean()).mpsiInv();
+        // m_beta2cur = (m_P * m_beta1cur.array() + ((std::pow(m_P,2) * m_beta1cur.msquare().array()) + 8 * 0.5 * (m_beta1cur.array().rowwise() * EV).array() ).msqrt().array()).array().rowwise() / EV.array();
+
+        // double lambda = 0;
+        // int i = 0;
+        // for(int k = 0; k<m_K; k++) {
+        //     m_alpha1cur(i,k) = intermediate::psiInv(std::log(m_alpha2cur(i,k)) - lambda / ((double) m_N * m_alpha2cur(i,k)) + ElogV(k), 6);
+        //     m_alpha2cur(i,k) = (m_alpha1cur(i,k) + std::sqrt( std::pow(m_alpha1cur(i,k), 2) + (double) 8.0 * lambda * EV(k) * m_alpha1cur(i,k) / (double) m_N)) / (2.0 * EV(k));
+        // }
+        //
+        // m_alpha1cur = m_alpha1cur.row(1).replicate(m_N,1);
+        // m_alpha2cur = m_alpha2cur.row(1).replicate(m_N,1);
     }
 
     /*!
@@ -487,16 +523,16 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
         this->localPriorParam();
 
-        Rcpp::Rcout << "alpha1 = " << m_alpha1cur << std::endl;
-        Rcpp::Rcout << "alpha2 = " << m_alpha2cur << std::endl << std::endl;
+        // Rcpp::Rcout << "alpha1 = " << m_alpha1cur << std::endl;
+        // Rcpp::Rcout << "alpha2 = " << m_alpha2cur << std::endl << std::endl;
 
         // global parameters
         // V : param theta
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalPriorParam();
 
-        Rcpp::Rcout << "beta1 = " << m_beta1cur << std::endl;
-        Rcpp::Rcout << "beta2 = " << m_beta2cur << std::endl << std::endl;
+        // Rcpp::Rcout << "beta1 = " << m_beta1cur << std::endl;
+        // Rcpp::Rcout << "beta2 = " << m_beta2cur << std::endl << std::endl;
 
 
     }
