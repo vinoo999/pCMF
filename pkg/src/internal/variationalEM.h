@@ -319,6 +319,11 @@ namespace countMatrixFactor {
             Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
             this->assessConvergence(nstab);
 
+            // update values of parameters
+            //Rcpp::Rcout << "algorithm: next iteration" << std::endl;
+            this->m_model.nextIterateEstep();
+            this->m_model.nextIterateMstep();
+
             // increment iteration
             this->m_iter++;
         }
