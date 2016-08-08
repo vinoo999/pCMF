@@ -58,7 +58,6 @@ namespace intermediate {
      * @TODO verify the 0-1 return
      */
     double dirac(double x) {
-
         if(x==0) {
             return 1;
         } else {
