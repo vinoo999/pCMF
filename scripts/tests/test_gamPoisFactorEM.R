@@ -14,7 +14,7 @@ source("sources/projectSources.R")
 
 ## generating the data
 n = 100
-p = 500
+p = 50
 K = 10
 
 ## need of a priori values for gamma distribution
@@ -102,4 +102,10 @@ res1$order$orderExpVar0
 res1$order$orderExpVarU
 res1$order$orderExpVarV
 
+
+##
+matrixHeatmap(res1$U, xlab="k = 1...K", ylab="i = 1...n")
+matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
+matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
+matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
