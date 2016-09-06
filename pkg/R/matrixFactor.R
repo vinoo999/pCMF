@@ -54,7 +54,7 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
                         alpha1, alpha2, beta1, beta2,
                         lambda = NULL, mu = NULL,
                         iterMax=200, epsilon=1e-5,
-                        order=0, stabRange=5, verbose=TRUE, pen=FALSE, sparse=FALSE, ZI=FALSE,
+                        order=0, stabRange=5, verbose=TRUE, sparse=FALSE, ZI=FALSE,
                         algo="EM") {
 
     X = apply(X, c(1,2), as.integer)
@@ -62,7 +62,7 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
     results = NULL
 
     if(algo == "EM") {
-        print("EM ok")
+        # print("EM ok")
         if(ZI) {
             results = gamPoisFactorEM_ZI_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
                                                  alpha1, alpha2, beta1, beta2,
@@ -83,20 +83,12 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
                                               iterMax, epsilon,
                                               order, stabRange, verbose)
         } else {
-            if(pen) {
-                if(sparse) {
-                    results = gamPoisFactorSparse_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                                          alpha1, alpha2, beta1, beta2,
-                                                          lambda, mu,
-                                                          iterMax, epsilon,
-                                                          order, stabRange, verbose)
-                } else {
-                    results = gamPoisFactorPen_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                                       alpha1, alpha2, beta1, beta2,
-                                                       lambda, mu,
-                                                       iterMax, epsilon,
-                                                       order, stabRange, verbose)
-                }
+            if(sparse) {
+                results = gamPoisFactorSparse_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                      alpha1, alpha2, beta1, beta2,
+                                                      lambda, mu,
+                                                      iterMax, epsilon,
+                                                      order, stabRange, verbose)
             } else {
                 results = gamPoisFactor_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
                                                 alpha1, alpha2, beta1, beta2,
