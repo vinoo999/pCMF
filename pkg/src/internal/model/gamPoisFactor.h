@@ -214,8 +214,14 @@ namespace countMatrixFactor {
         // local parameters: alpha (factor U)
         void localPriorParam();
 
+        // penalized local parameters: alpha (factor U)
+        void localPriorParamPen();
+
         // global parameters: beta (factor V)
         void globalPriorParam();
+
+        // penalized global parameters: beta (factor V)
+        void globalPriorParamPen();
 
         // parameter update in variational EM (E-step)
         void updateEstep();

@@ -460,15 +460,16 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::localPriorParam() {
         m_alpha1cur = (m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
-        // m_alpha1cur = ((m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).array() - 0.5).mthreshold().mpsiInv();
-
         m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
-        // m_alpha2cur = (m_N * m_alpha1cur.array()).mthreshold().array().rowwise() / (m_EU.colwise().sum().array() + 10).array();
+    }
+
+    /*!
+     * \brief penalized local parameter update: alpha (factor U)
+     */
+    void gamPoisFactor::localPriorParamPen() {
 
         VectorXd ElogU(m_ElogU.colwise().mean());
         VectorXd EU(m_EU.colwise().mean());
-        // m_beta1cur = ((m_beta2cur.mlog().array() - ((double) 0.5 / (double) m_P) * m_beta2cur.cwiseInverse().array()).rowwise() + m_ElogU.colwise().mean()).mpsiInv();
-        // m_beta2cur = (m_P * m_beta1cur.array() + ((std::pow(m_P,2) * m_beta1cur.msquare().array()) + 8 * 1 * (m_beta1cur.array().rowwise() * EU).array() ).msqrt().array()).array().rowwise() / EU.array();
 
         double lambda = 0.1;
         int i = 0;
@@ -486,15 +487,16 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::globalPriorParam() {
         m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).mpsiInv();
-        // m_beta1cur = ((m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).array() - 0.5).mthreshold().mpsiInv();
-
         m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
-        // m_beta2cur = (m_P * m_beta1cur.array()).mthreshold().array().rowwise() / (m_EV.colwise().sum().array() + 10).array();
+    }
+
+    /*!
+     * \brief penalized global parameter update: beta (factor V)
+     */
+    void gamPoisFactor::globalPriorParamPen() {
 
         VectorXd ElogV(m_ElogV.colwise().mean());
         VectorXd EV(m_EV.colwise().mean());
-        // m_beta1cur = ((m_beta2cur.mlog().array() - ((double) 0.5 / (double) m_P) * m_beta2cur.cwiseInverse().array()).rowwise() + m_ElogV.colwise().mean()).mpsiInv();
-        // m_beta2cur = (m_P * m_beta1cur.array() + ((std::pow(m_P,2) * m_beta1cur.msquare().array()) + 8 * 0.5 * (m_beta1cur.array().rowwise() * EV).array() ).msqrt().array()).array().rowwise() / EV.array();
 
         double lambda = 0.1;
         int i = 0;
