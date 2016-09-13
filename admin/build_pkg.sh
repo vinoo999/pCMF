@@ -14,6 +14,9 @@ find $WORKDIR/pkg -type f -name "*.so" | xargs -I {} rm {}
 ## compile attributes
 Rscript --verbose $WORKDIR/admin/compileAttributes.R $WORKDIR
 
+## generate doc
+R -e "setwd(\"$WORKDIR/pkg\");library(roxygen2);roxygenize(\".\", roclets=c(\"rd\", \"collate\", \"namespace\"))"
+
 ## compute MD5 sum
 Rscript --verbose $WORKDIR/admin/computeMD5sum.R $WORKDIR
 
