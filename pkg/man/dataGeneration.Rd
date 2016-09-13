@@ -22,8 +22,7 @@ dataGeneration(n, p, K, alpha1, alpha2, beta1, beta2, ZI = FALSE,
 
 \item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
 
-\item{prob0}{vector of Bernoulli probability for zero-inflation
-(default is NULL), length p, one probability per variable}
+\item{prob0}{vector of Bernoulli probability for zero-inflation (default is NULL), length p, one probability per variable}
 
 \item{alpĥa2}{matrix n x K, second parameters for the prior distribution on U}
 }
