@@ -1,10 +1,11 @@
-SOURCES_CPP = $(wildcard internal/*.cpp internal/*/*.cpp)
-PKG_CPPFLAGS= -I${R_HOME}/include -I.
-PKG_LIBS = -L${R_HOME}/lib
+SOURCES_CPP=$(wildcard internal/*.cpp internal/*/*.cpp)
+PKG_CPPFLAGS=-I${R_HOME}/include -I. -I../inst/include/
+PKG_LIBS=-L${R_HOME}/lib
 
-OBJECTS =$(SOURCES_CPP:.cpp=.o)
+OBJECTS = $(SOURCES_CPP:.cpp=.o) gamPoisFactor_wrapper.o gamPoisFactorEM_wrapper.o gamPoisFactorEM_ZI_wrapper.o gamPoisFactorZI_wrapper.o
 
-all : $(SHLIB)
+all: $(SHLIB)
 #PKG_CFLAGS= -Wall
 
-clean : rm -f *.o
+clean:
+	@rm -f $(OBJECTS)
