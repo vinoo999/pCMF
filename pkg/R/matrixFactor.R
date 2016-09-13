@@ -31,8 +31,7 @@
 #'
 #' @seealso aaa
 #'
-#' @import Rcpp
-#' @import RcppEigen
+#' @importFrom Rcpp evalCpp
 #' @useDynLib countMatrixFactor
 #'
 #' @param X matrix n x p of counts
