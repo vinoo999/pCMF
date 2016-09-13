@@ -5,9 +5,8 @@
 \title{matrixFactor}
 \usage{
 matrixFactor(X, K, phi01, phi02, theta01, theta02, alpha1, alpha2, beta1, beta2,
-  lambda = NULL, mu = NULL, iterMax = 200, iterMax_Estep = 50,
-  iterMax_Mstep = 50, epsilon = 1e-05, order = 0, stabRange = 5,
-  verbose = TRUE, pen = FALSE, sparse = FALSE, ZI = FALSE,
+  lambda = NULL, mu = NULL, iterMax = 200, epsilon = 1e-05, order = 0,
+  stabRange = 5, verbose = TRUE, sparse = FALSE, ZI = FALSE,
   algo = "EM")
 }
 \arguments{

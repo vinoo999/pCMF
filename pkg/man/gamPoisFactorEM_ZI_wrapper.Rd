@@ -5,8 +5,8 @@
 \title{gamPoisFactorEM_ZI_wrapper}
 \usage{
 gamPoisFactorEM_ZI_wrapper(Xin, K, ZI, phi01in, phi02in, theta01in, theta02in,
-  alpha1in, alpha2in, beta1in, beta2in, iterMax, iterMax_Estep, iterMax_Mstep,
-  epsilon, order, stabRange, verbose)
+  alpha1in, alpha2in, beta1in, beta2in, iterMax, epsilon, order, stabRange,
+  verbose)
 }
 \arguments{
 \item{K}{number of factors}
