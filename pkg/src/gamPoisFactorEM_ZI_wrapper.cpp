@@ -27,8 +27,8 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <cstdio>
-#include "internal/variationalEM.h"
-#include "internal/model/gamPoisFactorZI.h"
+#include "variationalEM.h"
+#include "gamPoisFactorZI.h"
 
 using namespace countMatrixFactor;
 
