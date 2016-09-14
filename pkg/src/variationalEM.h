@@ -308,15 +308,15 @@ namespace countMatrixFactor {
             }
 
             // E-step
-            Rcpp::Rcout << "E-step" << std::endl;
+            // Rcpp::Rcout << "E-step" << std::endl;
             this->Estep();
 
             // M-step
-            Rcpp::Rcout << "M-step" << std::endl;
+            // Rcpp::Rcout << "M-step" << std::endl;
             this->Mstep();
 
             // convergence
-            Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
+            // Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
             this->assessConvergence(nstab);
 
             // update values of parameters
@@ -340,7 +340,7 @@ namespace countMatrixFactor {
     void variationalEM<model>::assessConvergence(int &nstab) {
         // breaking condition: convergence or not
         double res = this->m_model.normGapEM();
-        Rcpp::Rcout << "norm gap = " << res << std::endl;
+        // Rcpp::Rcout << "norm gap = " << res << std::endl;
         this->m_normGap(this->m_iter) = res;
 
         // derivative order to consider
