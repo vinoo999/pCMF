@@ -78,8 +78,8 @@ namespace countMatrixFactor {
     void gamPoisFactorZI::Init() {
 
         // Gamma prior parameter (to avoid scaling issue)
-        m_alpha1cur = m_alpha1cur.array() / m_K;
-        m_beta1cur = m_beta1cur.array() / m_K;
+        m_alpha1cur = m_alpha1cur.array() / std::sqrt(m_K);
+        m_beta1cur = m_beta1cur.array() / std::sqrt(m_K);
 
         // Gamma variational parameter
         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;

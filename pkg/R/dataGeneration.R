@@ -47,7 +47,8 @@
 #' @param beta1 matrix n x K, first parameters for the prior distribution on V
 #' @param beta2 matrix n x K, second parameters for the prior distribution on U
 #' @param ZI boolean, indicating if the data are zero-inflated (default is FALSE)
-#' @param prob0 vector of Bernoulli probability for zero-inflation (default is NULL), length p, one probability per variable
+#' @param prob0 vector of Bernoulli probability for zero-inflation
+#' (default is NULL), length p, one probability per variable
 #'
 #' @return list containing the following
 #' \item{X}{data matrix n x p of counts}
@@ -71,8 +72,8 @@ dataGeneration = function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob0
     }
 
     ## generating the components
-    U = sapply(1:K, function(k) rgamma(n, shape=alpha1[,k], rate=alpha2[,k])) # matrix n x K
-    V = sapply(1:K, function(k) rgamma(p, shape=beta1[,k], rate=beta2[,k])) # matrix p x K
+    U = sapply(1:K, function(k) rgamma(n, shape=alpha1[,k]/sqrt(K), rate=alpha2[,k])) # matrix n x K
+    V = sapply(1:K, function(k) rgamma(p, shape=beta1[,k]/sqrt(K), rate=beta2[,k])) # matrix p x K
 
     ## generating the count
     Xnzi = matrix(rpois(n=n*p, lambda=as.vector(U %*% t(V))), nrow=n, ncol=p)

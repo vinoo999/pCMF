@@ -141,8 +141,8 @@ namespace countMatrixFactor {
     void gamPoisFactor::Init() {
 
         // Gamma prior parameter (to avoid scaling issue)
-        m_alpha1cur = m_alpha1cur.array() / m_K;
-        m_beta1cur = m_beta1cur.array() / m_K;
+        m_alpha1cur = m_alpha1cur.array() / std::sqrt(m_K);
+        m_beta1cur = m_beta1cur.array() / std::sqrt(m_K);
 
         // Rcpp::Rcout << "X = " << m_X << std::endl << std::endl;
 
