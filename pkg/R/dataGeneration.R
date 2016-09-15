@@ -47,8 +47,7 @@
 #' @param beta1 matrix n x K, first parameters for the prior distribution on V
 #' @param beta2 matrix n x K, second parameters for the prior distribution on U
 #' @param ZI boolean, indicating if the data are zero-inflated (default is FALSE)
-#' @param prob0 vector of Bernoulli probability for zero-inflation
-#' (default is NULL), length p, one probability per variable
+#' @param prob0 vector of Bernoulli probability for zero-inflation (default is NULL), length p, one probability per variable
 #'
 #' @return list containing the following
 #' \item{X}{data matrix n x p of counts}
