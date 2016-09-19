@@ -54,7 +54,7 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=100, epsilon=1e-4, algo="EM")
+                    iterMax=400, epsilon=1e-4, algo="EM")
 
 str(res1)
 
@@ -80,8 +80,11 @@ plot(res1$logLikelihood$margLogLike, xlab="iteration", ylab="complete log likeli
 plot(res1$logLikelihood$elbo[-(1:2)], xlab="iteration", ylab="elbo", col="blue", type="l")
 
 ## norm gap
+plot(res1$gap[-1], xlab="iteration", ylab="gap", col="blue", type="b")
 plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
 
+plot(res1$EM$gap_Estep[-1], xlab="iteration", ylab="gap", col="blue", type="b")
+plot(res1$EM$gap_Mstep[-1], xlab="iteration", ylab="gap", col="blue", type="b")
 plot(res1$EM$normGap_Estep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
 plot(res1$EM$normGap_Mstep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
 
