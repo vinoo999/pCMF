@@ -565,46 +565,46 @@ namespace countMatrixFactor {
     /*!
      * \brief compute normalized gap between two iterates
      */
-    double gamPoisFactor::normGap() {
+    void gamPoisFactor::normGap(double &gap, double &ngap) {
         double paramNorm = sqrt(intermediate::parameterNorm2(m_phi1old, m_phi2old)
                                     + intermediate::parameterNorm2(m_theta1old, m_theta2old));
         double diffNorm = sqrt(intermediate::differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur)
                                    + intermediate::differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
 
-        double res = diffNorm / paramNorm;
-        return res;
+        gap = diffNorm;
+        ngap = diffNorm / paramNorm;
     }
 
     /*!
      * \brief compute normalized gap between two iterates in E-step of EM algo
      */
-    double gamPoisFactor::normGapEstep() {
+    void gamPoisFactor::normGapEstep(double &gap, double &ngap) {
         double paramNorm = sqrt(intermediate::parameterNorm2(m_phi1old, m_phi2old)
                                     + intermediate::parameterNorm2(m_theta1old, m_theta2old));
         double diffNorm = sqrt(intermediate::differenceNorm2(m_phi1old, m_phi2old, m_phi1cur, m_phi2cur)
                                    + intermediate::differenceNorm2(m_theta1old, m_theta2old, m_theta1cur, m_theta2cur));
 
-        double res = diffNorm / paramNorm;
-        return res;
+        gap = diffNorm;
+        ngap = diffNorm / paramNorm;
     }
 
     /*!
      * \brief compute normalized gap between two iterates in M-step of EM algo
      */
-    double gamPoisFactor::normGapMstep() {
+    void gamPoisFactor::normGapMstep(double &gap, double &ngap) {
         double paramNorm = sqrt(intermediate::parameterNorm2(m_alpha1old, m_alpha2old)
                                    + intermediate::parameterNorm2(m_beta1old, m_beta2old));
         double diffNorm = sqrt(intermediate::differenceNorm2(m_alpha1old, m_alpha2old, m_alpha1cur, m_alpha2cur)
                                    + intermediate::differenceNorm2(m_beta1old, m_beta2old, m_beta1cur, m_beta2cur));
 
-        double res = diffNorm / paramNorm;
-        return res;
+        gap = diffNorm;
+        ngap = diffNorm / paramNorm;
     }
 
     /*!
      * \brief compute normalized gap between two iterates in EM algo
      */
-    double gamPoisFactor::normGapEM() {
+    void gamPoisFactor::normGapEM(double &gap, double &ngap) {
         double paramNorm = sqrt(intermediate::parameterNorm2(m_phi1old, m_phi2old)
                                     + intermediate::parameterNorm2(m_theta1old, m_theta2old)
                                     + intermediate::parameterNorm2(m_alpha1old, m_alpha2old)
@@ -614,8 +614,8 @@ namespace countMatrixFactor {
                                    + intermediate::differenceNorm2(m_alpha1old, m_alpha2old, m_alpha1cur, m_alpha2cur)
                                    + intermediate::differenceNorm2(m_beta1old, m_beta2old, m_beta1cur, m_beta2cur));
 
-        double res = diffNorm / paramNorm;
-        return res;
+        gap = diffNorm;
+        ngap = diffNorm / paramNorm;
     }
 
     //-------------------//

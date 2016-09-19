@@ -240,16 +240,16 @@ namespace countMatrixFactor {
         //-------------------//
 
         // compute normalized gap between two iterates in variational algo
-        double normGap();
+        void normGap(double &gap, double &ngap);
 
         // compute normalized gap between two iterates in E-step of EM algo
-        double normGapEstep();
+        void normGapEstep(double &gap, double &ngap);
 
         // compute normalized gap between two iterates in M-step of EM algo
-        double normGapMstep();
+        void normGapMstep(double &gap, double &ngap);
 
         // compute normalized gap between two iterates in EM algo
-        double normGapEM();
+        void normGapEM(double &gap, double &ngap);
 
         //-------------------//
         //   order factors   //
