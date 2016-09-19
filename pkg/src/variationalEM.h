@@ -62,6 +62,8 @@ namespace countMatrixFactor {
         int m_globalIter;       /*!< current inner iterations (counting all E-steps and M-steps) */
         int m_nbGlobalIter;     /*!< number of inner effective iterations */
 
+        VectorXd m_gap_Estep;               /*!< gap between two iterates in E-step */
+        VectorXd m_gap_Mstep;               /*!< gap between two iterates in M-step */
         VectorXd m_normGap_Estep;         /*!< normalized gap between two iterates in E-step */
         VectorXd m_normGap_Mstep;         /*!< normalized gap between two iterates in M-step */
 
@@ -174,6 +176,8 @@ namespace countMatrixFactor {
     {
         m_globalIter = 0;
 
+        m_gap_Estep = VectorXd::Zero(iterMax);
+        m_gap_Mstep = VectorXd::Zero(iterMax);
         m_normGap_Estep = VectorXd::Zero(iterMax);
         m_normGap_Mstep = VectorXd::Zero(iterMax);
 
@@ -209,6 +213,8 @@ namespace countMatrixFactor {
     {
         m_globalIter = 0;
 
+        m_gap_Estep = VectorXd::Zero(iterMax);
+        m_gap_Mstep = VectorXd::Zero(iterMax);
         m_normGap_Estep = VectorXd::Zero(iterMax);
         m_normGap_Mstep = VectorXd::Zero(iterMax);
 
@@ -254,7 +260,7 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: explained variance" << std::endl;
         this->computeExpVar(m_globalIter);
         // normalized gap
-        m_normGap_Estep(this->m_iter) = this->m_model.normGapEstep();
+        this->m_model.normGapEstep(m_gap_Estep(this->m_iter), m_normGap_Estep(this->m_iter));
         // inner iteration
         m_globalIter++;
     }
@@ -282,7 +288,7 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: explained variance" << std::endl;
         this->computeExpVar(m_globalIter);
         // normalized gap
-        m_normGap_Mstep(this->m_iter) = this->m_model.normGapMstep();
+        this->m_model.normGapMstep(m_gap_Mstep(this->m_iter) ,m_normGap_Mstep(this->m_iter));
         // inner iteration
         m_globalIter++;
     }
@@ -339,9 +345,10 @@ namespace countMatrixFactor {
     template <typename model>
     void variationalEM<model>::assessConvergence(int &nstab) {
         // breaking condition: convergence or not
-        double res = this->m_model.normGapEM();
+        this->m_model.normGapEM(this->m_gap(this->m_iter), this->m_normGap(this->m_iter));
+
+        // double res = this->m_normGap(this->m_iter);
         // Rcpp::Rcout << "norm gap = " << res << std::endl;
-        this->m_normGap(this->m_iter) = res;
 
         // derivative order to consider
         double condition = variational<model>::convCondition(this->m_order, this->m_normGap, this->m_iter, 0);
@@ -375,7 +382,9 @@ namespace countMatrixFactor {
         Rcpp::List returnObj1;
         variational<model>::returnObject(returnObj1);
 
-        Rcpp::List EM = Rcpp::List::create(Rcpp::Named("normGap_Estep") = m_normGap_Estep.head(this->m_nbIter),
+        Rcpp::List EM = Rcpp::List::create(Rcpp::Named("gap_Estep") = m_gap_Estep.head(this->m_nbIter),
+                                           Rcpp::Named("gap_Mstep") = m_gap_Mstep.head(this->m_nbIter),
+                                           Rcpp::Named("normGap_Estep") = m_normGap_Estep.head(this->m_nbIter),
                                            Rcpp::Named("normGap_Mstep") = m_normGap_Mstep.head(this->m_nbIter));
 
         Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("EM") = EM);

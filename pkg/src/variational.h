@@ -67,6 +67,7 @@ namespace countMatrixFactor {
         int m_nbIter;           /*!< number of effective iterations */
 
         // criterion
+        VectorXd m_gap;             /*!< gap between two iterates (to assess convergence) */
         VectorXd m_normGap;         /*!< normalized gap between two iterates (to assess convergence) */
 
         VectorXd m_expVar0;         /*!< proportion of explained variance as residual sum of squares */
@@ -234,6 +235,7 @@ namespace countMatrixFactor {
         m_nbIter = 0;
 
         // criterion
+        m_gap = VectorXd::Zero(iterMax);
         m_normGap = VectorXd::Zero(iterMax);
 
         m_expVar0 = VectorXd::Zero(iterMax);
@@ -279,6 +281,7 @@ namespace countMatrixFactor {
         m_nbIter = 0;
 
         // criterion
+        m_gap = VectorXd::Zero(iterMax);
         m_normGap = VectorXd::Zero(iterMax);
 
         m_expVar0 = VectorXd::Zero(iterMax);
@@ -359,8 +362,7 @@ namespace countMatrixFactor {
     template <typename model>
     void variational<model>::assessConvergence(int &nstab) {
         // breaking condition: convergence or not
-        double res = m_model.normGap();
-        m_normGap(m_iter) = res;
+        m_model.normGap(m_gap(m_iter), m_normGap(m_iter));
 
         // derivative order to consider
         double condition = variational<model>::convCondition(m_order, m_normGap, m_iter, 0);
@@ -413,6 +415,7 @@ namespace countMatrixFactor {
 
         Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("logLikelihood") = logLikelihood,
                                                    Rcpp::Named("expVariance") = expVariance,
+                                                   Rcpp::Named("gap") = m_gap.head(m_nbIter),
                                                    Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
                                                    Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
                                                    Rcpp::Named("converged") = m_converged,
