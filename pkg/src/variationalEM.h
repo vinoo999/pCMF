@@ -273,7 +273,7 @@ namespace countMatrixFactor {
     void variationalEM<model>::Mstep() {
 
         // parameter update
-        this->m_model.updateMstep();
+        this->m_model.updateMstep(this->m_iter);
 
         /// log-likelihood
         // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;

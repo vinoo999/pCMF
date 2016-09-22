@@ -123,7 +123,7 @@ namespace countMatrixFactor {
         void updateEstep();
 
         // parameter update variational EM (M-step)
-        void updateMstep();
+        void updateMstep(int iter);
 
     };
 

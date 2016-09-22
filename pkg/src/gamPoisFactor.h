@@ -61,6 +61,7 @@ namespace countMatrixFactor {
         int m_P;            /*!< number of variables (columns) */
         int m_K;            /*!< dimension of the latent subspace */
         bool m_ZI;          /*!< is the model zero-inflated or not */
+        int m_curIter;      /*!< current iteration, given by the algo */
 
         // data
         MatrixXi m_X;           /*!< n x p, count data matrix */
@@ -227,7 +228,7 @@ namespace countMatrixFactor {
         void updateEstep();
 
         // parameter update in variational EM (M-step)
-        void updateMstep();
+        void updateMstep(int iter);
 
         // update parameters between iterations (E-step)
         void nextIterateEstep();

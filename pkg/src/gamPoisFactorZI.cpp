@@ -327,7 +327,9 @@ namespace countMatrixFactor {
     /*!
      * \brief parameter update in variational EM (M-step)
      */
-    void gamPoisFactorZI::updateMstep() {
+    void gamPoisFactorZI::updateMstep(int iter) {
+        m_curIter = iter;
+
         // ZI proba
         //Rcpp::Rcout << "algorithm: ZI proba prior" << std::endl;
         this->priorZIproba();
