@@ -27,10 +27,10 @@ signalBlock = matrix(rev(c(1,3,4,2)), nrow=2, ncol=2)
 blockBeta1 = blockMatrix(nrow=p, ncol=K, nRowBlock=2, nColBlock=2, signalBlock=signalBlock)
 beta1 = blockBeta1$mat
 beta2 = matrix(1, nrow=p, ncol=K)
-prob0 = round(runif(p, 0.3, 0.7), digits=2)
+prob1 = round(runif(p, 0.3, 0.7), digits=2)
 
 ## generating the data
-data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2, ZI=TRUE, prob0=prob0)
+data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2, ZI=TRUE, prob1=prob1)
 str(data1)
 
 ## heatmap
@@ -65,4 +65,4 @@ str(res1)
 
 # myOrder = res1$order$orderExpVarU
 
-cbind(apply(data1$X,2,function(x) sum(x!=0)), prob0, res1$ZIparams$probPrior)
+cbind(apply(data1$X,2,function(x) sum(x!=0)), prob1, res1$ZIparams$probPrior)

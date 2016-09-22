@@ -54,7 +54,10 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=1000, epsilon=1e-5, algo="EM")
+                    iterMax=1000, epsilon=1e-4, algo="EM")
+
+res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
+                    iterMax=1000, epsilon=1e-4, algo="variational")
 
 str(res1)
 
@@ -121,5 +124,36 @@ plot(res1$EM$normGap_Mstep[-(1:5000)], xlab="iteration", ylab="normalized gap", 
 # matrixHeatmap(res1$U, xlab="k = 1...K", ylab="i = 1...n")
 # matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
 # matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
-# matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
+matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
+matrixHeatmap(res1$U, xlab="k = 1...K", ylab="i = 1...n")
+matrixHeatmap(res1$V, xlab="k = 1...K", ylab="i = 1...n")
+
+
+
+#### angle
+res2 = prcomp(data1$X)
+str(res2)
+V2 = res2$rotation[,1:ncomp]
+U2 = data1$X %*% V2
+
+angle = sapply(1:ncomp, function(k1) {
+    sapply(1:ncomp, function(k2) {
+        return(t(as.matrix(res1$U[,k1])) %*% as.matrix(data1$U[,k2]) / (sqrt(sum(res1$U[,k1]^2)) * sqrt(sum(data1$U[,k2]^2))) )
+    })
+})
+matrixHeatmap(angle)
+
+angle = sapply(1:ncomp, function(k1) {
+    sapply(1:ncomp, function(k2) {
+        return(t(as.matrix(U2[,k1])) %*% as.matrix(data1$U[,k2]) / (sqrt(sum(U2[,k1]^2)) * sqrt(sum(data1$U[,k2]^2))) )
+    })
+})
+matrixHeatmap(angle)
+
+corr = sapply(1:ncomp, function(k1) {
+    sapply(1:ncomp, function(k2) {
+        return(t(as.matrix(res1$U[,k1])) %*% as.matrix(data1$U[,k2]) / (sqrt(sum(res1$U[,k1]^2)) * sqrt(sum(data1$U[,k2]^2))) )
+    })
+})
+matrixHeatmap(angle)
 
