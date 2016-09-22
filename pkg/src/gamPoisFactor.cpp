@@ -265,7 +265,8 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
+        // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
+        double res1 = (-1) * ( m_lambda.sum() );
         //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
         double res2 = ( m_X.cast<double>().array() * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
         //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
