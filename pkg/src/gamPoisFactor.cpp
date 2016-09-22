@@ -66,6 +66,7 @@ namespace countMatrixFactor {
         m_P = p;
         m_K = K;
         m_ZI = false;
+        m_curIter = 0;
 
         // data
         m_X = MatrixXi(X);
@@ -144,6 +145,20 @@ namespace countMatrixFactor {
         m_alpha1cur = m_alpha1cur.array() / std::sqrt(m_K);
         m_beta1cur = m_beta1cur.array() / std::sqrt(m_K);
 
+        // not random on alpha and beta
+        MatrixXd tmp_alpha1cur = m_alpha1cur;
+        MatrixXd tmp_alpha2cur = m_alpha2cur;
+
+        MatrixXd tmp_beta1cur = m_beta1cur;
+        MatrixXd tmp_beta2cur = m_beta2cur;
+
+        // random on alpha and beta
+        // MatrixXd tmp_alpha1cur = m_alpha1cur.array() + m_alpha1cur.array() * (0.5 * MatrixXd::Random(m_N,m_K).array() ).array();
+        // MatrixXd tmp_alpha2cur = m_alpha2cur.array() + m_alpha2cur.array() * (0.5 * MatrixXd::Random(m_N,m_K).array() ).array();
+        //
+        // MatrixXd tmp_beta1cur = m_beta1cur.array() + m_beta1cur.array() * (0.5 * MatrixXd::Random(m_P,m_K).array() ).array();
+        // MatrixXd tmp_beta2cur = m_beta2cur.array() + m_beta2cur.array() * (0.5 * MatrixXd::Random(m_P,m_K).array() ).array();
+
         // Rcpp::Rcout << "X = " << m_X << std::endl << std::endl;
 
         // Gamma variational parameter
@@ -153,7 +168,7 @@ namespace countMatrixFactor {
             for(int i=0; i<m_N; i++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(1000, m_alpha1cur(i,k), m_alpha2cur(i,k), param1, param2);
+                estimParam(1000, tmp_alpha1(i,k), tmp_alpha2(i,k), param1, param2);
                 m_phi1cur(i,k) = param1;
                 m_phi1old(i,k) = param1;
                 m_phi2cur(i,k) = param2;
@@ -163,7 +178,7 @@ namespace countMatrixFactor {
             for(int j=0; j<m_P; j++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(1000, m_beta1cur(j,k), m_beta2cur(j,k), param1, param2);
+                estimParam(1000, tmp_beta1(j,k), tmp_beta2(j,k), param1, param2);
                 m_theta1cur(j,k) = param1;
                 m_theta1old(j,k) = param1;
                 m_theta2cur(j,k) = param2;
@@ -471,15 +486,32 @@ namespace countMatrixFactor {
         VectorXd ElogU(m_ElogU.colwise().mean());
         VectorXd EU(m_EU.colwise().mean());
 
-        double lambda = 0.1;
+        double lambda = 10/(1+std::sqrt(m_curIter));
         int i = 0;
         for(int k = 0; k<m_K; k++) {
-            m_alpha1cur(i,k) = intermediate::psiInv(std::log(m_alpha2cur(i,k)) - lambda / ((double) m_N * m_alpha2cur(i,k)) + ElogU(k), 6);
-            m_alpha2cur(i,k) = (m_alpha1cur(i,k) + std::sqrt( std::pow(m_alpha1cur(i,k), 2) + (double) 8.0 * lambda * EU(k) * m_alpha1cur(i,k) / (double) m_N)) / (2.0 * EU(k));
+            // m_alpha1cur(i,k) = intermediate::psiInv(std::log(m_alpha2cur(i,k)) - lambda / ((double) m_N * m_alpha2cur(i,k)) + ElogU(k), 6);
+            // double inter = intermediate::psiInv(std::log(m_alpha2cur(i,k)) + ElogU(k), 6);
+            // Rcpp::Rcout << "alpha1, pen = " << m_alpha1cur(i,k) << " / non-pen = " << inter << std::endl;
+            // m_alpha2cur(i,k) = (m_alpha1cur(i,k) + std::sqrt( std::pow(m_alpha1cur(i,k), 2) + (double) 4.0 * lambda * EU(k) * m_alpha1cur(i,k) / (double) m_N)) / (2.0 * EU(k));
+            // inter = m_alpha1cur(i,k) / EU(k);
+            // Rcpp::Rcout << "alpha2, pen = " << m_alpha2cur(i,k) << " / non-pen = " << inter << std::endl;
+
+            m_alpha1cur(i,k) = intermediate::psiInv(std::log(m_alpha2cur(i,k)) + ElogU(k), 6);
+            double inter = m_alpha1cur(i,k) / EU(k);
+            m_alpha2cur(i,k) = (m_alpha1cur(i,k) - (lambda/ (double) m_N)) / EU(k);
+
+            Rcpp::Rcout << "alpha2, pen = " << m_alpha2cur(i,k) << " / non-pen = " << inter << std::endl;
+
         }
 
-        m_alpha1cur = m_alpha1cur.row(1).replicate(m_N,1);
-        m_alpha2cur = m_alpha2cur.row(1).replicate(m_N,1);
+        // Rcpp::Rcout << "alpha1 = " << std::endl << m_alpha1cur << std::endl;
+        // Rcpp::Rcout << "alpha2 = " << std::endl << m_alpha2cur << std::endl;
+
+        m_alpha1cur = m_alpha1cur.row(i).replicate(m_N,1);
+        m_alpha2cur = m_alpha2cur.row(i).replicate(m_N,1);
+
+        // Rcpp::Rcout << "alpha1 = " << std::endl << m_alpha1cur << std::endl;
+        // Rcpp::Rcout << "alpha2 = " << std::endl << m_alpha2cur << std::endl;
     }
 
     /*!
@@ -498,15 +530,18 @@ namespace countMatrixFactor {
         VectorXd ElogV(m_ElogV.colwise().mean());
         VectorXd EV(m_EV.colwise().mean());
 
-        double lambda = 0.1;
-        int i = 0;
+        double lambda = 10/(std::sqrt(m_curIter)+1);
+        int j = 0;
         for(int k = 0; k<m_K; k++) {
-            m_beta1cur(i,k) = intermediate::psiInv(std::log(m_beta2cur(i,k)) - lambda / ((double) m_P * m_beta2cur(i,k)) + ElogV(k), 6);
-            m_beta2cur(i,k) = (m_beta1cur(i,k) + std::sqrt( std::pow(m_beta1cur(i,k), 2) + (double) 8.0 * lambda * EV(k) * m_beta1cur(i,k) / (double) m_P)) / (2.0 * EV(k));
+            // m_beta1cur(i,k) = intermediate::psiInv(std::log(m_beta2cur(i,k)) - lambda / ((double) m_P * m_beta2cur(i,k)) + ElogV(k), 6);
+            // m_beta2cur(i,k) = (m_beta1cur(i,k) + std::sqrt( std::pow(m_beta1cur(i,k), 2) + (double) 4.0 * lambda * EV(k) * m_beta1cur(i,k) / (double) m_P)) / (2.0 * EV(k));
+            m_beta1cur(j,k) = intermediate::psiInv(std::log(m_beta2cur(j,k)) + ElogV(k), 6);
+            // double inter = m_beta1cur(j,k) / EV(k);
+            m_beta2cur(j,k) = (m_beta1cur(j,k) - (lambda/ (double) m_N)) / EV(k);
         }
 
-        m_beta1cur = m_beta1cur.row(1).replicate(m_P,1);
-        m_beta2cur = m_beta2cur.row(1).replicate(m_P,1);
+        m_beta1cur = m_beta1cur.row(j).replicate(m_P,1);
+        m_beta2cur = m_beta2cur.row(j).replicate(m_P,1);
     }
 
     /*!
@@ -519,11 +554,13 @@ namespace countMatrixFactor {
     /*!
      * \brief parameter update in variational EM (M-step)
      */
-    void gamPoisFactor::updateMstep() {
+    void gamPoisFactor::updateMstep(int iter) {
+        m_curIter = iter;
+
         // local parameters
         // U : param phi
         // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
-        this->localPriorParam();
+        this->localPriorParamPen();
 
         // Rcpp::Rcout << "alpha1 = " << m_alpha1cur << std::endl;
         // Rcpp::Rcout << "alpha2 = " << m_alpha2cur << std::endl << std::endl;
@@ -531,7 +568,7 @@ namespace countMatrixFactor {
         // global parameters
         // V : param theta
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
-        this->globalPriorParam();
+        this->globalPriorParamPen();
 
         // Rcpp::Rcout << "beta1 = " << m_beta1cur << std::endl;
         // Rcpp::Rcout << "beta2 = " << m_beta2cur << std::endl << std::endl;
