@@ -168,7 +168,7 @@ namespace countMatrixFactor {
             for(int i=0; i<m_N; i++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(1000, tmp_alpha1(i,k), tmp_alpha2(i,k), param1, param2);
+                estimParam(1000, tmp_alpha1cur(i,k), tmp_alpha2cur(i,k), param1, param2);
                 m_phi1cur(i,k) = param1;
                 m_phi1old(i,k) = param1;
                 m_phi2cur(i,k) = param2;
@@ -178,7 +178,7 @@ namespace countMatrixFactor {
             for(int j=0; j<m_P; j++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(1000, tmp_beta1(j,k), tmp_beta2(j,k), param1, param2);
+                estimParam(1000, tmp_beta1cur(j,k), tmp_beta2cur(j,k), param1, param2);
                 m_theta1cur(j,k) = param1;
                 m_theta1old(j,k) = param1;
                 m_theta2cur(j,k) = param2;
