@@ -100,6 +100,10 @@ dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob
     ## counts model (with zero-inflation if so)
     X <- Xnzi * Y
 
+    if(!ZI) {
+        Xnzi <- NULL
+    }
+
     ## return
     return(list(X=X, U=U, V=V, n=n, p=p, K=K,
                 alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2,
