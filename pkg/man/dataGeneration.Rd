@@ -5,7 +5,7 @@
 \title{dataGeneration}
 \usage{
 dataGeneration(n, p, K, alpha1, alpha2, beta1, beta2, ZI = FALSE,
-  prob0 = NULL)
+  prob1 = NULL, rate0 = NULL)
 }
 \arguments{
 \item{n}{number of observations (nb of rows)}
@@ -22,7 +22,11 @@ dataGeneration(n, p, K, alpha1, alpha2, beta1, beta2, ZI = FALSE,
 
 \item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
 
-\item{prob0}{vector of Bernoulli probability for zero-inflation (default is NULL), length p, one probability per variable}
+\item{prob1}{vector of Bernoulli probability for zero-inflation (default is NULL),
+length p, one probability per variable, probability to not get a drop-out event}
+
+\item{rate0}{vector of Bernoulli probability for zero-inflation (default is NULL),
+enforce the ZI probabibility to depend on the count mean, the higher the smaller probability}
 
 \item{alpĥa2}{matrix n x K, second parameters for the prior distribution on U}
 }
@@ -39,7 +43,10 @@ list containing the following
 \item{beta1}{matrix n x K, first parameters for the prior distribution on V}
 \item{beta2}{matrix n x K, second parameters for the prior distribution on U}
 \item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
-\item{prob0}{vector of Bernoulli probability for zero-inflation}
+\item{prob1}{vector of Bernoulli probability for zero-inflation, probability
+to not get a drop-out event (default is NULL)}
+\item{rate0}{vector of Bernoulli probability for zero-inflation, enforce the ZI probabibility
+to depend on the count mean, the higher the smaller probability (default is NULL)}
 }
 \description{
 Simulates a data matrix X according to the (possibly
