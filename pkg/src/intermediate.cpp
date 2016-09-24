@@ -118,7 +118,7 @@ namespace intermediate {
      */
     double lgamBinom(int N, double p) {
         double res=0;
-        if(N < 75) {
+        if(N < 50) {
             for(int l=0; l < N+1; l++) {
                 res += std::log(factorial<double>((double) l)) * binomial_coefficient<double>((double) N, (double) l) * std::pow(p,l) * std::pow(1-p, N-l);
             }
