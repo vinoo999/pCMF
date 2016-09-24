@@ -68,10 +68,17 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
                                                  iterMax, epsilon,
                                                  order, stabRange, verbose)
         } else {
-            results = gamPoisFactorEM_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                              alpha1, alpha2, beta1, beta2,
-                                              iterMax, epsilon,
-                                              order, stabRange, verbose)
+            if(sparse) {
+                results = gamPoisFactorEM_Sparse_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                         alpha1, alpha2, beta1, beta2,
+                                                         iterMax, epsilon,
+                                                         order, stabRange, verbose)
+            } else {
+                results = gamPoisFactorEM_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                  alpha1, alpha2, beta1, beta2,
+                                                  iterMax, epsilon,
+                                                  order, stabRange, verbose)
+            }
         }
     }
 
@@ -85,7 +92,6 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
             if(sparse) {
                 results = gamPoisFactorSparse_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
                                                       alpha1, alpha2, beta1, beta2,
-                                                      lambda, mu,
                                                       iterMax, epsilon,
                                                       order, stabRange, verbose)
             } else {
