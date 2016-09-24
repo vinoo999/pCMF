@@ -657,6 +657,36 @@ namespace countMatrixFactor {
     }
 
     //-------------------//
+    //        norm       //
+    //-------------------//
+
+    // check norm variational
+    void gamPoisFactor::checkNormVar(MatrixXd &normU, MatrixXd &normV,
+                                     MatrixXd &normPhi1, MatrixXd &normPhi2,
+                                     MatrixXd &normTheta1, MatrixXd &normTheta2,
+                                     int iter) {
+        normU.row(iter) = m_EU.colwise().norm();
+        normV.row(iter) = m_EV.colwise().norm();
+
+        normPhi1.row(iter) = m_phi1cur.colwise().norm();
+        normPhi2.row(iter) = m_phi2cur.colwise().norm();
+
+        normTheta1.row(iter) = m_phi1cur.colwise().norm();
+        normTheta2.row(iter) = m_phi2cur.colwise().norm();
+    }
+
+    // check norm prior
+    void gamPoisFactor::checkNormPrior(MatrixXd &normAlpha,
+                                       MatrixXd &normBeta,
+                                       int iter) {
+        normAlpha(0,iter) = m_alpha1cur.row(0).norm();
+        normAlpha(1,iter) = m_alpha2cur.row(0).norm();
+
+        normBeta(0,iter) = m_beta1cur.row(0).norm();
+        normBeta(1,iter) = m_beta2cur.row(0).norm();
+    }
+
+    //-------------------//
     //   order factors   //
     //-------------------//
 

@@ -253,6 +253,21 @@ namespace countMatrixFactor {
         void normGapEM(double &gap, double &ngap);
 
         //-------------------//
+        //        norm       //
+        //-------------------//
+
+        // check norm variational
+        void checkNormVar(MatrixXd &normU, MatrixXd &normV,
+                          MatrixXd &normPhi1, MatrixXd &normPhi2,
+                          MatrixXd &normTheta1, MatrixXd &normTheta2,
+                          int iter);
+
+        // check norm prior
+        void checkNormPrior(MatrixXd &normAlpha,
+                            MatrixXd &normBeta,
+                            int iter);
+
+        //-------------------//
         //   order factors   //
         //-------------------//
 
