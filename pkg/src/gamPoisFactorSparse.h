@@ -70,9 +70,6 @@ namespace countMatrixFactor {
         MatrixXd m_EU_EV_i;         /*!< p x K, \sum_i E[U_{ik}] * E[V_{jk}] */
         MatrixXd m_ElgamZ_i;        /*!< p x K, \sum_i E[log(Z_{ijk}!)] */
 
-        // sufficient stats (sum on k)
-        MatrixXd m_ElogU_ElogV_k;   /*!< n x p, \sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})]) */
-
     public:
         /*!
         * \brief Constructor
@@ -128,7 +125,7 @@ namespace countMatrixFactor {
         void updateEstep();
 
         // parameter update variational EM (M-step)
-        void updateMstep();
+        void updateMstep(int iter);
 
     };
 
