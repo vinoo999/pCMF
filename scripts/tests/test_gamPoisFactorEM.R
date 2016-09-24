@@ -54,7 +54,7 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=1000, epsilon=1e-5, algo="EM")
+                    iterMax=400, epsilon=1e-4, algo="EM", verbose=TRUE)
 
 str(res1)
 
@@ -91,13 +91,13 @@ print(res1$EM$normGap_Mstep)
 # plot(res1$EM$normGap_Estep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
 # plot(res1$EM$normGap_Mstep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
 
-plot(res1$gap[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
-plot(res1$normGap[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-
-plot(res1$EM$gap_Estep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
-plot(res1$EM$gap_Mstep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
-plot(res1$EM$normGap_Estep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-plot(res1$EM$normGap_Mstep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+# plot(res1$gap[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
+# plot(res1$normGap[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+#
+# plot(res1$EM$gap_Estep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
+# plot(res1$EM$gap_Mstep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
+# plot(res1$EM$normGap_Estep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+# plot(res1$EM$normGap_Mstep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
 #
 # ## exp var
 # plot(res1$expVariance$expVar0, xlab="iteration", ylab="expVar0", col="blue", type="b")

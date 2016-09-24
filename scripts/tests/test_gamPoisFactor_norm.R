@@ -39,7 +39,7 @@ str(data1)
 # matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ####### TESTING ALGO
-ncomp=K
+ncomp=10
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)
@@ -53,13 +53,57 @@ phi02 = matrix(1, nrow=n, ncol=ncomp)
 theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
-res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02, iterMax=400, epsilon=1e-4, algo="variational", verbose=TRUE)
+res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02, iterMax=500, epsilon=1e-4, algo="variational", verbose=TRUE)
 
 str(res1)
 
 print(res1$criteria_k$kDeviance)
 myOrder = res1$order$orderDeviance
 print(myOrder)
+
+
+#### plot norms
+resU = data.frame(param=rep("U", times=ncomp*res1$nbIter),
+                  iter=rep(1:res1$nbIter, each=ncomp),
+                  comp=rep(myOrder, times=res1$nbIter),
+                  norm=as.vector(t(res1$norms$normU)))
+
+resV = data.frame(param=rep("V", times=ncomp*res1$nbIter),
+                  iter=rep(1:res1$nbIter, each=ncomp),
+                  comp=rep(myOrder, times=res1$nbIter),
+                  norm=as.vector(t(res1$norms$normV)))
+
+resPhi1 = data.frame(param=rep("Phi1", times=ncomp*res1$nbIter),
+                     iter=rep(1:res1$nbIter, each=ncomp),
+                     comp=rep(myOrder, times=res1$nbIter),
+                     norm=as.vector(t(res1$norms$normPhi1)))
+
+resPhi2 = data.frame(param=rep("Phi2", times=ncomp*res1$nbIter),
+                     iter=rep(1:res1$nbIter, each=ncomp),
+                     comp=rep(myOrder, times=res1$nbIter),
+                     norm=as.vector(t(res1$norms$normPhi2)))
+
+resTheta1 = data.frame(param=rep("Theta1", times=ncomp*res1$nbIter),
+                       iter=rep(1:res1$nbIter, each=ncomp),
+                       comp=rep(myOrder, times=res1$nbIter),
+                       norm=as.vector(t(res1$norms$normTheta1)))
+
+resTheta2 = data.frame(param=rep("Theta2", times=ncomp*res1$nbIter),
+                       iter=rep(1:res1$nbIter, each=ncomp),
+                       comp=rep(myOrder, times=res1$nbIter),
+                       norm=as.vector(t(res1$norms$normTheta2)))
+
+resToPlot = rbind(resU, resV, resPhi1, resPhi2, resTheta1, resTheta2)
+
+library(ggplot2)
+g1 = ggplot(resToPlot, aes(x=iter, y=norm)) + facet_grid(. ~ param, scales="free")
+g1 = g1 + geom_line(aes(col=factor(comp)))
+g1 = g1 + xlab(paste0("iter")) + ylab(paste0("dist")) + scale_y_log10()
+
+g1 = g1 + theme(legend.text=element_text(size=12), legend.title=element_text(size=12), axis.text.x=element_text(size=12), axis.title.y = element_text(size=12, vjust=1.5), axis.text.y= element_text(size=12), axis.title.x=element_text(size=12), plot.title=element_text(size=12), strip.text.x=element_text(size=12), strip.text.y=element_text(size=12)) + theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major=element_line(color = "grey90"), panel.grid.minor= element_line(color="grey90")) #, legend.position = "none")
+
+g1
+
 
 # tmp = sapply(1:ncomp, function(k) {
 #     lambda = res1$U[,k] %*% t(res1$V[,k])
