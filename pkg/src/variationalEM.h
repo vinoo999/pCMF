@@ -297,7 +297,7 @@ namespace countMatrixFactor {
         this->m_model.normGapMstep(m_gap_Mstep(this->m_iter), m_normGap_Mstep(this->m_iter));
         // check norm
         if(this->m_verbose) {
-            this->m_model.checkNormPrior(this->m_normAlpha, this->m_normBeta, this->m_iter);
+            this->m_model.checkNormPrior(this->m_normAlpha1, this->m_normAlpha2, this->m_normBeta1, this->m_normBeta2, this->m_iter);
         }
         // inner iteration
         m_globalIter++;

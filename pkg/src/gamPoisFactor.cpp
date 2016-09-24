@@ -561,7 +561,7 @@ namespace countMatrixFactor {
         // local parameters
         // U : param phi
         // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
-        this->localPriorParamPen();
+        this->localPriorParam();
 
         // Rcpp::Rcout << "alpha1 = " << m_alpha1cur << std::endl;
         // Rcpp::Rcout << "alpha2 = " << m_alpha2cur << std::endl << std::endl;
@@ -569,7 +569,7 @@ namespace countMatrixFactor {
         // global parameters
         // V : param theta
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
-        this->globalPriorParamPen();
+        this->globalPriorParam();
 
         // Rcpp::Rcout << "beta1 = " << m_beta1cur << std::endl;
         // Rcpp::Rcout << "beta2 = " << m_beta2cur << std::endl << std::endl;
@@ -676,14 +676,14 @@ namespace countMatrixFactor {
     }
 
     // check norm prior
-    void gamPoisFactor::checkNormPrior(MatrixXd &normAlpha,
-                                       MatrixXd &normBeta,
+    void gamPoisFactor::checkNormPrior(MatrixXd &normAlpha1, MatrixXd &normAlpha2,
+                                       MatrixXd &normBeta1, MatrixXd &normBeta2,
                                        int iter) {
-        normAlpha(0,iter) = m_alpha1cur.row(0).norm();
-        normAlpha(1,iter) = m_alpha2cur.row(0).norm();
+        normAlpha1.row(iter) = m_alpha1cur.row(0);
+        normAlpha2.row(iter) = m_alpha2cur.row(0);
 
-        normBeta(0,iter) = m_beta1cur.row(0).norm();
-        normBeta(1,iter) = m_beta2cur.row(0).norm();
+        normBeta1.row(iter) = m_beta1cur.row(0);
+        normBeta2.row(iter) = m_beta2cur.row(0);
     }
 
     //-------------------//

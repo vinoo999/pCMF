@@ -263,8 +263,8 @@ namespace countMatrixFactor {
                           int iter);
 
         // check norm prior
-        void checkNormPrior(MatrixXd &normAlpha,
-                            MatrixXd &normBeta,
+        void checkNormPrior(MatrixXd &normAlpha1, MatrixXd &normAlpha2,
+                            MatrixXd &normBeta1, MatrixXd &normBeta2,
                             int iter);
 
         //-------------------//

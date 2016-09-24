@@ -75,8 +75,10 @@ namespace countMatrixFactor {
         MatrixXd m_normTheta1;
         MatrixXd m_normTheta2;
 
-        MatrixXd m_normAlpha;
-        MatrixXd m_normBeta;
+        MatrixXd m_normAlpha1;
+        MatrixXd m_normAlpha2;
+        MatrixXd m_normBeta1;
+        MatrixXd m_normBeta2;
 
         // criterion
         VectorXd m_gap;             /*!< gap between two iterates (to assess convergence) */
@@ -255,8 +257,10 @@ namespace countMatrixFactor {
         m_normTheta1 = MatrixXd::Zero(iterMax, K);
         m_normTheta2 = MatrixXd::Zero(iterMax, K);
 
-        m_normAlpha = MatrixXd::Zero(iterMax, 2);
-        m_normBeta = MatrixXd::Zero(iterMax, 2);
+        m_normAlpha1 = MatrixXd::Zero(iterMax, K);
+        m_normAlpha2 = MatrixXd::Zero(iterMax, K);
+        m_normBeta1 = MatrixXd::Zero(iterMax, K);
+        m_normBeta2 = MatrixXd::Zero(iterMax, K);
 
         // criterion
         m_gap = VectorXd::Zero(iterMax);
@@ -313,8 +317,10 @@ namespace countMatrixFactor {
         m_normTheta1 = MatrixXd::Zero(iterMax, K);
         m_normTheta2 = MatrixXd::Zero(iterMax, K);
 
-        m_normAlpha = MatrixXd::Zero(iterMax, 2);
-        m_normBeta = MatrixXd::Zero(iterMax, 2);
+        m_normAlpha1 = MatrixXd::Zero(iterMax, K);
+        m_normAlpha2 = MatrixXd::Zero(iterMax, K);
+        m_normBeta1 = MatrixXd::Zero(iterMax, K);
+        m_normBeta2 = MatrixXd::Zero(iterMax, K);
 
         // criterion
         m_gap = VectorXd::Zero(iterMax);
@@ -455,8 +461,25 @@ namespace countMatrixFactor {
                                                     Rcpp::Named("expVarU") = m_expVarU.head(m_nbIter),
                                                     Rcpp::Named("expVarV") = m_expVarV.head(m_nbIter));
 
+        Rcpp::List norms;
+        if(m_verbose) {
+            norms = Rcpp::List::create(Rcpp::Named("normU") = m_normU.topRows(m_nbIter),
+                                       Rcpp::Named("normV") = m_normV.topRows(m_nbIter),
+                                       Rcpp::Named("normPhi1") = m_normPhi1.topRows(m_nbIter),
+                                       Rcpp::Named("normPhi2") = m_normPhi2.topRows(m_nbIter),
+                                       Rcpp::Named("normTheta1") = m_normTheta1.topRows(m_nbIter),
+                                       Rcpp::Named("normTheta2") = m_normTheta2.topRows(m_nbIter),
+                                       Rcpp::Named("normAlpha1") = m_normAlpha1.topRows(m_nbIter),
+                                       Rcpp::Named("normAlpha2") = m_normAlpha2.topRows(m_nbIter),
+                                       Rcpp::Named("normBeta1") = m_normBeta1.topRows(m_nbIter),
+                                       Rcpp::Named("normBeta2") = m_normBeta2.topRows(m_nbIter));
+        } else {
+            norms = Rcpp::List::create(Rcpp::Named("no_norm") = 0);
+        }
+
         Rcpp::List returnObj2 = Rcpp::List::create(Rcpp::Named("logLikelihood") = logLikelihood,
                                                    Rcpp::Named("expVariance") = expVariance,
+                                                   Rcpp::Named("norms") = norms,
                                                    Rcpp::Named("gap") = m_gap.head(m_nbIter),
                                                    Rcpp::Named("normGap") = m_normGap.head(m_nbIter),
                                                    Rcpp::Named("deviance") = m_deviance.head(m_nbIter),
