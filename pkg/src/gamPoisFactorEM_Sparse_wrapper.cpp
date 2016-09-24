@@ -74,13 +74,13 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //'
 //' @export
 // [[Rcpp::export]]
-SEXP gamPoisFactorEM_ZI_wrapper(SEXP Xin, int K, bool ZI,
-                                SEXP phi01in, SEXP phi02in,
-                                SEXP theta01in, SEXP theta02in,
-                                SEXP alpha1in, SEXP alpha2in,
-                                SEXP beta1in, SEXP beta2in,
-                                int iterMax, double epsilon,
-                                int order, int stabRange, bool verbose) {
+SEXP gamPoisFactorEM_Sparse_wrapper(SEXP Xin, int K, bool ZI,
+                                    SEXP phi01in, SEXP phi02in,
+                                    SEXP theta01in, SEXP theta02in,
+                                    SEXP alpha1in, SEXP alpha2in,
+                                    SEXP beta1in, SEXP beta2in,
+                                    int iterMax, double epsilon,
+                                    int order, int stabRange, bool verbose) {
 
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
     MatrixXd phi01 = Rcpp::as< Map<MatrixXd> >(phi01in);
