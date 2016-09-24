@@ -66,6 +66,18 @@ namespace countMatrixFactor {
         bool m_converged;       /*!< status of convergence */
         int m_nbIter;           /*!< number of effective iterations */
 
+        // parameter norm
+        MatrixXd m_normU;
+        MatrixXd m_normV;
+
+        MatrixXd m_normPhi1;
+        MatrixXd m_normPhi2;
+        MatrixXd m_normTheta1;
+        MatrixXd m_normTheta2;
+
+        MatrixXd m_normAlpha;
+        MatrixXd m_normBeta;
+
         // criterion
         VectorXd m_gap;             /*!< gap between two iterates (to assess convergence) */
         VectorXd m_normGap;         /*!< normalized gap between two iterates (to assess convergence) */
@@ -234,6 +246,18 @@ namespace countMatrixFactor {
         m_converged = false;
         m_nbIter = 0;
 
+        // parameter norm
+        m_normU = MatrixXd::Zero(iterMax, K);
+        m_normV = MatrixXd::Zero(iterMax, K);
+
+        m_normPhi1 = MatrixXd::Zero(iterMax, K);
+        m_normPhi2 = MatrixXd::Zero(iterMax, K);
+        m_normTheta1 = MatrixXd::Zero(iterMax, K);
+        m_normTheta2 = MatrixXd::Zero(iterMax, K);
+
+        m_normAlpha = MatrixXd::Zero(iterMax, 2);
+        m_normBeta = MatrixXd::Zero(iterMax, 2);
+
         // criterion
         m_gap = VectorXd::Zero(iterMax);
         m_normGap = VectorXd::Zero(iterMax);
@@ -279,6 +303,18 @@ namespace countMatrixFactor {
 
         m_converged = false;
         m_nbIter = 0;
+
+        // parameter norm
+        m_normU = MatrixXd::Zero(iterMax, K);
+        m_normV = MatrixXd::Zero(iterMax, K);
+
+        m_normPhi1 = MatrixXd::Zero(iterMax, K);
+        m_normPhi2 = MatrixXd::Zero(iterMax, K);
+        m_normTheta1 = MatrixXd::Zero(iterMax, K);
+        m_normTheta2 = MatrixXd::Zero(iterMax, K);
+
+        m_normAlpha = MatrixXd::Zero(iterMax, 2);
+        m_normBeta = MatrixXd::Zero(iterMax, 2);
 
         // criterion
         m_gap = VectorXd::Zero(iterMax);
@@ -343,6 +379,12 @@ namespace countMatrixFactor {
             // convergence
             //Rcpp::Rcout << "algorithm: convergence ?" << std::endl;
             this->assessConvergence(nstab);
+            // check norm
+            if(m_verbose) {
+                m_model.checkNormVar(m_normU, m_normV, m_normPhi1, m_normPhi2,
+                                     m_normTheta1, m_normTheta2,
+                                     m_iter);
+            }
             // update values of parameters
             //Rcpp::Rcout << "algorithm: next iteration" << std::endl;
             m_model.nextIterate();

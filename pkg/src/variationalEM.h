@@ -261,6 +261,12 @@ namespace countMatrixFactor {
         this->computeExpVar(m_globalIter);
         // normalized gap
         this->m_model.normGapEstep(m_gap_Estep(this->m_iter), m_normGap_Estep(this->m_iter));
+        // check norm
+        if(this->m_verbose) {
+            this->m_model.checkNormVar(this->m_normU, this->m_normV, this->m_normPhi1, this->m_normPhi2,
+                                       this->m_normTheta1, this->m_normTheta2,
+                                       this->m_iter);
+        }
         // inner iteration
         m_globalIter++;
     }
@@ -288,7 +294,11 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: explained variance" << std::endl;
         this->computeExpVar(m_globalIter);
         // normalized gap
-        this->m_model.normGapMstep(m_gap_Mstep(this->m_iter) ,m_normGap_Mstep(this->m_iter));
+        this->m_model.normGapMstep(m_gap_Mstep(this->m_iter), m_normGap_Mstep(this->m_iter));
+        // check norm
+        if(this->m_verbose) {
+            this->m_model.checkNormPrior(this->m_normAlpha, this->m_normBeta, this->m_iter);
+        }
         // inner iteration
         m_globalIter++;
     }
