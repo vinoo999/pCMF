@@ -15,7 +15,7 @@ source("sources/projectSources.R")
 ## generating the data
 n = 100
 p = 500
-K = 10
+K = 5
 
 ## need of a priori values for gamma distribution
 signalBlock = matrix(c(1,3,4,2), nrow=2, ncol=2)
@@ -65,33 +65,33 @@ print(myOrder)
 #### plot norms
 resU = data.frame(param=rep("U", times=ncomp*res1$nbIter),
                   iter=rep(1:res1$nbIter, each=ncomp),
-                  comp=rep(myOrder, times=res1$nbIter),
-                  norm=as.vector(t(res1$norms$normU)))
+                  comp=rep(1:ncomp, times=res1$nbIter),
+                  norm=as.vector(t(res1$norms$normU[,myOrder])))
 
 resV = data.frame(param=rep("V", times=ncomp*res1$nbIter),
                   iter=rep(1:res1$nbIter, each=ncomp),
-                  comp=rep(myOrder, times=res1$nbIter),
-                  norm=as.vector(t(res1$norms$normV)))
+                  comp=rep(1:ncomp, times=res1$nbIter),
+                  norm=as.vector(t(res1$norms$normV[,myOrder])))
 
 resPhi1 = data.frame(param=rep("Phi1", times=ncomp*res1$nbIter),
                      iter=rep(1:res1$nbIter, each=ncomp),
-                     comp=rep(myOrder, times=res1$nbIter),
-                     norm=as.vector(t(res1$norms$normPhi1)))
+                     comp=rep(1:ncomp, times=res1$nbIter),
+                     norm=as.vector(t(res1$norms$normPhi1[,myOrder])))
 
 resPhi2 = data.frame(param=rep("Phi2", times=ncomp*res1$nbIter),
                      iter=rep(1:res1$nbIter, each=ncomp),
-                     comp=rep(myOrder, times=res1$nbIter),
-                     norm=as.vector(t(res1$norms$normPhi2)))
+                     comp=rep(1:ncomp, times=res1$nbIter),
+                     norm=as.vector(t(res1$norms$normPhi2[,myOrder])))
 
 resTheta1 = data.frame(param=rep("Theta1", times=ncomp*res1$nbIter),
                        iter=rep(1:res1$nbIter, each=ncomp),
-                       comp=rep(myOrder, times=res1$nbIter),
-                       norm=as.vector(t(res1$norms$normTheta1)))
+                       comp=rep(1:ncomp, times=res1$nbIter),
+                       norm=as.vector(t(res1$norms$normTheta1[,myOrder])))
 
 resTheta2 = data.frame(param=rep("Theta2", times=ncomp*res1$nbIter),
                        iter=rep(1:res1$nbIter, each=ncomp),
-                       comp=rep(myOrder, times=res1$nbIter),
-                       norm=as.vector(t(res1$norms$normTheta2)))
+                       comp=rep(1:ncomp, times=res1$nbIter),
+                       norm=as.vector(t(res1$norms$normTheta2[,myOrder])))
 
 resToPlot = rbind(resU, resV, resPhi1, resPhi2, resTheta1, resTheta2)
 
@@ -108,29 +108,29 @@ g1
 ### Alpha and Beta
 resAlpha1 = data.frame(param=rep("Alpha1", times=ncomp*res1$nbIter),
                        iter=rep(1:res1$nbIter, each=ncomp),
-                       comp=rep(myOrder, times=res1$nbIter),
-                       norm=as.vector(t(res1$norms$normAlpha1)))
+                       comp=rep(1:ncomp, times=res1$nbIter),
+                       norm=as.vector(t(res1$norms$normAlpha1[,myOrder])))
 
 resAlpha2 = data.frame(param=rep("Alpha2", times=ncomp*res1$nbIter),
                        iter=rep(1:res1$nbIter, each=ncomp),
-                       comp=rep(myOrder, times=res1$nbIter),
-                       norm=as.vector(t(res1$norms$normAlpha2)))
+                       comp=rep(1:ncomp, times=res1$nbIter),
+                       norm=as.vector(t(res1$norms$normAlpha2[,myOrder])))
 
 resBeta1 = data.frame(param=rep("Beta1", times=ncomp*res1$nbIter),
                       iter=rep(1:res1$nbIter, each=ncomp),
-                      comp=rep(myOrder, times=res1$nbIter),
-                      norm=as.vector(t(res1$norms$normBeta1)))
+                      comp=rep(1:ncomp, times=res1$nbIter),
+                      norm=as.vector(t(res1$norms$normBeta1[,myOrder])))
 
 resBeta2 = data.frame(param=rep("Beta2", times=ncomp*res1$nbIter),
                       iter=rep(1:res1$nbIter, each=ncomp),
-                      comp=rep(myOrder, times=res1$nbIter),
-                      norm=as.vector(t(res1$norms$normBeta2)))
+                      comp=rep(1:ncomp, times=res1$nbIter),
+                      norm=as.vector(t(res1$norms$normBeta2[,myOrder])))
 
 resToPlot = rbind(resAlpha1, resAlpha2, resBeta1, resBeta2)
 
 library(ggplot2)
 g1 = ggplot(resToPlot, aes(x=iter, y=norm)) + facet_grid(. ~ param, scales="free")
-g1 = g1 + geom_line(aes(col=tag))
+g1 = g1 + geom_line(aes(col=factor(comp)))
 g1 = g1 + xlab(paste0("iter")) + ylab(paste0("dist")) + scale_y_log10()
 
 g1 = g1 + theme(legend.text=element_text(size=12), legend.title=element_text(size=12), axis.text.x=element_text(size=12), axis.title.y = element_text(size=12, vjust=1.5), axis.text.y= element_text(size=12), axis.title.x=element_text(size=12), plot.title=element_text(size=12), strip.text.x=element_text(size=12), strip.text.y=element_text(size=12)) + theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major=element_line(color = "grey90"), panel.grid.minor= element_line(color="grey90")) #, legend.position = "none")
