@@ -357,6 +357,8 @@ namespace countMatrixFactor {
 
         // Rcpp::Rcout << "dim = " << sum_k.rows() << " x " << sum_k.cols()  << std::endl;
 
+        // sum_j E[Z_{ijk}]
+        // sum_i E[Z_{ijk}]
         m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
         m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 

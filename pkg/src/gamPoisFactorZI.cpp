@@ -158,6 +158,8 @@ namespace countMatrixFactor {
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
         m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
 
+        // sum_j E[Z_{ijk}] * p_{i,j}
+        // sum_i E[Z_{ijk}] * p_{i,j}
         m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
         m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
         // test
