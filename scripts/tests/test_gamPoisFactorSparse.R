@@ -15,18 +15,23 @@ source("sources/projectSources.R")
 ## generating the data
 n = 20
 p = 10
-K = 5
+K = 6
+nblock=3
 
 ## need of a priori values for gamma distribution
-signalBlock = matrix(c(1,3,4,2), nrow=2, ncol=2)
-blockAlpha1 = blockMatrix(nrow=n, ncol=K, nRowBlock=2, nColBlock=2, signalBlock=signalBlock)
-alpha1 = blockAlpha1$mat
-alpha2 = matrix(1, nrow=n, ncol=K)
+signalBlock <- matrix(4, nblock, nblock) + diag(8, nblock)
+colOrder <- sample.int(n=nblock, size=nblock, replace=FALSE)
+signalBlockA <- signalBlock[,colOrder]
+blockAlpha1 <- blockMatrix(nrow=n, ncol=K, nRowBlock=nblock, nColBlock=nblock, signalBlock=signalBlockA)
+alpha1 <- blockAlpha1$mat
+alpha2 <- matrix(1, nrow=n, ncol=K)
 
-signalBlock = matrix(rev(c(1,3,4,2)), nrow=2, ncol=2)
-blockBeta1 = blockMatrix(nrow=p, ncol=K, nRowBlock=2, nColBlock=2, signalBlock=signalBlock)
-beta1 = blockBeta1$mat
-beta2 = matrix(1, nrow=p, ncol=K)
+signalBlock <- matrix(0, nblock, nblock) + diag(4, nblock)
+colOrder <- sample.int(n=nblock, size=nblock, replace=FALSE)
+signalBlockB <- signalBlock[,colOrder]
+blockBeta1 <- blockMatrix(nrow=p, ncol=K, nRowBlock=nblock, nColBlock=nblock, signalBlock=signalBlockB)
+beta1 <- blockBeta1$mat
+beta2 <- matrix(1, nrow=p, ncol=K)
 
 ## generating the data
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2)
@@ -37,6 +42,7 @@ str(data1)
 # matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
 # matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
 # matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
+# matrixHeatmap(data1$V, xlab="k = 1...K", ylab="i = 1...n")
 
 ####### TESTING ALGO
 ncomp=K
@@ -54,7 +60,7 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=5, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
+                    iterMax=20, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
 
 str(res1)
 
