@@ -15,7 +15,7 @@ source("sources/projectSources.R")
 ## generating the data
 n = 100
 p = 500
-K = 5
+K = 15
 
 ## need of a priori values for gamma distribution
 signalBlock = matrix(c(1,3,4,2), nrow=2, ncol=2)
@@ -39,7 +39,7 @@ str(data1)
 # matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ####### TESTING ALGO
-ncomp=10
+ncomp=15
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)
@@ -53,7 +53,7 @@ phi02 = matrix(1, nrow=n, ncol=ncomp)
 theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
-res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02, iterMax=1000, epsilon=1e-4, algo="EM", verbose=TRUE)
+res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02, iterMax=500, epsilon=1e-5, algo="EM", verbose=TRUE)
 
 str(res1)
 
