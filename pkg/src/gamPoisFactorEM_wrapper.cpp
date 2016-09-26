@@ -79,7 +79,7 @@ SEXP gamPoisFactorEM_wrapper(SEXP Xin, int K, bool ZI,
                              SEXP theta01in, SEXP theta02in,
                              SEXP alpha1in, SEXP alpha2in,
                              SEXP beta1in, SEXP beta2in,
-                             int iterMax, double epsilon,
+                             int iterMax, int iterMin, double epsilon,
                              int order, int stabRange, bool verbose) {
 
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
@@ -97,7 +97,7 @@ SEXP gamPoisFactorEM_wrapper(SEXP Xin, int K, bool ZI,
 
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;
-    variationalEM<gamPoisFactor> myModel(iterMax, order,
+    variationalEM<gamPoisFactor> myModel(iterMax, iterMin, order,
                                          stabRange, epsilon, verbose,
                                          n, p, K, X,
                                          phi01, phi02, theta01, theta02,

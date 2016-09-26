@@ -57,6 +57,7 @@ namespace countMatrixFactor {
         // parameters
         int m_iterMax;          /*!< maximum number of iterations */
         int m_iter;             /*!< current iteration */
+        int m_iterMin;
         int m_order;            /*!< derivative order on normalized gap to assess convergence
         (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative) */
         int m_stabRange;        /*!< range of stability (number of iterations where parameter values are stable to confirm convergence) */
@@ -120,7 +121,7 @@ namespace countMatrixFactor {
          * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
          * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
          */
-        variational(int iterMax, int order,
+        variational(int iterMax, int iterMin, int order,
                     int stabRange, double epsilon, bool verbose,
                     int n, int p, int K,
                     const MatrixXi &X,
@@ -156,7 +157,7 @@ namespace countMatrixFactor {
          * \param r_theta2 vector of l2 penalty constraint on theta2
          * \param r_phi2 vector of l2 penalty constraint on phi2
          */
-        variational(int iterMax, int order,
+        variational(int iterMax, int iterMin, int order,
                     int stabRange, double epsilon, bool verbose,
                     int n, int p, int K,
                     const MatrixXi &X,
@@ -223,7 +224,7 @@ namespace countMatrixFactor {
 
     // CONSTRUCTOR 1
     template <typename model>
-    variational<model>::variational(int iterMax, int order,
+    variational<model>::variational(int iterMax, int iterMin, int order,
                                     int stabRange, double epsilon, bool verbose,
                                     int n, int p, int K,
                                     const MatrixXi &X,
@@ -239,6 +240,7 @@ namespace countMatrixFactor {
     {
         // parameters
         m_iterMax = iterMax;
+        m_iterMin = iterMin;
         m_iter = 0;
         m_order = order;
         m_stabRange = stabRange;
@@ -281,7 +283,7 @@ namespace countMatrixFactor {
 
     // CONSTRUCTOR 2
     template <typename model>
-    variational<model>::variational(int iterMax, int order,
+    variational<model>::variational(int iterMax, int iterMin, int order,
                                     int stabRange, double epsilon, bool verbose,
                                     int n, int p, int K,
                                     const MatrixXi &X,
@@ -299,6 +301,7 @@ namespace countMatrixFactor {
     {
         // parameters
         m_iterMax = iterMax;
+        m_iterMin = iterMin;
         m_iter = 0;
         m_order = order;
         m_stabRange = stabRange;
@@ -422,8 +425,10 @@ namespace countMatrixFactor {
         }
 
         if(nstab > m_stabRange) {
-            m_converged=true;
-            m_nbIter=m_iter;
+            if(m_iter > m_iterMin) {
+                m_converged=true;
+                m_nbIter=m_iter;
+            }
         } else {
             if(m_iter == m_iterMax - 1) {
                 m_nbIter = m_iter;

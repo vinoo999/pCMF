@@ -92,7 +92,7 @@ namespace countMatrixFactor {
         * \param beta1 n x K, initial values of first parameter of Gamma prior on V (const reference)
         * \param beta2 n x K, initial values of second parameter of Gamma prior on V (const reference)
         */
-        variationalEM(int iterMax, int order,
+        variationalEM(int iterMax, int iterMin, int order,
                       int stabRange, double epsilon, bool verbose,
                       int n, int p, int K, const MatrixXi &X,
                       const MatrixXd &phi1, const MatrixXd &phi2,
@@ -125,7 +125,7 @@ namespace countMatrixFactor {
         * \param r_theta2 vector of l2 penalty constraint on theta2
         * \param r_phi2 vector of l2 penalty constraint on phi2
         */
-        variationalEM(int iterMax, int order,
+        variationalEM(int iterMax, int iterMin, int order,
                       int stabRange, double epsilon, bool verbose,
                       int n, int p, int K, const MatrixXi &X,
                       const MatrixXd &phi1, const MatrixXd &phi2,
@@ -162,14 +162,14 @@ namespace countMatrixFactor {
 
     // CONSTRUCTOR 1
     template <typename model>
-    variationalEM<model>::variationalEM(int iterMax, int order,
+    variationalEM<model>::variationalEM(int iterMax, int iterMin, int order,
                                         int stabRange, double epsilon, bool verbose,
                                         int n, int p, int K, const MatrixXi &X,
                                         const MatrixXd &phi1, const MatrixXd &phi2,
                                         const MatrixXd &theta1, const MatrixXd &theta2,
                                         const MatrixXd &alpha1, const MatrixXd &alpha2,
                                         const MatrixXd &beta1, const MatrixXd &beta2)
-    : variational<model>(iterMax, order, stabRange, epsilon, verbose,
+    : variational<model>(iterMax, iterMin, order, stabRange, epsilon, verbose,
                           n, p, K, X,
                           phi1, phi2, theta1, theta2,
                           alpha1, alpha2, beta1, beta2)
@@ -197,7 +197,7 @@ namespace countMatrixFactor {
 
     // CONSTRUCTOR 2
     template <typename model>
-    variationalEM<model>::variationalEM(int iterMax, int order,
+    variationalEM<model>::variationalEM(int iterMax, int iterMin, int order,
                                         int stabRange, double epsilon, bool verbose,
                                         int n, int p, int K, const MatrixXi &X,
                                         const MatrixXd &phi1, const MatrixXd &phi2,
@@ -205,7 +205,7 @@ namespace countMatrixFactor {
                                         const MatrixXd &alpha1, const MatrixXd &alpha2,
                                         const MatrixXd &beta1, const MatrixXd &beta2,
                                         const VectorXd &lambda_k, const VectorXd &mu_k)
-    : variational<model>(iterMax, order, stabRange, epsilon, verbose,
+    : variational<model>(iterMax, iterMin, order, stabRange, epsilon, verbose,
                           n, p, K, X,
                           phi1, phi2, theta1, theta2,
                           alpha1, alpha2, beta1, beta2,
@@ -370,9 +370,11 @@ namespace countMatrixFactor {
         }
 
         if(nstab > this->m_stabRange) {
-            this->m_converged=true;
-            this->m_nbIter=this->m_iter;
-            m_nbGlobalIter = m_globalIter;
+            if(this->m_iter > this->m_iterMin) {
+                this->m_converged=true;
+                this->m_nbIter=this->m_iter;
+                m_nbGlobalIter = m_globalIter;
+            }
         } else {
             if(this->m_iter == this->m_iterMax - 1) {
                 this->m_nbIter = this->m_iter;
