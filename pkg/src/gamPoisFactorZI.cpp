@@ -278,7 +278,7 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorZI::ZIproba() {
 
-        Rcpp::Rcout << "m_probZI" << std::endl;
+        // Rcpp::Rcout << "m_probZI" << std::endl;
         for(int i= 0; i<m_N; i++) {
             for(int j=0; j<m_P; j++) {
                 if(m_X(i,j) != 0) {
