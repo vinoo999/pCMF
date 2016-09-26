@@ -54,7 +54,7 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=400, epsilon=1e-4, algo="EM", verbose=TRUE)
+                    iterMax=200, iterMin=100, epsilon=1e-2, algo="EM", verbose=TRUE)
 
 str(res1)
 
@@ -62,12 +62,12 @@ print(res1$criteria_k$kDeviance)
 myOrder = res1$order$orderDeviance
 print(myOrder)
 
-print(res1$gap)
-print(res1$normGap)
-print(res1$EM$gap_Estep)
-print(res1$EM$gap_Mstep)
-print(res1$EM$normGap_Estep)
-print(res1$EM$normGap_Mstep)
+# print(res1$gap)
+# print(res1$normGap)
+# print(res1$EM$gap_Estep)
+# print(res1$EM$gap_Mstep)
+# print(res1$EM$normGap_Estep)
+# print(res1$EM$normGap_Mstep)
 
 
 
