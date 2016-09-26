@@ -237,67 +237,72 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorSparse::Sproba() {
 
-        // m_EZ_logU_i = MatrixXd::Zero(m_P,m_K);
-        // m_EZ_logV_i = MatrixXd::Zero(m_P,m_K);
-        // m_EU_EV_i = MatrixXd::Zero(m_P,m_K);
-        // m_ElgamZ_i = MatrixXd::Zero(m_P,m_K);
+        m_EZ_logU_i = MatrixXd::Zero(m_P,m_K);
+        m_EZ_logV_i = MatrixXd::Zero(m_P,m_K);
+        m_EU_EV_i = MatrixXd::Zero(m_P,m_K);
+        m_ElgamZ_i = MatrixXd::Zero(m_P,m_K);
 
         // multinomial probabilities
-        // VectorXd omega = VectorXd::Zero(m_N);
+        VectorXd omega = VectorXd::Zero(m_N);
 
-        // for(int j=0; j<m_P; j++) {
-        //     for(int k=0; k<m_K; k++) {
-        //
-        //         // m_EZ_logU_i;       /*!< p x K, \sum_i E[Z_{ijk}] * E[log U_{ik}] */
-        //         // m_EZ_logV_i;       /*!< p x K, \sum_i E[Z_{ijk}] * E[log V_{jk}] */
-        //         // m_EU_EV_i;         /*!< p x K, \sum_i E[U_{ik}] * E[V_{jk}] */
-        //         // m_ElgamZ_i;        /*!< p x K, \sum_i E[log(Z_{ijk}!)] */
-        //
-        //         for(int i=0; i<m_N; i++) {
-        //             omega(i) = std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-        //             m_EZ_logU_i(j,k) += m_X(i,j) * omega(i) * m_ElogU(i,k);
-        //             m_EZ_logV_i(j,k) += m_X(i,j) * omega(i) * m_ElogV(j,k);
-        //             m_EU_EV_i(j,k) += m_EU(i,k) * m_EV(j,k);
-        //             m_ElgamZ_i(j,k) += intermediate::lgamBinom(m_X(i,j), omega(k));
-        //             // Rcpp::Rcout << "omega(i) = " << omega(i) << std::endl;
-        //             // Rcpp::Rcout << "m_EZ_logU_i(j,k) = " << m_EZ_logU_i(j,k) << std::endl;
-        //             // Rcpp::Rcout << "m_EZ_logV_i(j,k) = " << m_EZ_logV_i(j,k) << std::endl;
-        //             // Rcpp::Rcout << "m_ElgamZ_i(j,k) = " << m_ElgamZ_i(j,k) << std::endl;
-        //         }
-        //
-        //
-        //         if(m_probSparsePrior(j) == 1) {
-        //             m_probSparse(j,k) = 1;
-        //         } else if(m_probSparsePrior(j) == 0) {
-        //             m_probSparse(j,k) = 0;
-        //         } else {
-        //             double res = - m_EU_EV_i(j,k) + m_EZ_logU_i(j,k) + m_EZ_logV_i(j,k) - m_ElgamZ_i(j,k);
-        //             Rcpp::Rcout << "term to correct the expit = " <<  res << std::endl;
-        //             m_probSparse(j,k) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probSparsePrior(j)) + res/m_N),1E-12);
-        //             m_S(j,k) = m_probSparse(j,k) > 0.5 ? 1 : 0;
-        //         }
-        //     }
-        // }
         for(int j=0; j<m_P; j++) {
             for(int k=0; k<m_K; k++) {
+
+                // m_EZ_logU_i;       /*!< p x K, \sum_i E[Z_{ijk}] * E[log U_{ik}] */
+                // m_EZ_logV_i;       /*!< p x K, \sum_i E[Z_{ijk}] * E[log V_{jk}] */
+                // m_EU_EV_i;         /*!< p x K, \sum_i E[U_{ik}] * E[V_{jk}] */
+                // m_ElgamZ_i;        /*!< p x K, \sum_i E[log(Z_{ijk}!)] */
+
+                for(int i=0; i<m_N; i++) {
+                    omega(i) = std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                    m_EZ_logU_i(j,k) += m_X(i,j) * omega(i) * m_ElogU(i,k);
+                    m_EZ_logV_i(j,k) += m_X(i,j) * omega(i) * m_ElogV(j,k);
+                    m_EU_EV_i(j,k) += m_EU(i,k) * m_EV(j,k);
+                    m_ElgamZ_i(j,k) += intermediate::lgamBinom(m_X(i,j), omega(k));
+                    // Rcpp::Rcout << "omega(i) = " << omega(i) << std::endl;
+                    // Rcpp::Rcout << "m_EZ_logU_i(j,k) = " << m_EZ_logU_i(j,k) << std::endl;
+                    // Rcpp::Rcout << "m_EZ_logV_i(j,k) = " << m_EZ_logV_i(j,k) << std::endl;
+                    // Rcpp::Rcout << "m_ElgamZ_i(j,k) = " << m_ElgamZ_i(j,k) << std::endl;
+                }
+
+
                 if(m_probSparsePrior(j) == 1) {
                     m_probSparse(j,k) = 1;
                 } else if(m_probSparsePrior(j) == 0) {
                     m_probSparse(j,k) = 0;
                 } else {
-                    double res = (m_beta1cur(j,k) - 1) * m_ElogV(j,k)
+                    double res1 = - m_EU_EV_i(j,k) + m_EZ_logU_i(j,k) + m_EZ_logV_i(j,k) - m_ElgamZ_i(j,k);
+                    double res2 = (m_beta1cur(j,k) - 1) * m_ElogV(j,k)
                                     + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
                                     - m_beta2cur(j,k) * m_EV(j,k)
                                     - lgamma(m_beta1cur(j,k));
+                    double res = res1 + res2;
                     Rcpp::Rcout << "term to correct the expit = " <<  res << std::endl;
-                    // Rcpp::Rcout << "logit prior = " <<  intermediate::logit(m_probSparsePrior(k)) << std::endl;
-                    // Rcpp::Rcout << "proba = " <<  intermediate::expit( intermediate::logit(m_probSparsePrior(k)) + res) << std::endl;
-                    m_probSparse(j,k) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probSparsePrior(k)) + res),1E-12);
+                    m_probSparse(j,k) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probSparsePrior(j)) + res),1E-12);
                     m_S(j,k) = m_probSparse(j,k) > 0.5 ? 1 : 0;
-                    // Rcpp::Rcout << "S(j,k) = " <<  m_S(j,k) << std::endl;
                 }
             }
         }
+        // for(int j=0; j<m_P; j++) {
+        //     for(int k=0; k<m_K; k++) {
+        //         if(m_probSparsePrior(j) == 1) {
+        //             m_probSparse(j,k) = 1;
+        //         } else if(m_probSparsePrior(j) == 0) {
+        //             m_probSparse(j,k) = 0;
+        //         } else {
+        //             double res = (m_beta1cur(j,k) - 1) * m_ElogV(j,k)
+        //                             + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
+        //                             - m_beta2cur(j,k) * m_EV(j,k)
+        //                             - lgamma(m_beta1cur(j,k));
+        //             Rcpp::Rcout << "term to correct the expit = " <<  res << std::endl;
+        //             // Rcpp::Rcout << "logit prior = " <<  intermediate::logit(m_probSparsePrior(k)) << std::endl;
+        //             // Rcpp::Rcout << "proba = " <<  intermediate::expit( intermediate::logit(m_probSparsePrior(k)) + res) << std::endl;
+        //             m_probSparse(j,k) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probSparsePrior(k)) + res),1E-12);
+        //             m_S(j,k) = m_probSparse(j,k) > 0.5 ? 1 : 0;
+        //             // Rcpp::Rcout << "S(j,k) = " <<  m_S(j,k) << std::endl;
+        //         }
+        //     }
+        // }
         Rcpp::Rcout << "m_probSparse = " <<  m_probSparse << std::endl;
     }
 
