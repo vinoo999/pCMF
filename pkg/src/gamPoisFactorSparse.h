@@ -98,6 +98,13 @@ namespace countMatrixFactor {
         void returnObject(Rcpp::List &results);
 
     public:
+        //-------------------//
+        //      criteria     //
+        //-------------------//
+
+        // compute evidence lower bound
+        double computeELBO();
+
 
         //-------------------//
         // parameter updates //
@@ -120,6 +127,17 @@ namespace countMatrixFactor {
 
         // parameter update variational standard
         void updateVarational();
+
+        //--------------------------------------//
+        // parameter updates for variational EM //
+        //--------------------------------------//
+
+        // local parameters: alpha (factor U)
+        void localPriorParam();
+
+        // global parameters: beta (factor V)
+        void globalPriorParam();
+
 
         // parameter update variational EM (E-step)
         void updateEstep();

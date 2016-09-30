@@ -15,8 +15,8 @@ source("sources/projectSources.R")
 ## generating the data
 n = 20
 p = 10
-K = 6
-nblock=3
+K = 4
+nblock=2
 
 ## need of a priori values for gamma distribution
 signalBlock <- matrix(4, nblock, nblock) + diag(8, nblock)
@@ -26,7 +26,7 @@ blockAlpha1 <- blockMatrix(nrow=n, ncol=K, nRowBlock=nblock, nColBlock=nblock, s
 alpha1 <- blockAlpha1$mat
 alpha2 <- matrix(1, nrow=n, ncol=K)
 
-signalBlock <- matrix(0, nblock, nblock) + diag(4, nblock)
+signalBlock <- matrix(0, nblock, nblock) + diag(8, nblock)
 colOrder <- sample.int(n=nblock, size=nblock, replace=FALSE)
 signalBlockB <- signalBlock[,colOrder]
 blockBeta1 <- blockMatrix(nrow=p, ncol=K, nRowBlock=nblock, nColBlock=nblock, signalBlock=signalBlockB)
@@ -37,6 +37,12 @@ beta2 <- matrix(1, nrow=p, ncol=K)
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2)
 str(data1)
 
+X = cbind(data1$X, matrix(rpois(n*10, lambda=2), nrow=n))
+n=n
+p=p+10
+
+# X=data1$X
+
 ## heatmap
 # matrixHeatmap(alpha1, xlab="k = 1...K", ylab="i = 1...n")
 # matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
@@ -45,22 +51,25 @@ str(data1)
 # matrixHeatmap(data1$V, xlab="k = 1...K", ylab="i = 1...n")
 
 ####### TESTING ALGO
-ncomp=K
+ncomp=5
 
-alpha01 = matrix(1, nrow=n, ncol=ncomp)
-alpha02 = matrix(1, nrow=n, ncol=ncomp)
+alpha01 = matrix(1.2, nrow=n, ncol=ncomp)
+alpha02 = matrix(1.2, nrow=n, ncol=ncomp)
 
-beta01 = matrix(1, nrow=p, ncol=ncomp)
-beta02 = matrix(1, nrow=p, ncol=ncomp)
+beta01 = matrix(1.2, nrow=p, ncol=ncomp)
+beta02 = matrix(1.2, nrow=p, ncol=ncomp)
 
-phi01 = matrix(1, nrow=n, ncol=ncomp)
-phi02 = matrix(1, nrow=n, ncol=ncomp)
+phi01 = matrix(1.2, nrow=n, ncol=ncomp)
+phi02 = matrix(1.2, nrow=n, ncol=ncomp)
 
-theta01 = matrix(1, nrow=p, ncol=ncomp)
-theta02 = matrix(1, nrow=p, ncol=ncomp)
+theta01 = matrix(1.2, nrow=p, ncol=ncomp)
+theta02 = matrix(1.2, nrow=p, ncol=ncomp)
 
-res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=20, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
+res1 = matrixFactor(X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
+                    iterMax=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
+
+res2 = matrixFactor(X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
+                    iterMax=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=FALSE)
 
 str(res1)
 
@@ -68,66 +77,33 @@ print(res1$criteria_k$kDeviance)
 myOrder = res1$order$orderDeviance
 print(myOrder)
 
-# tmp = sapply(1:ncomp, function(k) {
-#     lambda = res1$U[,k] %*% t(res1$V[,k])
-#     summary(log(lambda))
-#     return(sum(data1$X * log(lambda) + data1$X * log(data1$X) - lambda - data1$X))
-# })
+matrixHeatmap(res1$sparseParams$probSparse)
+
+res1$sparseParams$probSparse
+res1$sparseParams$probSparsePrior
+res1$sparseParams$sparseIndic
+
+# layout(matrix(1:2,ncol=2))
 #
-# library(fields)
+# matrixHeatmap(res1$V)
+# matrixHeatmap(res2$V)
 #
-# lambda = res1$U[,1] %*% t(res1$V[,1])
-# lambda0 = data1$X
-# lambda0[lambda0==0] = 1
-# dim(lambda0)
-# min(lambda0)
-# summary(log(lambda))
-# image.plot(log(lambda))
+# matrixHeatmap(res1$U)
+# matrixHeatmap(res2$U)
 #
-# sum(is.na(log(lambda)))
+# matrixHeatmap(res1$params$theta1)
+# matrixHeatmap(res2$params$theta1)
 #
-# hist(res1$U[,1])
-# hist(res1$V[,1])
-# hist(lambda)
-# sum(lambda==0)
+# matrixHeatmap(res1$params$theta2)
+# matrixHeatmap(res2$params$theta2)
 #
-# image.plot(data1$X * log(data1$X))
-# image.plot(data1$X * log(lambda))
-# hist(colSums(data1$X * log(data1$X)))
-#
-#
-# image.plot(data1$X * lambda)
-#
-# min(lambda0 * lambda)
-#
-# sum(is.na(data1$X * lambda))
-#
-# image.plot(log(lambda0 * lambda))
-#
-# sum(data1$X * log(lambda) + data1$X * log(lambda0) - lambda - data1$X)
-#
-# min(data1$X * (log(lambda0 * lambda) -1) - lambda)
-# max(data1$X * (log(lambda0 * lambda) -1) - lambda)
-# hist(data1$X * (log(lambda0 * lambda) -1) - lambda)
-#
-# hist(log(lambda0 / lambda) -1)
-# hist(data1$X * (log(lambda0 / lambda) -1))
-# sum((data1$X * (log(lambda0 / lambda) -1))<0)
-# sum((data1$X * (log(lambda0 / lambda) -1))>0)
-# sum(data1$X * (log(lambda0 / lambda) -1))
-#
-# sum(data1$X * (log(lambda0 / lambda) -1) - lambda)
+# matrixHeatmap(res1$params$beta1)
+# matrixHeatmap(res1$params$beta2)
+# matrixHeatmap(res1$params$theta1/res1$params$theta2)
 
 
-# tmp/1E6
-#
-# tmp = data1$X - lambda
-# hist(tmp)
-# hist(data1$X)
-# hist(lambda)
 
-# plot(res1$criteria_k$kExpVarU)
-
+# res1$V[,3]
 #
 # ###### comparison of the results
 #
@@ -141,7 +117,7 @@ print(myOrder)
 # plot(res1$logLikelihood$elbo, xlab="iteration", ylab="elbo", col="blue", type="l")
 #
 # ## norm gap
-# plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+# plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b", log="y")
 #
 # ## exp var
 # plot(res1$expVariance$expVar0, xlab="iteration", ylab="expVar0", col="blue", type="b")

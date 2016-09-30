@@ -34,11 +34,12 @@
 #include "intermediate.h"
 
 #define mdirac() unaryExpr(std::ptr_fun<double,double>(intermediate::dirac))
-#define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
+#define mexp() unaryExpr(std::ptr_fun<double,double>(intermediate::safeExp))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
 #define mlogit() unaryExpr(std::ptr_fun<double,double>(intermediate::logit))
 #define mlogitinv() unaryExpr(std::ptr_fun<double,double>(intermediate::logitinv))
+#define mpsiInv() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,int,double>(intermediate::psiInv),6))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -62,7 +63,7 @@ namespace countMatrixFactor {
         {
 
             // sparse probabilities and frequencies
-            m_probSparsePrior = VectorXd::Zero(K);
+            m_probSparsePrior = VectorXd::Zero(p);
             m_probSparse = MatrixXd::Zero(p,K);
             m_S = MatrixXd::Zero(p,K);
 
@@ -82,6 +83,16 @@ namespace countMatrixFactor {
     * \brief Initialization of sufficient statistics
     */
     void gamPoisFactorSparse::Init() {
+
+        // // Gamma prior parameter (to avoid scaling issue)
+        // m_alpha2cur = m_alpha2cur.array() * std::sqrt(m_K);
+        // m_beta2cur = m_beta2cur.array() * std::sqrt(m_K);
+
+        // Gamma prior parameter (to avoid scaling issue)
+        m_alpha1cur = m_alpha1cur.array() / std::sqrt(m_K);
+        m_beta1cur = m_beta1cur.array() / std::sqrt(m_K);
+
+
 
         // Gamma variational parameter
         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
@@ -109,16 +120,22 @@ namespace countMatrixFactor {
         }
 
         // Bernoulli proba
-        for(int k=0; k<m_K; k++) {
+        for(int j=0; j<m_P; j++) {
             // Rcpp::NumericVector sample = Rcpp::runif(m_P);
             // VectorXd sample2 = Rcpp::as<Map<VectorXd> >(sample);
             // m_probSparse.col(k) = sample2;
-            for(int j=0; j<m_P; j++) {
+            for(int k=0; k<m_K; k++) {
                 m_probSparse(j,k) = 0.9;
                 m_S(j,k) = 1;
             }
-            m_probSparsePrior(k) = 0.9;
+            m_probSparsePrior(j) = 0.9;
         }
+
+        // Rcpp::Rcout << "phi1 = " <<  m_phi1cur << std::endl << std::endl;
+        // Rcpp::Rcout << "phi2 = " <<  m_phi2cur << std::endl << std::endl;
+        //
+        // Rcpp::Rcout << "theta1 = " <<  m_theta1cur << std::endl << std::endl;
+        // Rcpp::Rcout << "theta2 = " <<  m_theta2cur << std::endl << std::endl;
 
         // sufficient statistics
         Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
@@ -127,9 +144,83 @@ namespace countMatrixFactor {
         Egam(m_theta1cur, m_theta2cur, m_EV);
         Elgam(m_theta1cur, m_theta2cur, m_ElogV);
 
+        // Rcpp::Rcout << "EU = " <<  m_EU << std::endl << std::endl;
+        // Rcpp::Rcout << "ElogU = " <<  m_ElogU << std::endl << std::endl;
+        // Rcpp::Rcout << "EV = " <<  m_EV << std::endl << std::endl;
+        // Rcpp::Rcout << "ElogV = " <<  m_ElogV << std::endl << std::endl;
+
         // Multinomial Z parameters
         this->multinomParam();
 
+    }
+
+    //-------------------//
+    //      criteria     //
+    //-------------------//
+
+    /*!
+     * \brief compute evidence lower bound
+     *
+     * @return the current value (double)
+     */
+    double gamPoisFactorSparse::computeELBO() {
+        // intermediate::checkExp(m_ElogU);
+        // intermediate::checkExp(m_ElogV);
+
+        VectorXd omega = VectorXd::Zero(m_K);
+
+        double resFinal = 0;
+
+        // sum_{ijk} E[log p(Z_{ijk} | U_{ik}, V_{jk}, S_{jk})] - E[q()]
+        double res1 = 0;
+        double res2 = 0;
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                for(int k=0; k<m_K; k++) {
+                    if(m_exp_ElogU_ElogV_k(i,j) > 0) {
+                        omega(k)= std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                    }
+                }
+                for(int k=0; k<m_K; k++) {
+                    res1 += m_probSparse(j,k) * (m_X(i,j) * omega(k) * (m_ElogU(i,k) + m_ElogV(j,k))
+                                                     - m_EU(i,k) * m_EV(j,k) - intermediate::lgamBinom(m_X(i,j), omega(k)));
+                    res2 += m_X(i,j) * omega(k) * std::log(omega(k)) - intermediate::lgamBinom(m_X(i,j), omega(k));
+                }
+            }
+        }
+        resFinal += res1 - res2;
+
+        // regarding U
+        double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
+                            - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
+        double res4 = ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
+                                   - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
+        resFinal += res3 - res4;
+
+        // regarding V
+        double res5 = 0;
+        for(int j=0; j<m_P; j++) {
+            for(int k=0; k<m_K; k++) {
+                res5 += m_probSparse(j,k) * ( (m_beta1cur(j,k) - 1) * m_ElogV(j,k) + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
+                                                  - m_beta2cur(j,k) * m_EV(j,k) - lgamma(m_beta1cur(j,k)));
+            }
+        }
+        double res6 = ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
+                                   - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
+        resFinal += res5 - res6;
+
+        // regarding S
+        double res7 = 0;
+        double res8 = 0;
+        for(int j=0; j<m_P; j++) {
+            for(int k=0; k<m_K; k++) {
+                res7 += m_probSparse(j,k) * std::log(m_probSparsePrior(j)) + (1-m_probSparse(j,k)) * std::log(1-m_probSparsePrior(j));
+                res8 += m_probSparse(j,k) * std::log(m_probSparse(j,k)) + (1-m_probSparse(j,k)) * std::log(1-m_probSparse(j,k));
+            }
+        }
+        resFinal += res7 - res8;
+
+        return resFinal;
     }
 
     //-------------------//
@@ -144,48 +235,63 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorSparse::multinomParam() {
 
-        intermediate::checkExp(m_ElogU);
-        intermediate::checkExp(m_ElogV);
+        // intermediate::checkExp(m_ElogU);
+        // intermediate::checkExp(m_ElogV);
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
-        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * (m_ElogV.mexp().array() * m_probSparse.array()).matrix().transpose();
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                // double rhoMin = ( m_ElogU.row(i) + m_ElogV.row(j) ).minCoeff();
+                // double rhoMax = ( m_ElogU.row(i) + m_ElogV.row(j) ).maxCoeff();
+                double res = 0;
+                for(int k=0; k<m_K; k++) {
+                    if(m_S(j,k) > 0) {
+                        res += std::exp(m_ElogU(i,k) + m_ElogV(j,k));
+                    }
+                }
+                m_exp_ElogU_ElogV_k(i,j) = res;
+            }
+        }
+
+
+        // Rcpp::Rcout << "sum exp_ElogU_ElogV_k = " <<  m_exp_ElogU_ElogV_k << std::endl << std::endl;
 
         // sum_j E[Z_{ijk}]
         // sum_i E[Z_{ijk}]
-        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+        // m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        // m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
-        // // test
-        // for(int i=0; i<m_N; i++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int j=0; j<m_P; j++) {
-        //             test += m_probSparse(j,k) * m_X(i,j) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-        //             // test += m_S(j,k) * m_X(i,j) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-        //         }
-        //         test *= std::exp(m_ElogU(i,k));
-        //         m_EZ_j(i,k) = test;
-        //
-        //         // if(test != m_EZ_j(i,k)) {
-        //         //     Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
-        //         // }
-        //     }
-        // }
-        //
-        // for(int j=0; j<m_P; j++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int i=0; i<m_N; i++) {
-        //             test +=  m_X(i,j) * std::exp(m_ElogU(i,k)) / m_exp_ElogU_ElogV_k(i,j);
-        //         }
-        //         test *= m_probSparse(j,k) * std::exp(m_ElogV(j,k));
-        //         // test *= m_S(j,k) * std::exp(m_ElogV(j,k));
-        //         m_EZ_i(j,k) = test;
-        //         // if(test != m_EZ_i(j,k)) {
-        //         //     Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
-        //         // }
-        //     }
-        // }
+        // test
+        for(int i=0; i<m_N; i++) {
+            for(int k = 0; k<m_K; k++) {
+                double res = 0;
+                for(int j=0; j<m_P; j++) {
+                    if(m_S(j,k) > 0) {
+                        if(m_exp_ElogU_ElogV_k(i,j) > 0) {
+                            res += m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        }
+                    }
+                }
+                m_EZ_j(i,k) = res;
+            }
+        }
+
+        for(int j=0; j<m_P; j++) {
+            for(int k = 0; k<m_K; k++) {
+                double res = 0;
+                for(int i=0; i<m_N; i++) {
+                    if(m_S(j,k) > 0) {
+                        if(m_exp_ElogU_ElogV_k(i,j) > 0) {
+                            res += m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        }
+                    }
+                }
+                m_EZ_i(j,k) = res;
+            }
+        }
+
+        Rcpp::Rcout << "sum EZ_i = " <<  m_EZ_i << std::endl << std::endl;
+        Rcpp::Rcout << "sum EZ_j = " <<  m_EZ_j << std::endl << std::endl;
     }
 
     /*!
@@ -193,21 +299,24 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorSparse::localParam() {
         m_phi1cur = m_alpha1cur.array() + m_EZ_j.array();
-        m_phi2cur = m_alpha2cur.array().rowwise() + (m_EV.array() * m_probSparse.array()).colwise().sum();
+        // m_phi2cur = m_alpha2cur.array().rowwise() + (m_EV.array() * m_probSparse.array()).colwise().sum();
 
-        // // test
-        // for(int i=0; i<m_N; i++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = m_alpha2cur(i,k) + m_probSparse.col(k).dot(m_EV.col(k));
-        //         if(test != m_phi2cur(i,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_phi2cur = " <<  m_phi2cur(i,k) << std::endl;
-        //         }
-        //     }
-        // }
+        // test
+        for(int i=0; i<m_N; i++) {
+            for(int k = 0; k<m_K; k++) {
+                m_phi2cur(i,k) = m_alpha2cur(i,k) + m_probSparse.col(k).dot(m_EV.col(k));
+            }
+        }
+
+        Rcpp::Rcout << "phi1 = " <<  m_phi1cur << std::endl << std::endl;
+        Rcpp::Rcout << "phi2 = " <<  m_phi2cur << std::endl << std::endl;
 
         // expectation and log-expectation
         Egam(m_phi1cur, m_phi2cur, m_EU);
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
+
+        Rcpp::Rcout << "EU = " <<  m_EU << std::endl << std::endl;
+        Rcpp::Rcout << "ElogU = " <<  m_ElogU << std::endl << std::endl;
     }
 
     /*!
@@ -215,21 +324,25 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorSparse::globalParam() {
         m_theta1cur = m_beta1cur.array() + m_EZ_i.array();
-        m_theta2cur = m_beta2cur.array() + (m_probSparse.array().rowwise() * m_EU.colwise().sum().array()).array();
+        // m_theta2cur = m_beta2cur.array() + (m_probSparse.array().rowwise() * m_EU.colwise().sum().array()).array();
 
-        // // test
-        // for(int j=0; j<m_P; j++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = m_beta2cur(j,k) + m_probSparse(j,k) * m_EU.col(k).sum();
-        //         if(test != m_theta2cur(j,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_theta2cur = " <<  m_theta2cur(j,k) << std::endl;
-        //         }
-        //     }
-        // }
+        // test
+        for(int j=0; j<m_P; j++) {
+            for(int k = 0; k<m_K; k++) {
+                m_theta2cur(j,k) = m_beta2cur(j,k) + m_probSparse(j,k) * m_EU.col(k).sum();
+            }
+        }
+
+        Rcpp::Rcout << "theta1 = " <<  m_theta1cur << std::endl << std::endl;
+        Rcpp::Rcout << "theta2 = " <<  m_theta2cur << std::endl << std::endl;
+
 
         // expectation and log-expectation
         Egam(m_theta1cur, m_theta2cur, m_EV);
         Elgam(m_theta1cur, m_theta2cur, m_ElogV);
+
+        Rcpp::Rcout << "EV = " <<  m_EV << std::endl << std::endl;
+        Rcpp::Rcout << "ElogV = " <<  m_ElogV << std::endl << std::endl;
     }
 
     /*!
@@ -245,6 +358,8 @@ namespace countMatrixFactor {
         // multinomial probabilities
         VectorXd omega = VectorXd::Zero(m_N);
 
+        Rcpp::Rcout << "m_probSparsePrior = " <<  m_probSparsePrior << std::endl;
+
         for(int j=0; j<m_P; j++) {
             for(int k=0; k<m_K; k++) {
 
@@ -253,32 +368,43 @@ namespace countMatrixFactor {
                 // m_EU_EV_i;         /*!< p x K, \sum_i E[U_{ik}] * E[V_{jk}] */
                 // m_ElgamZ_i;        /*!< p x K, \sum_i E[log(Z_{ijk}!)] */
 
-                for(int i=0; i<m_N; i++) {
-                    omega(i) = std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-                    m_EZ_logU_i(j,k) += m_X(i,j) * omega(i) * m_ElogU(i,k);
-                    m_EZ_logV_i(j,k) += m_X(i,j) * omega(i) * m_ElogV(j,k);
-                    m_EU_EV_i(j,k) += m_EU(i,k) * m_EV(j,k);
-                    m_ElgamZ_i(j,k) += intermediate::lgamBinom(m_X(i,j), omega(k));
-                    // Rcpp::Rcout << "omega(i) = " << omega(i) << std::endl;
-                    // Rcpp::Rcout << "m_EZ_logU_i(j,k) = " << m_EZ_logU_i(j,k) << std::endl;
-                    // Rcpp::Rcout << "m_EZ_logV_i(j,k) = " << m_EZ_logV_i(j,k) << std::endl;
-                    // Rcpp::Rcout << "m_ElgamZ_i(j,k) = " << m_ElgamZ_i(j,k) << std::endl;
-                }
+                // for(int i=0; i<m_N; i++) {
+                //     omega(i) = std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                //     m_EZ_logU_i(j,k) += m_X(i,j) * omega(i) * m_ElogU(i,k);
+                //     m_EZ_logV_i(j,k) += m_X(i,j) * omega(i) * m_ElogV(j,k);
+                //     m_EU_EV_i(j,k) += m_EU(i,k) * m_EV(j,k);
+                //     m_ElgamZ_i(j,k) += intermediate::lgamBinom(m_X(i,j), omega(k));
+                //     // Rcpp::Rcout << "omega(i) = " << omega(i) << std::endl;
+                // }
+                //
+                // Rcpp::Rcout << "m_EU_EV_i(j,k) = " << m_EU_EV_i(j,k) << std::endl;
+                // Rcpp::Rcout << "m_EZ_logU_i(j,k) = " << m_EZ_logU_i(j,k) << std::endl;
+                // Rcpp::Rcout << "m_EZ_logV_i(j,k) = " << m_EZ_logV_i(j,k) << std::endl;
+                // Rcpp::Rcout << "m_ElgamZ_i(j,k) = " << m_ElgamZ_i(j,k) << std::endl  << std::endl;
 
+                Rcpp::Rcout << "####### (j,k) = " << j << " , " << k << std::endl << std::endl;
 
                 if(m_probSparsePrior(j) == 1) {
                     m_probSparse(j,k) = 1;
                 } else if(m_probSparsePrior(j) == 0) {
                     m_probSparse(j,k) = 0;
                 } else {
-                    double res1 = - m_EU_EV_i(j,k) + m_EZ_logU_i(j,k) + m_EZ_logV_i(j,k) - m_ElgamZ_i(j,k);
+                    // double res1 = - m_EU_EV_i(j,k) + m_EZ_logU_i(j,k) + m_EZ_logV_i(j,k) - m_ElgamZ_i(j,k);
+                    Rcpp::Rcout << "(m_beta1cur(j,k) - 1) * m_ElogV(j,k) = " << (m_beta1cur(j,k) - 1) * m_ElogV(j,k) << std::endl;
+                    Rcpp::Rcout << "m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) = " << m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) << std::endl;
+                    Rcpp::Rcout << "- m_beta2cur(j,k) * m_EV(j,k) = " << - m_beta2cur(j,k) * m_EV(j,k) << std::endl;
+                    Rcpp::Rcout << "- lgamma(m_beta1cur(j,k)) = " << - lgamma(m_beta1cur(j,k)) << std::endl  << std::endl;
                     double res2 = (m_beta1cur(j,k) - 1) * m_ElogV(j,k)
                                     + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
                                     - m_beta2cur(j,k) * m_EV(j,k)
                                     - lgamma(m_beta1cur(j,k));
-                    double res = res1 + res2;
+                    double res = res2;
+                    // Rcpp::Rcout << "from the Poisson = " <<  res1 << std::endl;
+                    Rcpp::Rcout << "from the Gamma = " <<  res2 << std::endl;
                     Rcpp::Rcout << "term to correct the expit = " <<  res << std::endl;
                     m_probSparse(j,k) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probSparsePrior(j)) + res),1E-12);
+                    Rcpp::Rcout << "proba? = " <<  intermediate::expit( intermediate::logit(m_probSparsePrior(j)) + res) << std::endl;
+                    Rcpp::Rcout << "computed value = " <<  m_probSparse(j,k) << std::endl << std::endl;
                     m_S(j,k) = m_probSparse(j,k) > 0.5 ? 1 : 0;
                 }
             }
@@ -303,14 +429,15 @@ namespace countMatrixFactor {
         //         }
         //     }
         // }
-        Rcpp::Rcout << "m_probSparse = " <<  m_probSparse << std::endl;
+        Rcpp::Rcout << "m_probSparse = " <<  m_probSparse << std::endl << std::endl;
     }
 
     /*!
     * \brief update rule for Bernoulli parameter (of ZI indicator) in prior
     */
     void gamPoisFactorSparse::priorSproba() {
-        m_probSparsePrior = m_probSparse.colwise().mean();
+        m_probSparsePrior = m_probSparse.rowwise().mean();
+        Rcpp::Rcout << "m_probSparsePrior = " <<  m_probSparsePrior << std::endl << std::endl;
     }
 
     /*!
@@ -339,6 +466,27 @@ namespace countMatrixFactor {
         // Poisson rate
         Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
+    }
+
+    //--------------------------------------//
+    // parameter updates for variational EM //
+    //--------------------------------------//
+
+
+    /*!
+     * \brief local parameter update: alpha (factor U)
+     */
+    void gamPoisFactorSparse::localPriorParam() {
+        m_alpha1cur = (m_alpha2cur.mlog().rowwise() + m_ElogU.colwise().mean()).mpsiInv();
+        m_alpha2cur = m_alpha1cur.array().rowwise() / m_EU.colwise().mean().array();
+    }
+
+    /*!
+     * \brief global parameter update: beta (factor V)
+     */
+    void gamPoisFactorSparse::globalPriorParam() {
+        m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).mpsiInv();
+        m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
     }
 
     /*!
