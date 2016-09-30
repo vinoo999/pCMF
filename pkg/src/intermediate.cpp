@@ -80,6 +80,16 @@ namespace intermediate {
         }
     }
 
+    double safeExp(double x) {
+        if(x > 700) {
+            return(1E12);
+        } else if(x < -700) {
+            return(1E-12);
+        } else {
+            return std::exp(x);
+        }
+    }
+
     /*!
      * \fn logit function
      *

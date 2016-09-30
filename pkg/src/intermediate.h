@@ -53,6 +53,9 @@ namespace intermediate {
     // exponential that throw error when under or overflowing
     double myExp(double x);
 
+    // exponential that throw error when under or overflowing
+    double safeExp(double x);
+
     // logit function
     double logit(double x);
 
