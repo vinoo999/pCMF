@@ -171,7 +171,7 @@ namespace countMatrixFactor {
 
         double resFinal = 0;
 
-        // sum_{ijk} E[log p(Z_{ijk} | U_{ik}, V_{jk}, S_{jk})] - E[q()]
+        // sum_{ijk} E[log p(Z_{ijk} | U_{ik}, V_{jk}, S_{jk})] - E[q(Z_{ijk})]
         double res1 = 0;
         double res2 = 0;
         for(int i=0; i<m_N; i++) {
@@ -183,8 +183,8 @@ namespace countMatrixFactor {
                 }
                 for(int k=0; k<m_K; k++) {
                     res1 += m_probSparse(j,k) * (m_X(i,j) * omega(k) * (m_ElogU(i,k) + m_ElogV(j,k))
-                                                     - m_EU(i,k) * m_EV(j,k) - intermediate::lgamBinom(m_X(i,j), omega(k)));
-                    res2 += m_X(i,j) * omega(k) * std::log(omega(k)) - intermediate::lgamBinom(m_X(i,j), omega(k));
+                                                     - m_EU(i,k) * m_EV(j,k));
+                    res2 += m_X(i,j) * omega(k) * std::log(omega(k));
                 }
             }
         }
@@ -353,7 +353,7 @@ namespace countMatrixFactor {
         m_EZ_logU_i = MatrixXd::Zero(m_P,m_K);
         m_EZ_logV_i = MatrixXd::Zero(m_P,m_K);
         m_EU_EV_i = MatrixXd::Zero(m_P,m_K);
-        m_ElgamZ_i = MatrixXd::Zero(m_P,m_K);
+        // m_ElgamZ_i = MatrixXd::Zero(m_P,m_K);
 
         // multinomial probabilities
         VectorXd omega = VectorXd::Zero(m_N);
@@ -367,15 +367,22 @@ namespace countMatrixFactor {
                 // m_EZ_logV_i;       /*!< p x K, \sum_i E[Z_{ijk}] * E[log V_{jk}] */
                 // m_EU_EV_i;         /*!< p x K, \sum_i E[U_{ik}] * E[V_{jk}] */
                 // m_ElgamZ_i;        /*!< p x K, \sum_i E[log(Z_{ijk}!)] */
+                m_EZ_logU_i(j,k) = 0;
+                m_EZ_logV_i(j,k) = 0;
+                m_EU_EV_i(j,k) = 0;
 
-                // for(int i=0; i<m_N; i++) {
-                //     omega(i) = std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-                //     m_EZ_logU_i(j,k) += m_X(i,j) * omega(i) * m_ElogU(i,k);
-                //     m_EZ_logV_i(j,k) += m_X(i,j) * omega(i) * m_ElogV(j,k);
-                //     m_EU_EV_i(j,k) += m_EU(i,k) * m_EV(j,k);
-                //     m_ElgamZ_i(j,k) += intermediate::lgamBinom(m_X(i,j), omega(k));
-                //     // Rcpp::Rcout << "omega(i) = " << omega(i) << std::endl;
-                // }
+                for(int i=0; i<m_N; i++) {
+                    if(m_exp_ElogU_ElogV_k(i,j)>0) {
+                        omega(i) = m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                    } else {
+                        omega(i) = 0;
+                    }
+                    m_EZ_logU_i(j,k) += m_X(i,j) * omega(i) * m_ElogU(i,k);
+                    m_EZ_logV_i(j,k) += m_X(i,j) * omega(i) * m_ElogV(j,k);
+                    m_EU_EV_i(j,k) += m_EU(i,k) * m_EV(j,k);
+                    // m_ElgamZ_i(j,k) += intermediate::lgamBinom(m_X(i,j), omega(k));
+                    // Rcpp::Rcout << "omega(i) = " << omega(i) << std::endl;
+                }
                 //
                 // Rcpp::Rcout << "m_EU_EV_i(j,k) = " << m_EU_EV_i(j,k) << std::endl;
                 // Rcpp::Rcout << "m_EZ_logU_i(j,k) = " << m_EZ_logU_i(j,k) << std::endl;
@@ -389,17 +396,17 @@ namespace countMatrixFactor {
                 } else if(m_probSparsePrior(j) == 0) {
                     m_probSparse(j,k) = 0;
                 } else {
-                    // double res1 = - m_EU_EV_i(j,k) + m_EZ_logU_i(j,k) + m_EZ_logV_i(j,k) - m_ElgamZ_i(j,k);
-                    Rcpp::Rcout << "(m_beta1cur(j,k) - 1) * m_ElogV(j,k) = " << (m_beta1cur(j,k) - 1) * m_ElogV(j,k) << std::endl;
-                    Rcpp::Rcout << "m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) = " << m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) << std::endl;
-                    Rcpp::Rcout << "- m_beta2cur(j,k) * m_EV(j,k) = " << - m_beta2cur(j,k) * m_EV(j,k) << std::endl;
-                    Rcpp::Rcout << "- lgamma(m_beta1cur(j,k)) = " << - lgamma(m_beta1cur(j,k)) << std::endl  << std::endl;
+                    double res1 = - m_EU_EV_i(j,k) + m_EZ_logU_i(j,k) + m_EZ_logV_i(j,k);
+                    // Rcpp::Rcout << "(m_beta1cur(j,k) - 1) * m_ElogV(j,k) = " << (m_beta1cur(j,k) - 1) * m_ElogV(j,k) << std::endl;
+                    // Rcpp::Rcout << "m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) = " << m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) << std::endl;
+                    // Rcpp::Rcout << "- m_beta2cur(j,k) * m_EV(j,k) = " << - m_beta2cur(j,k) * m_EV(j,k) << std::endl;
+                    // Rcpp::Rcout << "- lgamma(m_beta1cur(j,k)) = " << - lgamma(m_beta1cur(j,k)) << std::endl  << std::endl;
                     double res2 = (m_beta1cur(j,k) - 1) * m_ElogV(j,k)
                                     + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
                                     - m_beta2cur(j,k) * m_EV(j,k)
                                     - lgamma(m_beta1cur(j,k));
-                    double res = res2;
-                    // Rcpp::Rcout << "from the Poisson = " <<  res1 << std::endl;
+                    double res = res1 + res2;
+                    Rcpp::Rcout << "from the Poisson = " <<  res1 << std::endl;
                     Rcpp::Rcout << "from the Gamma = " <<  res2 << std::endl;
                     Rcpp::Rcout << "term to correct the expit = " <<  res << std::endl;
                     m_probSparse(j,k) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probSparsePrior(j)) + res),1E-12);
@@ -445,13 +452,13 @@ namespace countMatrixFactor {
     */
     void gamPoisFactorSparse::updateVarational() {
 
-        // Multinomial parameters
-        Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
-        this->multinomParam();
-
         // sparse proba
         Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
         this->Sproba();
+
+        // Multinomial parameters
+        Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        this->multinomParam();
 
         // local parameters
         // U : param phi
@@ -485,21 +492,37 @@ namespace countMatrixFactor {
      * \brief global parameter update: beta (factor V)
      */
     void gamPoisFactorSparse::globalPriorParam() {
-        m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).mpsiInv();
-        m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
+        // m_beta1cur = (m_beta2cur.mlog().rowwise() + m_ElogV.colwise().mean()).mpsiInv();
+        // m_beta2cur = m_beta1cur.array().rowwise() / m_EV.colwise().mean().array();
+
+        VectorXd probSum(m_probSparse.colwise().sum());
+
+        int j0=0;
+        for(int k=0; k<m_K; k++) {
+            double res1 = 0;
+            double res2 = 0;
+            for(int j=0; j<m_P; j++) {
+                res1 += m_probSparse(j,k) * m_ElogV(j,k);
+                res2 += m_probSparse(j,k) * m_EV(j,k);
+            }
+            m_beta1cur(j0,k) = intermediate::psiInv(std::log(m_beta2cur(j0,k)) + res1/probSum(k), 6);
+            m_beta2cur(j0,k) = m_beta1cur(j0,k) * probSum(k) / res2;
+        }
+        m_beta1cur = m_beta1cur.row(j0).replicate(m_P,1);
+        m_beta2cur = m_beta2cur.row(j0).replicate(m_P,1);
     }
 
     /*!
     * \brief parameter update in variational EM (E-step)
     */
     void gamPoisFactorSparse::updateEstep() {
-        // Multinomial parameters
-        // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
-        this->multinomParam();
-
         // sparse proba
         //Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
         this->Sproba();
+
+        // Multinomial parameters
+        // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        this->multinomParam();
 
         // local parameters
         // U : param phi

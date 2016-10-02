@@ -138,7 +138,6 @@ namespace countMatrixFactor {
         // global parameters: beta (factor V)
         void globalPriorParam();
 
-
         // parameter update variational EM (E-step)
         void updateEstep();
 
