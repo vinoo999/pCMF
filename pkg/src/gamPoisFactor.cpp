@@ -398,6 +398,9 @@ namespace countMatrixFactor {
         m_phi1cur = m_alpha1cur.array() + m_EZ_j.array();
         m_phi2cur = m_alpha2cur.rowwise() + m_EV.colwise().sum();
 
+        // Rcpp::Rcout << "phi1 = " <<  m_phi1cur << std::endl << std::endl;
+        // Rcpp::Rcout << "phi2 = " <<  m_phi2cur << std::endl << std::endl;
+
         // expectation and log-expectation
         Egam(m_phi1cur, m_phi2cur, m_EU);
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
@@ -409,6 +412,9 @@ namespace countMatrixFactor {
     void gamPoisFactor::globalParam() {
         m_theta1cur = m_beta1cur.array() + m_EZ_i.array();
         m_theta2cur = m_beta2cur.rowwise() + m_EU.colwise().sum();
+
+        // Rcpp::Rcout << "theta1 = " <<  m_theta1cur << std::endl << std::endl;
+        // Rcpp::Rcout << "theta2 = " <<  m_theta2cur << std::endl << std::endl;
 
         // expectation and log-expectation
         Egam(m_theta1cur, m_theta2cur, m_EV);
