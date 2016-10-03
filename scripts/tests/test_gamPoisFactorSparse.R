@@ -13,8 +13,8 @@ source("sources/projectSources.R")
 ######################
 
 ## generating the data
-n = 20
-p = 10
+n = 100
+p = 50
 K = 4
 nblock=2
 
@@ -26,7 +26,7 @@ blockAlpha1 <- blockMatrix(nrow=n, ncol=K, nRowBlock=nblock, nColBlock=nblock, s
 alpha1 <- blockAlpha1$mat
 alpha2 <- matrix(1, nrow=n, ncol=K)
 
-signalBlock <- matrix(4, nblock, nblock) + diag(8, nblock)
+signalBlock <- matrix(0, nblock, nblock) + diag(8, nblock)
 colOrder <- sample.int(n=nblock, size=nblock, replace=FALSE)
 signalBlockB <- signalBlock[,colOrder]
 blockBeta1 <- blockMatrix(nrow=p, ncol=K, nRowBlock=nblock, nColBlock=nblock, signalBlock=signalBlockB)
@@ -37,9 +37,9 @@ beta2 <- matrix(1, nrow=p, ncol=K)
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2)
 str(data1)
 
-X = cbind(data1$X, matrix(rpois(n*10, lambda=2), nrow=n))
+X = cbind(data1$X, matrix(rpois(n*50, lambda=5), nrow=n))
 n=n
-p=p+10
+p=p+50
 
 # X=data1$X
 
@@ -66,12 +66,14 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=200, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
+                    iterMax=100, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
 
 res2 = matrixFactor(X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=200, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=FALSE)
+                    iterMax=100, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=FALSE)
 
 str(res1)
+
+print(res2$params$theta1)
 
 print(res1$criteria_k$kDeviance)
 myOrder = res1$order$orderDeviance
@@ -82,13 +84,13 @@ res1$sparseParams$probSparsePrior
 res1$sparseParams$sparseIndic
 
 layout(matrix(1:2,ncol=2))
-plot(res1$logLikelihood$elbo[-(1:2)], xlab="iteration", ylab="elbo", col="blue", type="l")
+plot(res1$logLikelihood$elbo[-(1:5)], xlab="iteration", ylab="elbo", col="blue", type="l")
 plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b", log="y")
 
 matrixHeatmap(res1$sparseParams$probSparse)
 matrixHeatmap(res1$sparseParams$sparseIndic)
 
-matrixHeatmap(res1$V)
+matrixHeatmap(res1$V * res1$sparseParams$sparseIndic)
 matrixHeatmap(res2$V)
 
 matrixHeatmap(res1$U)
