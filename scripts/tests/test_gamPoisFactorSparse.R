@@ -37,7 +37,7 @@ beta2 <- matrix(1, nrow=p, ncol=K)
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2)
 str(data1)
 
-X = cbind(data1$X, matrix(rpois(n*50, lambda=5), nrow=n))
+X = cbind(data1$X, matrix(rpois(n*50, lambda=20), nrow=n))
 n=n
 p=p+50
 
