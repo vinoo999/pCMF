@@ -37,7 +37,7 @@ beta2 <- matrix(1, nrow=p, ncol=K)
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2)
 str(data1)
 
-X = cbind(data1$X, matrix(rpois(n*50, lambda=20), nrow=n))
+X = cbind(data1$X, matrix(rpois(n*50, lambda=4), nrow=n))
 n=n
 p=p+50
 
@@ -83,42 +83,42 @@ res1$sparseParams$probSparse
 res1$sparseParams$probSparsePrior
 res1$sparseParams$sparseIndic
 
-layout(matrix(1:2,ncol=2))
-plot(res1$logLikelihood$elbo[-(1:5)], xlab="iteration", ylab="elbo", col="blue", type="l")
-plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b", log="y")
+# layout(matrix(1:2,ncol=2))
+# plot(res1$logLikelihood$elbo[-(1:5)], xlab="iteration", ylab="elbo", col="blue", type="l")
+# plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b", log="y")
+#
+# matrixHeatmap(res1$sparseParams$probSparse)
+# matrixHeatmap(res1$sparseParams$sparseIndic)
 
-matrixHeatmap(res1$sparseParams$probSparse)
-matrixHeatmap(res1$sparseParams$sparseIndic)
+matrixHeatmap((res1$V * res1$sparseParams$sparseIndic)[,myOrder])
+matrixHeatmap(res2$V[,myOrder])
 
-matrixHeatmap(res1$V * res1$sparseParams$sparseIndic)
-matrixHeatmap(res2$V)
-
-matrixHeatmap(res1$U)
-matrixHeatmap(res2$U)
-
-matrixHeatmap(res1$params$theta1)
-matrixHeatmap(res2$params$theta1)
-
-matrixHeatmap(res1$params$theta2)
-matrixHeatmap(res2$params$theta2)
-
-matrixHeatmap(res1$params$beta1)
-matrixHeatmap(res2$params$beta1)
-
-matrixHeatmap(res1$params$beta2)
-matrixHeatmap(res2$params$beta2)
-
-matrixHeatmap(res1$params$phi1)
-matrixHeatmap(res2$params$phi1)
-
-matrixHeatmap(res1$params$phi2)
-matrixHeatmap(res2$params$phi2)
-
-matrixHeatmap(res1$params$alpha1)
-matrixHeatmap(res2$params$alpha1)
-
-matrixHeatmap(res1$params$alpha2)
-matrixHeatmap(res2$params$alpha2)
+# matrixHeatmap(res1$U)
+# matrixHeatmap(res2$U)
+#
+# matrixHeatmap(res1$params$theta1)
+# matrixHeatmap(res2$params$theta1)
+#
+# matrixHeatmap(res1$params$theta2)
+# matrixHeatmap(res2$params$theta2)
+#
+# matrixHeatmap(res1$params$beta1)
+# matrixHeatmap(res2$params$beta1)
+#
+# matrixHeatmap(res1$params$beta2)
+# matrixHeatmap(res2$params$beta2)
+#
+# matrixHeatmap(res1$params$phi1)
+# matrixHeatmap(res2$params$phi1)
+#
+# matrixHeatmap(res1$params$phi2)
+# matrixHeatmap(res2$params$phi2)
+#
+# matrixHeatmap(res1$params$alpha1)
+# matrixHeatmap(res2$params$alpha1)
+#
+# matrixHeatmap(res1$params$alpha2)
+# matrixHeatmap(res2$params$alpha2)
 
 
 

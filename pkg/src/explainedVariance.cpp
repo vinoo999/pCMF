@@ -34,7 +34,7 @@
 using Eigen::MatrixXd;              // variable size matrix, double precision
 using Eigen::MatrixXi;              // variable size matrix, integer
 using Eigen::VectorXd;              // variable size matrix, double precision
-using Eigen::PartialPivLU;              // for fast matrix inversion
+using Eigen::PartialPivLU;          // for fast matrix inversion
 
 namespace countMatrixFactor {
 
