@@ -72,7 +72,7 @@
 #' @export
 dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob1=NULL, rate0=NULL) {
 
-    if(ZI && (is.null(prob1) || is.null(rate0))) {
+    if(ZI & (is.null(prob1) & is.null(rate0))) {
         stop("message from dataGeneration: zero-inflated model is asked but prob1 are not set in input")
     }
 
@@ -102,10 +102,11 @@ dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob
 
     if(!ZI) {
         Xnzi <- NULL
+        Y <- NULL
     }
 
     ## return
     return(list(X=X, U=U, V=V, n=n, p=p, K=K,
                 alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2,
-                ZI=ZI, prob1=prob1, rate0=rate0, Xnzi=Xnzi))
+                ZI=ZI, prob1=prob1, rate0=rate0, Xnzi=Xnzi, ZIind=Y))
 }
