@@ -25,7 +25,7 @@ project.sources = function(subpath="pkg") {
                       # "gamPoisFactorPen_wrapper.cpp",
                       "gamPoisFactorEM_wrapper.cpp",
                       # "gamPoisFactorZI_wrapper.cpp",
-                      # "gamPoisFactorEM_ZI_wrapper.cpp",
+                      "gamPoisFactorEM_ZI_wrapper.cpp",
                       # "gamPoisFactorSparse_wrapper.cpp",
                       "gamPoisFactorEM_Sparse_wrapper.cpp")
 
