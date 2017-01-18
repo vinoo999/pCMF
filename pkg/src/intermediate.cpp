@@ -99,6 +99,8 @@ namespace intermediate {
      * @return the value of logit(x)
      */
     double logit(double x) {
+        if (x >= 1 - 1e-12) return 30;
+        if (x <= 1e-12) return -30;
         return std::log(x/(1-x));
     }
 
@@ -111,8 +113,8 @@ namespace intermediate {
      * @return the value of logit(x)
      */
     double expit(double x) {
-        if (x > 30) return 1;
-        if (x < -30) return 0;
+        if (x >= 30) return 1;
+        if (x <= -30) return 0;
         return 1 / (1 + std::exp(-x));
     }
 
