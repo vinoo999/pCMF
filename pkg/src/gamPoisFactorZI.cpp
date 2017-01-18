@@ -140,6 +140,44 @@ namespace countMatrixFactor {
 
     }
 
+    //-------------------//
+    //      criteria     //
+    //-------------------//
+
+    /*!
+     * \brief compute evidence lower bound
+     *
+     * @return the current value (double)
+     */
+    double gamPoisFactor::computeELBO() {
+        intermediate::checkExp(m_ElogU);
+        intermediate::checkExp(m_ElogV);
+
+        // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
+        double res1 = (-1) * ( m_lambda.sum() );
+        //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
+        double res2 = ( m_X.cast<double>().array() * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
+        //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
+
+        double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
+                            - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
+        double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
+                                   - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
+
+        double res5 = ( (m_beta1cur.array() - 1) * m_ElogV.array() + m_beta1cur.array() * m_beta2cur.mlog().array()
+                            - m_beta2cur.array() * m_EV.array() - m_beta1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
+        double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
+                                   - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
+        //Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
+
+        double res = res1 + res2 + res3 + res4 + res5 + res6;
+
+        return res;
+    }
+
     //--------------------------------------------//
     // parameter updates for standard variational //
     //--------------------------------------------//

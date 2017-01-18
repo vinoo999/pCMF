@@ -92,6 +92,12 @@ namespace countMatrixFactor {
         void returnObject(Rcpp::List &results);
 
     public:
+        //-------------------//
+        //      criteria     //
+        //-------------------//
+
+        // compute evidence lower bound
+        double computeELBO();
 
         //--------------------------------------------//
         // parameter updates for standard variational //
