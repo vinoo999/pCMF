@@ -2,7 +2,8 @@
 
 
 source("/home/durif/source_code/countMatrixFactor/set_working_dir.R")
-source("sources/lightSources.R")
+# source("sources/lightSources.R")
+source("sources/projectSources.R")
 
 
 ######################
@@ -89,7 +90,7 @@ res2a = matrixFactor(X_ZI, ncomp,
                      phi01, phi02, theta01, theta02,
                      alpha01, alpha02, beta01, beta02,
                      iterMax=500, epsilon=1e-4,
-                     ZI=TRUE, algo = "variational")
+                     ZI=TRUE, algo = "EM")
 
 str(res2a)
 
@@ -116,6 +117,7 @@ dataToPlot2b = data.frame(model = rep("ZI", n), method = rep("pca", n), comp1 = 
 dataToPlot = rbind(dataToPlot1a, dataToPlot1b, dataToPlot2a, dataToPlot2b)
 dataToPlot$group = as.factor(dataToPlot$group)
 
+library(ggplot2)
 g1 = ggplot(dataToPlot, aes(x=comp1, y=comp2, col=group)) + geom_point() + facet_grid(model ~ method)
 
 g1 = g1 + theme(legend.text=element_text(size=10), legend.title=element_text(size=10), axis.text.x=element_text(size=10), axis.title.y = element_text(size=10, vjust=1.5), axis.text.y= element_text(size=10), axis.title.x=element_text(size=10), plot.title=element_text(size=10), strip.text.x=element_text(size=10), strip.text.y=element_text(size=10)) + theme(panel.background = element_rect(fill = "white", colour = "black"), panel.grid.major=element_line(color = "grey90"), panel.grid.minor= element_line(color="grey90"), legend.position = "none")
@@ -175,7 +177,7 @@ res3 = matrixFactor(X, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
                     iterMax=200, epsilon=1e-4,
-                    ZI=FALSE, algo = "variational")
+                    ZI=TRUE, algo = "EM")
 
 str(res3)
 myOrder1 = res3$order$orderExpVarV
@@ -187,7 +189,7 @@ res4 = matrixFactor(X_ZI, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
                     iterMax=200, epsilon=1e-4,
-                    ZI=FALSE, algo = "variational")
+                    ZI=TRUE, algo = "EM")
 
 str(res4)
 myOrder1 = res4$order$orderExpVarV

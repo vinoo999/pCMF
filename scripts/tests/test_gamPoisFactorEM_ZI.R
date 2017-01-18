@@ -18,7 +18,7 @@ K = 10
 
 
 ## need of a priori values for gamma distribution
-signalBlock = matrix(c(0.1,0.3,0.4,0.2), nrow=2, ncol=2)
+signalBlock = matrix(c(1,2,4,2), nrow=2, ncol=2)
 blockAlpha1 = blockMatrix(nrow=n, ncol=K, nRowBlock=2, nColBlock=2, signalBlock=signalBlock)
 alpha1 = blockAlpha1$mat
 alpha2 = matrix(1, nrow=n, ncol=K)
@@ -32,6 +32,8 @@ prob1 = round(runif(p, 0.3, 0.7), digits=2)
 ## generating the data
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2, ZI=TRUE, prob1=prob1)
 str(data1)
+
+cbind(apply(data1$X,2, function(x) sum(x!=0)), prob1)
 
 ## heatmap
 # matrixHeatmap(alpha1, xlab="k = 1...K", ylab="i = 1...n")
@@ -58,7 +60,7 @@ theta02 = matrix(1, nrow=p, ncol=ncomp)
 res1 = matrixFactor(data1$X, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
-                    iterMax=1000, epsilon=1e-4,
+                    iterMax=200, epsilon=1e-5,
                     ZI=TRUE, algo = "EM")
 
 str(res1)
@@ -66,3 +68,17 @@ str(res1)
 # myOrder = res1$order$orderExpVarU
 
 cbind(apply(data1$X,2,function(x) sum(x!=0)), prob1, res1$ZIparams$probPrior)
+
+
+# elbo
+plot(res1$logLikelihood$elbo[-(1:100)], xlab="iteration", ylab="elbo", col="blue", type="l")
+plot(res1$normGap[-(1:100)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
+
+# graph
+U = res1$U[, res1$order$orderDeviance]
+plot(U, col=blockAlpha1$idRows)
+
+# ZI indic
+matrixHeatmap(data1$ZIind)
+matrixHeatmap(res1$ZIparams$prob)
+matrixHeatmap(data1$Xnzi>0)

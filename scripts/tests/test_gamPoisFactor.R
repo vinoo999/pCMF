@@ -132,7 +132,7 @@ print(myOrder)
 #
 # plot(res1$logLikelihood$margLogLike, xlab="iteration", ylab="complete log likelihood", col="blue", type="l")
 #
-# plot(res1$logLikelihood$elbo, xlab="iteration", ylab="elbo", col="blue", type="l")
+# plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
 #
 # ## norm gap
 # plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")

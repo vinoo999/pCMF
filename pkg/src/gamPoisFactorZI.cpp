@@ -37,6 +37,7 @@
 #define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
+#define msquare() unaryExpr(std::bind2nd(std::pointer_to_binary_function<double,double,double>(std::pow),2))
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::Map;                       // 'maps' rather than copies
@@ -111,6 +112,9 @@ namespace countMatrixFactor {
             for(int i=0; i<m_N; i++) {
                 if(m_X(i,j) != 0) {
                     m_freqZI(j) = m_freqZI(j)+1;
+                    m_probZI(i,j) = 1;
+                } else {
+                    m_probZI(i,j) = 0;
                 }
             }
         }
@@ -121,7 +125,7 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "m_freqZI = " << m_freqZI << std::endl;
         // Rcpp::Rcout << "m_freqZI.transpose() = " << m_freqZI.head(10).transpose().replicate(m_N,1) << std::endl;
 
-        m_probZI = m_freqZI.transpose().replicate(m_N,1);
+        // m_probZI = m_freqZI.transpose().replicate(m_N,1);
 
         // Rcpp::Rcout << "m_probZI = " << m_probZI.leftCols(15) << std::endl;
 
@@ -149,31 +153,45 @@ namespace countMatrixFactor {
      *
      * @return the current value (double)
      */
-    double gamPoisFactor::computeELBO() {
+    double gamPoisFactorZI::computeELBO() {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
         // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
-        double res1 = (-1) * ( m_lambda.sum() );
-        //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
-        double res2 = ( m_X.cast<double>().array() * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
-        //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
+        double res1 = (-1) * ( (m_probZI.array() * m_lambda.array()).sum() );
+        Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
+        double res2 = ( (m_probZI.array() *m_X.cast<double>().array()) * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
+        Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
 
         double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
                             - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
-        //Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
+        Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
         double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
                                    - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
-        //Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
+        Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
 
         double res5 = ( (m_beta1cur.array() - 1) * m_ElogV.array() + m_beta1cur.array() * m_beta2cur.mlog().array()
                             - m_beta2cur.array() * m_EV.array() - m_beta1cur.mlgamma().array() ).sum();
-        //Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
+        Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
         double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
                                    - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
-        //Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
+        Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
 
-        double res = res1 + res2 + res3 + res4 + res5 + res6;
+        // regarding S
+        double res7 = 0;
+        double res8 = 0;
+        for(int j=0; j<m_P; j++) {
+            for(int k=0; k<m_K; k++) {
+                if((m_probZIprior(j)>0) && (m_probZIprior(j)<1)) {
+                    res7 += m_probZI(j,k) * std::log(m_probZIprior(j)) + (1-m_probZI(j,k)) * std::log(1-m_probZIprior(j));
+                }
+                if((m_probZI(j,k)>0) && (m_probZI(j,k)<1)) {
+                    res8 += m_probZI(j,k) * std::log(m_probZI(j,k)) + (1-m_probZI(j,k)) * std::log(1-m_probZI(j,k));
+                }
+            }
+        }
+
+        double res = res1 + res2 + res3 + res4 + res5 + res6 + res7 - res8;
 
         return res;
     }
@@ -194,12 +212,24 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogV);
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
-        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        m_exp_ElogU_ElogV_k =  m_ElogU.mexp() * m_ElogV.mexp().transpose();
 
         // sum_j E[Z_{ijk}] * p_{i,j}
         // sum_i E[Z_{ijk}] * p_{i,j}
-        m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+
+        // with E_q[D_{ij}]^2
+        // m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        // m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+
+        // with E_q[D_{ij}]
+        m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+
+
+        // without E_q[D_{ij}]
+        // m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        // m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+
         // test
         // for(int i=0; i<m_N; i++) {
         //     for(int k = 0; k<m_K; k++) {
@@ -289,7 +319,8 @@ namespace countMatrixFactor {
                     } else if(m_probZIprior(j) == 0) {
                         m_probZI(i,j) = 0;
                     } else {
-                        m_probZI(i,j) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_lambda(i,j)),1E-12);
+                        // m_probZI(i,j) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_lambda(i,j)),1E-12);
+                        m_probZI(i,j) = intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_lambda(i,j));
                     }
                 }
             }
@@ -302,10 +333,6 @@ namespace countMatrixFactor {
      * \brief parameter update in standard variational
      */
     void gamPoisFactorZI::updateVarational() {
-
-        // ZI proba
-        Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
-        this->ZIproba();
 
         // Multinomial parameters
         Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
@@ -320,6 +347,10 @@ namespace countMatrixFactor {
         // V : param theta
         Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
+
+        // ZI proba
+        Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+        this->ZIproba();
 
         // Poisson rate
         Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
@@ -341,9 +372,6 @@ namespace countMatrixFactor {
      * \brief parameter update in variational EM (E-step)
      */
     void gamPoisFactorZI::updateEstep() {
-        // ZI proba
-        //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
-        this->ZIproba();
 
         // Multinomial parameters
         // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
@@ -358,6 +386,10 @@ namespace countMatrixFactor {
         // V : param theta
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
+
+        // ZI proba
+        //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+        this->ZIproba();
 
         // Poisson rate
         // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
