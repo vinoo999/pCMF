@@ -160,8 +160,10 @@ namespace countMatrixFactor {
         // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
         double res1 = (-1) * ( (m_probZI.array() * m_lambda.array()).sum() );
         Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
-        double res2 = ( (m_probZI.array() *m_X.cast<double>().array()) * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
+        double res2 = ( (m_probZI.array() * m_X.cast<double>().array()) * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
         Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
+
+        double res2a =  (-1) * (m_probZI.array() * (m_X.cast<double>().array() + 1).mlgamma().array()).sum();
 
         double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
                             - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
@@ -191,7 +193,7 @@ namespace countMatrixFactor {
             }
         }
 
-        double res = res1 + res2 + res3 + res4 + res5 + res6 + res7 - res8;
+        double res = res1 + res2 + res2a + res3 + res4 + res5 + res6 + res7 - res8;
 
         return res;
     }
