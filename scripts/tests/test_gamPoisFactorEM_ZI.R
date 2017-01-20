@@ -60,7 +60,7 @@ theta02 = matrix(1, nrow=p, ncol=ncomp)
 res1 = matrixFactor(data1$X, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
-                    iterMax=200, epsilon=1e-5,
+                    iterMax=500, epsilon=1e-5,
                     ZI=TRUE, algo = "EM")
 
 str(res1)
@@ -71,7 +71,7 @@ cbind(apply(data1$X,2,function(x) sum(x!=0)), prob1, res1$ZIparams$probPrior)
 
 
 # elbo
-plot(res1$logLikelihood$elbo[-(1:100)], xlab="iteration", ylab="elbo", col="blue", type="l")
+plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
 plot(res1$normGap[-(1:100)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
 
 # graph
