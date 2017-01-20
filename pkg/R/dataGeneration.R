@@ -70,7 +70,7 @@
 #' to depend on the count mean, the higher the smaller probability (default is NULL)}
 #'
 #' @export
-dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob1=NULL, rate0=NULL) {
+dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob1=NULL, rate0=NULL, reorder=FALSE) {
 
     if(ZI & (is.null(prob1) & is.null(rate0))) {
         stop("message from dataGeneration: zero-inflated model is asked but prob1 are not set in input")
@@ -79,6 +79,19 @@ dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob
     ## generating the components
     U <- sapply(1:K, function(k) rgamma(n, shape=alpha1[,k]/sqrt(K), rate=alpha2[,k])) # matrix n x K
     V <- sapply(1:K, function(k) rgamma(p, shape=beta1[,k]/sqrt(K), rate=beta2[,k])) # matrix p x K
+
+    ## reordering individuals and genes
+    orderInd <- NULL
+    orderVar <- NULL
+    if(reorder) {
+        orderInd <- sample.int(n,n)
+        orderVar <- sample.int(p,p)
+    } else {
+        orderInd <- 1:n
+        orderVar <- 1:p
+    }
+    U <- U[orderInd,]
+    V <- V[orderVar,]
 
     ## generating the count
     Xnzi <- matrix(rpois(n=n*p, lambda=as.vector(U %*% t(V))), nrow=n, ncol=p)
@@ -108,5 +121,6 @@ dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob
     ## return
     return(list(X=X, U=U, V=V, n=n, p=p, K=K,
                 alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2,
-                ZI=ZI, prob1=prob1, rate0=rate0, Xnzi=Xnzi, ZIind=Y))
+                ZI=ZI, prob1=prob1, rate0=rate0, Xnzi=Xnzi, ZIind=Y,
+                orderInd, orderVar))
 }
