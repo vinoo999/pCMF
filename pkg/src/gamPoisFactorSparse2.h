@@ -55,7 +55,7 @@ namespace countMatrixFactor {
 *  Y_{ij} ~ Bernoulli(prob_j)
 */
 
-class gamPoisFactorSparse22 : public gamPoisFactor {
+class gamPoisFactorSparse2 : public gamPoisFactor {
 
 protected:
 
