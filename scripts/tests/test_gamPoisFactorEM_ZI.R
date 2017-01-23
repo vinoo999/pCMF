@@ -72,7 +72,7 @@ cbind(apply(data1$X,2,function(x) sum(x!=0)), prob1, res1$ZIparams$probPrior)
 
 # elbo
 plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
-plot(res1$normGap[-(1:100)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
+plot(res1$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
 
 # graph
 U = res1$U[, res1$order$orderDeviance]
