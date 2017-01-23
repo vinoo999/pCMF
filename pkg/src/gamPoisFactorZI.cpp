@@ -218,19 +218,8 @@ namespace countMatrixFactor {
 
         // sum_j E[Z_{ijk}] * p_{i,j}
         // sum_i E[Z_{ijk}] * p_{i,j}
-
-        // with E_q[D_{ij}]^2
-        // m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        // m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
-
-        // with E_q[D_{ij}]
         m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
         m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
-
-
-        // without E_q[D_{ij}]
-        // m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        // m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
         // test
         // for(int i=0; i<m_N; i++) {
