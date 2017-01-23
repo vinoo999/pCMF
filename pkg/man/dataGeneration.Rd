@@ -5,7 +5,7 @@
 \title{dataGeneration}
 \usage{
 dataGeneration(n, p, K, alpha1, alpha2, beta1, beta2, ZI = FALSE,
-  prob1 = NULL, rate0 = NULL)
+  prob1 = NULL, rate0 = NULL, reorder = FALSE)
 }
 \arguments{
 \item{n}{number of observations (nb of rows)}
