@@ -1,7 +1,7 @@
 Package: countMatrixFactor
 Type: Package
 Title: Factorization of Count Matrices
-Version: 0.1
+Version: 0.5
 Date: 2016-04-22
 Author: Ghislain Durif
 Maintainer: Ghislain Durif <ghislain.durif@univ-lyon1.fr>
