@@ -122,5 +122,5 @@ dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob
     return(list(X=X, U=U, V=V, n=n, p=p, K=K,
                 alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2,
                 ZI=ZI, prob1=prob1, rate0=rate0, Xnzi=Xnzi, ZIind=Y,
-                orderInd, orderVar))
+                orderInd=orderInd, orderVar=orderVar))
 }
