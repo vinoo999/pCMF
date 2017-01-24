@@ -375,7 +375,7 @@ namespace countMatrixFactor {
             m_model.updateVarational();
             // log-likelihood
             //Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
-            this->computeLogLike(m_iter);
+            // this->computeLogLike(m_iter);
             // ELBO
             //Rcpp::Rcout << "algorithm: ELBO" << std::endl;
             this->computeELBO(m_iter);

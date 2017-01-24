@@ -249,7 +249,7 @@ namespace countMatrixFactor {
 
         // log-likelihood
         // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
-        this->computeLogLike(m_globalIter);
+        // this->computeLogLike(m_globalIter);
         // ELBO
         // Rcpp::Rcout << "algorithm: ELBO" << std::endl;
         this->computeELBO(m_globalIter);
@@ -283,7 +283,7 @@ namespace countMatrixFactor {
 
         /// log-likelihood
         // Rcpp::Rcout << "algorithm: loglikelihood" << std::endl;
-        this->computeLogLike(m_globalIter);
+        // this->computeLogLike(m_globalIter);
         // ELBO
         // Rcpp::Rcout << "algorithm: ELBO" << std::endl;
         this->computeELBO(m_globalIter);
