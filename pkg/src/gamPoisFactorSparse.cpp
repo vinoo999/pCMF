@@ -201,7 +201,9 @@ namespace countMatrixFactor {
         double res5 = 0;
         for(int j=0; j<m_P; j++) {
             for(int k=0; k<m_K; k++) {
-                res5 += m_probSparse(j,k) * ( (m_beta1cur(j,k) - 1) * m_ElogV(j,k) + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
+                // res5 += m_probSparse(j,k) * ( (m_beta1cur(j,k) - 1) * m_ElogV(j,k) + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
+                //                                   - m_beta2cur(j,k) * m_EV(j,k) - lgamma(m_beta1cur(j,k)));
+                res5 += ( (m_beta1cur(j,k) - 1) * m_ElogV(j,k) + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
                                                   - m_beta2cur(j,k) * m_EV(j,k) - lgamma(m_beta1cur(j,k)));
             }
         }
@@ -282,7 +284,8 @@ namespace countMatrixFactor {
                     // }
                     // test0 += m_X(i,j) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / test(i,j);
                     if(m_exp_ElogU_ElogV_k(i,j) > 0) {
-                        res += m_probSparse(j,k) * m_X(i,j) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        // res += m_probSparse(j,k) * m_X(i,j) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        res += m_probSparse(j,k) * m_X(i,j) * m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
                     }
                 }
                 // Rcpp::Rcout << "value computed = " << res << std::endl;
@@ -302,7 +305,7 @@ namespace countMatrixFactor {
                     //     }
                     // }
                     if(m_exp_ElogU_ElogV_k(i,j) > 0) {
-                        res += m_probSparse(j,k) * m_X(i,j) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        res += m_probSparse(j,k) * m_X(i,j) * m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
                     }
                 }
                 m_EZ_i(j,k) = res;
@@ -429,7 +432,7 @@ namespace countMatrixFactor {
                     // Rcpp::Rcout << "from the Poisson = " <<  res1 << std::endl;
                     // Rcpp::Rcout << "from the Gamma = " <<  res2 << std::endl;
                     // Rcpp::Rcout << "term to correct the expit = " <<  res << std::endl;
-                    double tmp = intermediate::threshold(intermediate::expit( intermediate::logit(m_probSparsePrior(j)) + res),1E-12);
+                    double tmp = intermediate::expit( intermediate::logit(m_probSparsePrior(j)) + res);
                     // if(tmp==1) {
                     //     m_probSparse(j,k) = 1 - 1E-12;
                     // } else {
