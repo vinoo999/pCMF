@@ -187,6 +187,23 @@ namespace countMatrixFactor {
         // intermediate::checkExp(m_ElogU);
         // intermediate::checkExp(m_ElogV);
 
+        // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                // double rhoMin = ( m_ElogU.row(i) + m_ElogV.row(j) ).minCoeff();
+                // double rhoMax = ( m_ElogU.row(i) + m_ElogV.row(j) ).maxCoeff();
+                double res = 0;
+                for(int k=0; k<m_K; k++) {
+                    if(m_S(j,k) > 0) {
+                        res += std::exp(m_ElogU(i,k) + m_ElogV(j,k));
+                    }
+                    // res += m_probSparse(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k));
+                    // test(i,j) += std::exp(m_ElogU(i,k) + m_ElogV(j,k));
+                }
+                m_exp_ElogU_ElogV_k(i,j) = res;
+            }
+        }
+
         VectorXd omega = VectorXd::Zero(m_K);
 
         double resFinal = 0;
@@ -197,9 +214,23 @@ namespace countMatrixFactor {
         for(int i=0; i<m_N; i++) {
             for(int j=0; j<m_P; j++) {
                 for(int k=0; k<m_K; k++) {
-                    res1 += m_probSparse(j,k) * m_probZI(i,j) * ( m_X(i,j) * std::log(m_exp_ElogU_ElogV_k(i,j)>0 ? m_exp_ElogU_ElogV_k(i,j) : 1) - m_EU(i,k) * m_EV(j,k));
-                    res2 += m_probZI(i,j) * lgamma(m_X(i,j)+1);
+                    if(m_exp_ElogU_ElogV_k(i,j) > 0) {
+                        omega(k) = m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                    } else {
+                        omega(k) = 0;
+                    }
                 }
+                // Rcpp::Rcout << "omega = " << omega << std::endl;
+                for(int k=0; k<m_K; k++) {
+                    res1 += m_probZI(i,j) * m_probSparse(j,k) * (m_X(i,j) * omega(k) * (m_ElogU(i,k) + m_ElogV(j,k))
+                                                     - m_EU(i,k) * m_EV(j,k));
+                    res2 += m_X(i,j) * omega(k) * std::log(omega(k) > 0 ? omega(k) : 1);
+                }
+                // Rcpp::Rcout << "res1 = " << res1 << std::endl;
+                // Rcpp::Rcout << "res2 = " << res2 << std::endl;
+                // for(int k=0; k<m_K; k++) {
+                //     res1 += m_probSparse(j,k) * ( m_X(i,j) * std::log(m_exp_ElogU_ElogV_k(i,j)>0 ? m_exp_ElogU_ElogV_k(i,j) : 1) - m_EU(i,k) * m_EV(j,k));
+                // }
             }
         }
         resFinal += res1 - res2;
@@ -208,19 +239,21 @@ namespace countMatrixFactor {
         double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
                             - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
         double res4 = ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
-                                   - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
+                            - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
         resFinal += res3 - res4;
 
         // regarding V
         double res5 = 0;
         for(int j=0; j<m_P; j++) {
             for(int k=0; k<m_K; k++) {
+                // res5 += m_probSparse(j,k) * ( (m_beta1cur(j,k) - 1) * m_ElogV(j,k) + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
+                //                                   - m_beta2cur(j,k) * m_EV(j,k) - lgamma(m_beta1cur(j,k)));
                 res5 += ( (m_beta1cur(j,k) - 1) * m_ElogV(j,k) + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
-                                                  - m_beta2cur(j,k) * m_EV(j,k) - lgamma(m_beta1cur(j,k)));
+                              - m_beta2cur(j,k) * m_EV(j,k) - lgamma(m_beta1cur(j,k)));
             }
         }
         double res6 = ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
-                                   - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
+                            - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
         resFinal += res5 - res6;
 
         // regarding S
@@ -515,6 +548,8 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorSparseZI::ZIproba() {
 
+        MatrixXd lambda = m_EU * (m_probSparse.array() * m_EV.array()).matrix().transpose();
+
         // Rcpp::Rcout << "m_probZI" << std::endl;
         for(int i= 0; i<m_N; i++) {
             for(int j=0; j<m_P; j++) {
@@ -527,7 +562,7 @@ namespace countMatrixFactor {
                         m_probZI(i,j) = 0;
                     } else {
                         // m_probZI(i,j) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_lambda(i,j)),1E-12);
-                        m_probZI(i,j) = intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_probZI(i,j) * m_lambda(i,j));
+                        m_probZI(i,j) = intermediate::expit( intermediate::logit(m_probZIprior(j)) - lambda(i,j));
                     }
                 }
             }
@@ -542,29 +577,29 @@ namespace countMatrixFactor {
     void gamPoisFactorSparseZI::updateVarational() {
 
         // Multinomial parameters
-        Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
+        // Rcpp::Rcout << "algorithm: Multinomial parameters" << std::endl;
         this->multinomParam();
 
         // local parameters
         // U : param phi
-        Rcpp::Rcout << "algorithm: local parameters" << std::endl;
+        // Rcpp::Rcout << "algorithm: local parameters" << std::endl;
         this->localParam();
 
         // global parameters
         // V : param theta
-        Rcpp::Rcout << "algorithm: global parameters" << std::endl;
+        // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
 
         // sparse proba
-        Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
+        // Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
         this->Sproba();
 
         // Poisson rate
-        Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
+        // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
 
         // ZI proba
-        Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+        // Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
         this->ZIproba();
     }
 
@@ -638,10 +673,6 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
 
-        // sparse proba
-        //Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
-        this->Sproba();
-
         // Poisson rate
         // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
@@ -649,6 +680,10 @@ namespace countMatrixFactor {
         // ZI proba
         //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
         this->ZIproba();
+
+        // sparse proba
+        //Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
+        this->Sproba();
     }
 
     /*!
@@ -660,6 +695,10 @@ namespace countMatrixFactor {
         // sparse proba
         //Rcpp::Rcout << "algorithm: sparse proba prior" << std::endl;
         this->priorSproba();
+
+        // ZI proba
+        //Rcpp::Rcout << "algorithm: ZI proba prior" << std::endl;
+        this->priorZIproba();
 
         // local parameters
         // U : param phi
