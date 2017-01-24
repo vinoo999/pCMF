@@ -179,7 +179,7 @@ namespace countMatrixFactor {
                                    - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
         // Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
 
-        // regarding S
+        // regarding D
         double res7 = 0;
         double res8 = 0;
         for(int j=0; j<m_P; j++) {
@@ -339,13 +339,13 @@ namespace countMatrixFactor {
         Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
 
-        // ZI proba
-        Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
-        this->ZIproba();
-
         // Poisson rate
         Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
+
+        // ZI proba
+        Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+        this->ZIproba();
     }
 
     //--------------------------------------//
@@ -378,13 +378,13 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
 
-        // ZI proba
-        //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
-        this->ZIproba();
-
         // Poisson rate
         // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
+
+        // ZI proba
+        //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
+        this->ZIproba();
     }
 
     /*!
