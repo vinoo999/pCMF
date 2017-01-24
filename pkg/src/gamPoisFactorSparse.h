@@ -122,9 +122,6 @@ namespace countMatrixFactor {
         // sparse proba
         void Sproba();
 
-        // sparse proba in prior
-        void priorSproba();
-
         // parameter update variational standard
         void updateVarational();
 
@@ -137,6 +134,9 @@ namespace countMatrixFactor {
 
         // global parameters: beta (factor V)
         void globalPriorParam();
+
+        // sparse proba in prior
+        void priorSproba();
 
         // parameter update variational EM (E-step)
         void updateEstep();
