@@ -261,6 +261,13 @@ namespace countMatrixFactor {
     //-------------------//
 
     /*!
+     * \brief update rule for poisson rates in variational inference
+     */
+    void gamPoisFactorSparseZI::poissonRate() {
+        m_lambda = m_EU * (m_S.array() * m_EV.array()).matrix().transpose();
+    }
+
+    /*!
     * \brief update rule for multinomial parameters in variational inference
     *
     * m_EZ_i_{jk} = sum_i pi_j * E[Z_{ijk}]
@@ -548,6 +555,10 @@ namespace countMatrixFactor {
         Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
 
+        // sparse proba
+        Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
+        this->Sproba();
+
         // Poisson rate
         Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
@@ -555,10 +566,6 @@ namespace countMatrixFactor {
         // ZI proba
         Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
         this->ZIproba();
-
-        // sparse proba
-        Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
-        this->Sproba();
     }
 
     //--------------------------------------//
@@ -631,6 +638,10 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "algorithm: global parameters" << std::endl;
         this->globalParam();
 
+        // sparse proba
+        //Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
+        this->Sproba();
+
         // Poisson rate
         // Rcpp::Rcout << "algorithm: Poisson rate" << std::endl;
         this->poissonRate();
@@ -638,10 +649,6 @@ namespace countMatrixFactor {
         // ZI proba
         //Rcpp::Rcout << "algorithm: ZI proba" << std::endl;
         this->ZIproba();
-
-        // sparse proba
-        //Rcpp::Rcout << "algorithm: sparse proba" << std::endl;
-        this->Sproba();
     }
 
     /*!

@@ -115,6 +115,9 @@ namespace countMatrixFactor {
         // parameter updates //
         //-------------------//
 
+        // poisson rate
+        void poissonRate();
+
         // multinomial parameters
         void multinomParam();
 
