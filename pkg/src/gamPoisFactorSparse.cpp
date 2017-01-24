@@ -240,7 +240,7 @@ namespace countMatrixFactor {
      * \brief update rule for poisson rates in variational inference
      */
     void gamPoisFactorSparse::poissonRate() {
-        m_lambda = m_EU * m_EV.transpose();
+        m_lambda = m_EU * (m_S.array() * m_EV.array()).matrix().transpose();
     }
 
     /*!
