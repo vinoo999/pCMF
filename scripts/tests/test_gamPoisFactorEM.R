@@ -54,7 +54,7 @@ theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=200, iterMin=100, epsilon=1e-2, algo="EM", verbose=TRUE)
+                    iterMax=300, iterMin=100, epsilon=1e-5, algo="EM", verbose=TRUE)
 
 str(res1)
 

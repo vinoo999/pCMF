@@ -12,7 +12,7 @@ source("sources/projectSources.R")
 
 ## generating the data
 n = 100
-p = 50
+p = 100
 K = 10
 
 
@@ -60,7 +60,7 @@ theta02 = matrix(1, nrow=p, ncol=ncomp)
 res1 = matrixFactor(data1$X, ncomp,
                     phi01, phi02, theta01, theta02,
                     alpha01, alpha02, beta01, beta02,
-                    iterMax=500, epsilon=1e-5,
+                    iterMax=800, epsilon=1e-5,
                     ZI=TRUE, algo = "EM")
 
 str(res1)
