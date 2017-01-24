@@ -157,27 +157,52 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
-        // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
-        double res1 = (-1) * ( (m_probZI.array() * m_lambda.array()).sum() );
-        // Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
-        double res2 = ( (m_probZI.array() * m_X.cast<double>().array()) * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
-        // Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
+        // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
+        m_exp_ElogU_ElogV_k =  m_ElogU.mexp() * m_ElogV.mexp().transpose();
 
-        double res2a =  (-1) * (m_probZI.array() * (m_X.cast<double>().array() + 1).mlgamma().array()).sum();
+        double resFinal = 0;
 
+        VectorXd omega = VectorXd::Zero(m_K);
+
+        // concerning Z
+        double res1 = 0;
+        double res2 = 0;
+
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                for(int k=0; k<m_K; k++) {
+                    if(m_exp_ElogU_ElogV_k(i,j) > 0) {
+                        omega(k) = std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                    } else {
+                        omega(k) = 0;
+                    }
+                }
+                for(int k=0; k<m_K; k++) {
+                    res1 += m_probZI(i,j) * (m_X(i,j) * omega(k) * (m_ElogU(i,k) + m_ElogV(j,k))
+                                                     - m_EU(i,k) * m_EV(j,k));
+                    res2 += m_X(i,j) * omega(k) * ( m_ElogU(i,k) + m_ElogV(j,k) - std::log(m_exp_ElogU_ElogV_k(i,j)));
+                }
+            }
+        }
+        resFinal += res1 - res2;
+
+        // regarding U
         double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
                             - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
         // Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
-        double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
+        double res4 = ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
                                    - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
         // Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
+        resFinal += res3 - res4;
 
+        // regarding V
         double res5 = ( (m_beta1cur.array() - 1) * m_ElogV.array() + m_beta1cur.array() * m_beta2cur.mlog().array()
                             - m_beta2cur.array() * m_EV.array() - m_beta1cur.mlgamma().array() ).sum();
         // Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
         double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
                                    - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
         // Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
+        resFinal += res5 - res6;
 
         // regarding D
         double res7 = 0;
@@ -192,10 +217,50 @@ namespace countMatrixFactor {
                 }
             }
         }
+        resFinal += res7 - res8;
 
-        double res = res1 + res2 + res2a + res3 + res4 + res5 + res6 + res7 - res8;
+        return(resFinal);
 
-        return res;
+
+        // // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
+        // double res1 = (-1) * ( (m_probZI.array() * m_lambda.array()).sum() );
+        // // Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
+        // double res2 = ( (m_probZI.array() * m_X.cast<double>().array()) * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
+        // // Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
+        //
+        // double res2a =  (-1) * (m_probZI.array() * (m_X.cast<double>().array() + 1).mlgamma().array()).sum();
+        //
+        // double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
+        //                     - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
+        // // Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
+        // double res4 = (-1) * ( (m_phi1cur.array() - 1) * m_ElogU.array() + m_phi1cur.array() * m_phi2cur.mlog().array()
+        //                            - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
+        // // Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
+        //
+        // double res5 = ( (m_beta1cur.array() - 1) * m_ElogV.array() + m_beta1cur.array() * m_beta2cur.mlog().array()
+        //                     - m_beta2cur.array() * m_EV.array() - m_beta1cur.mlgamma().array() ).sum();
+        // // Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
+        // double res6 = (-1) * ( (m_theta1cur.array() - 1) * m_ElogV.array() + m_theta1cur.array() * m_theta2cur.mlog().array()
+        //                            - m_theta2cur.array() * m_EV.array() - m_theta1cur.mlgamma().array() ).sum();
+        // // Rcpp::Rcout << "ELBO: res6 = " << res6 << std::endl;
+        //
+        // // regarding D
+        // double res7 = 0;
+        // double res8 = 0;
+        // for(int j=0; j<m_P; j++) {
+        //     for(int k=0; k<m_K; k++) {
+        //         if((m_probZIprior(j)>0) && (m_probZIprior(j)<1)) {
+        //             res7 += m_probZI(j,k) * std::log(m_probZIprior(j)) + (1-m_probZI(j,k)) * std::log(1-m_probZIprior(j));
+        //         }
+        //         if((m_probZI(j,k)>0) && (m_probZI(j,k)<1)) {
+        //             res8 += m_probZI(j,k) * std::log(m_probZI(j,k)) + (1-m_probZI(j,k)) * std::log(1-m_probZI(j,k));
+        //         }
+        //     }
+        // }
+        //
+        // double res = res1 + res2 + res2a + res3 + res4 + res5 + res6 + res7 - res8;
+        //
+        // return res;
     }
 
     //--------------------------------------------//

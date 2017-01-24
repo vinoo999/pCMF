@@ -265,12 +265,17 @@ namespace countMatrixFactor {
         intermediate::checkExp(m_ElogU);
         intermediate::checkExp(m_ElogV);
 
+        // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
+        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+
+        // regarding Z
         // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
         double res1 = (-1) * ( m_lambda.sum() );
         //Rcpp::Rcout << "ELBO: res1 = " << res1 << std::endl;
         double res2 = ( m_X.cast<double>().array() * (m_exp_ElogU_ElogV_k).mlog().array()).sum();
         //Rcpp::Rcout << "ELBO: res2 = " << res2 << std::endl;
 
+        // regarding U
         double res3 = ( (m_alpha1cur.array() - 1) * m_ElogU.array() + m_alpha1cur.array() * m_alpha2cur.mlog().array()
                             - m_alpha2cur.array() * m_EU.array() - m_alpha1cur.mlgamma().array() ).sum();
         //Rcpp::Rcout << "ELBO: res3 = " << res3 << std::endl;
@@ -278,6 +283,7 @@ namespace countMatrixFactor {
                                    - m_phi2cur.array() * m_EU.array() - m_phi1cur.mlgamma().array() ).sum();
         //Rcpp::Rcout << "ELBO: res4 = " << res4 << std::endl;
 
+        // regarding V
         double res5 = ( (m_beta1cur.array() - 1) * m_ElogV.array() + m_beta1cur.array() * m_beta2cur.mlog().array()
                             - m_beta2cur.array() * m_EV.array() - m_beta1cur.mlgamma().array() ).sum();
         //Rcpp::Rcout << "ELBO: res5 = " << res5 << std::endl;
