@@ -174,17 +174,20 @@ namespace countMatrixFactor {
         double res2 = 0;
         for(int i=0; i<m_N; i++) {
             for(int j=0; j<m_P; j++) {
+                // for(int k=0; k<m_K; k++) {
+                //     if(m_exp_ElogU_ElogV_k(i,j) > 0) {
+                //         omega(k) = m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                //     } else {
+                //         omega(k) = 0;
+                //     }
+                // }
+                // for(int k=0; k<m_K; k++) {
+                //     res1 += m_probSparse(j,k) * (m_X(i,j) * omega(k) * (m_ElogU(i,k) + m_ElogV(j,k))
+                //                                      - m_EU(i,k) * m_EV(j,k));
+                //     res2 += m_X(i,j) * omega(k) * std::log(omega(k)>0 ? omega(k) : 1);
+                // }
                 for(int k=0; k<m_K; k++) {
-                    if(m_exp_ElogU_ElogV_k(i,j) > 0) {
-                        omega(k) = m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-                    } else {
-                        omega(k) = 0;
-                    }
-                }
-                for(int k=0; k<m_K; k++) {
-                    res1 += m_probSparse(j,k) * (m_X(i,j) * omega(k) * (m_ElogU(i,k) + m_ElogV(j,k))
-                                                     - m_EU(i,k) * m_EV(j,k));
-                    res2 += m_X(i,j) * omega(k) * std::log(omega(k)>0 ? omega(k) : 1);
+                    res1 += m_probSparse(j,k) * ( m_X(i,j) * std::log(m_exp_ElogU_ElogV_k(i,j)>0 ? m_exp_ElogU_ElogV_k(i,j) : 1) - m_EU(i,k) * m_EV(j,k));
                 }
             }
         }
