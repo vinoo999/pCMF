@@ -237,6 +237,13 @@ namespace countMatrixFactor {
     //-------------------//
 
     /*!
+     * \brief update rule for poisson rates in variational inference
+     */
+    void gamPoisFactorSparse::poissonRate() {
+        m_lambda = m_EU * m_EV.transpose();
+    }
+
+    /*!
     * \brief update rule for multinomial parameters in variational inference
     *
     * m_EZ_i_{jk} = sum_i pi_j * E[Z_{ijk}]
