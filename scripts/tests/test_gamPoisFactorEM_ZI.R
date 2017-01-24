@@ -43,7 +43,7 @@ cbind(apply(data1$X,2, function(x) sum(x!=0)), prob1)
 
 ####### TESTING ALGO
 
-ncomp=2
+ncomp=K
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)

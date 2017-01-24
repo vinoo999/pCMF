@@ -25,14 +25,14 @@ compos <- function(x, n, fun) {
 
 ## generating the data
 n = 100
-p = 50
+p = 100
 K = 10
 
 nblockU = 2
 nblockV = 2
 epsilonU = 4
 espilonV = 4
-p0 = 20
+p0 = 50
 
 
 
@@ -87,7 +87,7 @@ theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=500, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
+                    iterMax=800, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=TRUE)
 
 res2 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
                     iterMax=500, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=FALSE)
