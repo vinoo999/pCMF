@@ -69,12 +69,13 @@ str(data1)
 matrixHeatmap(alpha1, xlab="k = 1...K", ylab="i = 1...n")
 matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
 matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
+matrixHeatmap(data1$ZIind, xlab="j = 1...p", ylab="i = 1...n")
 matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 matrixHeatmap(data1$V, xlab="k = 1...K", ylab="j = 1...p")
 
 ####### TESTING ALGO
 
-ncomp=K
+ncomp=6
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)
@@ -90,10 +91,10 @@ theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=800, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, ZI=TRUE, sparse=TRUE)
+                    iterMax=300, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, ZI=TRUE, sparse=TRUE)
 
 res2 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=500, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, ZI=TRUE, sparse=FALSE)
+                    iterMax=100, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, ZI=TRUE, sparse=FALSE)
 
 str(res1)
 
@@ -104,6 +105,9 @@ print(myOrder)
 # elbo
 plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
 plot(res1$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
+plot(res1$gap[-(1:10)], xlab="iteration", ylab="gap", col="blue", type="l")
+
+plot(res1$criteria_k$kDeviance, type="l")
 
 # graph
 U1 = res1$U[, res1$order$orderDeviance]
@@ -115,6 +119,12 @@ plot(U2, col=blockAlpha1$idRows[data1$orderInd])
 print(res2$params$theta1)
 
 matrixHeatmap(res1$sparseParams$sparseIndic[,myOrder])
-matrixHeatmap(data1$beta1[data1$orderVar,])
+matrixHeatmap(data1$beta1[data1$orderVar,]>1)
 matrixHeatmap((res1$V * res1$sparseParams$sparseIndic)[,myOrder])
 matrixHeatmap(res2$V[,myOrder])
+
+
+# ZI indic
+matrixHeatmap(data1$ZIind)
+matrixHeatmap(res1$ZIparams$prob)
+matrixHeatmap(data1$Xnzi)
