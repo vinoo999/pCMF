@@ -126,7 +126,9 @@ namespace countMatrixFactor {
      * @return effective value
      */
     double poisDeviance(const MatrixXi &X, const MatrixXd &lambda, const MatrixXd &lambda0) {
-        double res1 = ( X.cast<double>().array() * lambda.mlog().array() - lambda.array() ).sum();
+        MatrixXd lambda_tmp = lambda;
+        intermediate::eraseZero(lambda_tmp);
+        double res1 = ( X.cast<double>().array() * lambda_tmp.mlog().array() - lambda.array() ).sum();
         double res2 = ( X.cast<double>().array() * lambda0.mlog().array() - X.cast<double>().array() ).sum();
         double res = -2*(res1 - res2);
         return(res);
