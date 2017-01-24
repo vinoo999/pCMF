@@ -27,7 +27,8 @@ project.sources = function(subpath="pkg") {
                       # "gamPoisFactorZI_wrapper.cpp",
                       "gamPoisFactorEM_ZI_wrapper.cpp",
                       # "gamPoisFactorSparse_wrapper.cpp",
-                      "gamPoisFactorEM_Sparse_wrapper.cpp")
+                      "gamPoisFactorEM_Sparse_wrapper.cpp",
+                      "gamPoisFactorEM_Sparse_ZI_wrapper.cpp")
 
     file.list = file.list[file.list %in% fileToCompile]
 
