@@ -43,7 +43,7 @@ cbind(apply(data1$X,2, function(x) sum(x!=0)), prob1)
 
 ####### TESTING ALGO
 
-ncomp=15
+ncomp=5
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)
@@ -79,6 +79,8 @@ plot(res1$criteria_k$kDeviance, type="l")
 # graph
 U = res1$U[, res1$order$orderDeviance]
 plot(U, col=blockAlpha1$idRows)
+
+matrixHeatmap(U)
 
 # ZI indic
 matrixHeatmap(data1$ZIind)

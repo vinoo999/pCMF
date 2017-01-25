@@ -115,6 +115,9 @@ U2 = res2$U[, res2$order$orderDeviance]
 plot(U1, col=blockAlpha1$idRows[data1$orderInd])
 plot(U2, col=blockAlpha1$idRows[data1$orderInd])
 
+matrixHeatmap(U1)
+matrixHeatmap(U2)
+
 # selection
 print(res2$params$theta1)
 

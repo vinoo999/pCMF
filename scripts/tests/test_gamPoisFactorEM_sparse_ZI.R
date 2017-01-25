@@ -66,16 +66,16 @@ data1 <- dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1
 str(data1)
 
 ## heatmap
-matrixHeatmap(alpha1, xlab="k = 1...K", ylab="i = 1...n")
-matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
-matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
-matrixHeatmap(data1$ZIind, xlab="j = 1...p", ylab="i = 1...n")
-matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
-matrixHeatmap(data1$V, xlab="k = 1...K", ylab="j = 1...p")
+# matrixHeatmap(alpha1, xlab="k = 1...K", ylab="i = 1...n")
+# matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
+# matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
+# matrixHeatmap(data1$ZIind, xlab="j = 1...p", ylab="i = 1...n")
+# matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
+# matrixHeatmap(data1$V, xlab="k = 1...K", ylab="j = 1...p")
 
 ####### TESTING ALGO
 
-ncomp=3
+ncomp=K
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)
@@ -119,6 +119,9 @@ U1 = res1$U[, res1$order$orderDeviance]
 U2 = res2$U[, res2$order$orderDeviance]
 plot(U1, col=blockAlpha1$idRows[data1$orderInd])
 plot(U2, col=blockAlpha1$idRows[data1$orderInd])
+
+matrixHeatmap(U1)
+matrixHeatmap(U2)
 
 # selection
 print(res2$params$theta1)

@@ -69,57 +69,59 @@ print(myOrder)
 # print(res1$EM$normGap_Estep)
 # print(res1$EM$normGap_Mstep)
 
+U = res1$U[, res1$order$orderDeviance]
+plot(U, col=blockAlpha1$idRows)
 
 
 ###### comparison of the results
 
-# setwd(FIGUREDIR)
-#
-## log-likelihood
-# plot(res1$logLikelihood$condLogLike, xlab="iteration", ylab="conditional log likelihood", col="blue", type="l")
-#
-# plot(res1$logLikelihood$margLogLike, xlab="iteration", ylab="complete log likelihood", col="blue", type="l")
-#
-# plot(res1$logLikelihood$elbo[-(1:2)], xlab="iteration", ylab="elbo", col="blue", type="l")
-#
-# ## norm gap
-# plot(res1$gap[-1], xlab="iteration", ylab="gap", col="blue", type="b")
-# plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-#
-# plot(res1$EM$gap_Estep[-1], xlab="iteration", ylab="gap", col="blue", type="b")
-# plot(res1$EM$gap_Mstep[-1], xlab="iteration", ylab="gap", col="blue", type="b")
-# plot(res1$EM$normGap_Estep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-# plot(res1$EM$normGap_Mstep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+setwd(FIGUREDIR)
 
-# plot(res1$gap[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
-# plot(res1$normGap[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-#
-# plot(res1$EM$gap_Estep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
-# plot(res1$EM$gap_Mstep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
-# plot(res1$EM$normGap_Estep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-# plot(res1$EM$normGap_Mstep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
-#
-# ## exp var
-# plot(res1$expVariance$expVar0, xlab="iteration", ylab="expVar0", col="blue", type="b")
-# plot(res1$expVariance$expVarU, xlab="iteration", ylab="expVarU", col="blue", type="b")
-# plot(res1$expVariance$expVarV, xlab="iteration", ylab="expVarV", col="blue", type="b")
-#
-# ## depending on K
-# plot(res1$criteria_k$kDeviance, xlab="k", ylab="deviance", col="blue", type="b")
-# plot(res1$criteria_k$kExpVar0, xlab="k", ylab="expVar0", col="blue", type="b")
-# plot(res1$criteria_k$kExpVarU, xlab="k", ylab="expVarU", col="blue", type="b")
-# plot(res1$criteria_k$kExpVarV, xlab="k", ylab="expVarV", col="blue", type="b")
-#
-# ## order
-# res1$order$orderDeviance
-# res1$order$orderExpVar0
-# res1$order$orderExpVarU
-# res1$order$orderExpVarV
-#
-#
-# ##
-# matrixHeatmap(res1$U, xlab="k = 1...K", ylab="i = 1...n")
-# matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
-# matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
-# matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
+## log-likelihood
+plot(res1$logLikelihood$condLogLike, xlab="iteration", ylab="conditional log likelihood", col="blue", type="l")
+
+plot(res1$logLikelihood$margLogLike, xlab="iteration", ylab="complete log likelihood", col="blue", type="l")
+
+plot(res1$logLikelihood$elbo[-(1:2)], xlab="iteration", ylab="elbo", col="blue", type="l")
+
+## norm gap
+plot(res1$gap[-1], xlab="iteration", ylab="gap", col="blue", type="b")
+plot(res1$normGap[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+
+plot(res1$EM$gap_Estep[-1], xlab="iteration", ylab="gap", col="blue", type="b")
+plot(res1$EM$gap_Mstep[-1], xlab="iteration", ylab="gap", col="blue", type="b")
+plot(res1$EM$normGap_Estep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+plot(res1$EM$normGap_Mstep[-1], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+
+plot(res1$gap[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
+plot(res1$normGap[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+
+plot(res1$EM$gap_Estep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
+plot(res1$EM$gap_Mstep[-(1:5000)], xlab="iteration", ylab="gap", col="blue", type="b")
+plot(res1$EM$normGap_Estep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+plot(res1$EM$normGap_Mstep[-(1:5000)], xlab="iteration", ylab="normalized gap", col="blue", type="b")
+
+## exp var
+plot(res1$expVariance$expVar0, xlab="iteration", ylab="expVar0", col="blue", type="b")
+plot(res1$expVariance$expVarU, xlab="iteration", ylab="expVarU", col="blue", type="b")
+plot(res1$expVariance$expVarV, xlab="iteration", ylab="expVarV", col="blue", type="b")
+
+## depending on K
+plot(res1$criteria_k$kDeviance, xlab="k", ylab="deviance", col="blue", type="b")
+plot(res1$criteria_k$kExpVar0, xlab="k", ylab="expVar0", col="blue", type="b")
+plot(res1$criteria_k$kExpVarU, xlab="k", ylab="expVarU", col="blue", type="b")
+plot(res1$criteria_k$kExpVarV, xlab="k", ylab="expVarV", col="blue", type="b")
+
+## order
+res1$order$orderDeviance
+res1$order$orderExpVar0
+res1$order$orderExpVarU
+res1$order$orderExpVarV
+
+
+##
+matrixHeatmap(res1$U, xlab="k = 1...K", ylab="i = 1...n")
+matrixHeatmap(beta1, xlab="k = 1...K", ylab="j = 1...p")
+matrixHeatmap(data1$X, xlab="j = 1...p", ylab="i = 1...n")
+matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
