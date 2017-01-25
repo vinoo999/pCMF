@@ -188,6 +188,34 @@ namespace intermediate {
     }
 
     /*!
+     * \fn check for overflow in exponential
+     *
+     * @param[in] A matrix to be checked
+     */
+    int checkMaxExp(const MatrixXd &A) {
+        // check for 300 and -300 so a product of such elements does not exceed the limit
+        if( A.maxCoeff() > 300) {
+            return(0);
+        } else {
+            return(1);
+        }
+    }
+
+    /*!
+     * \fn check for underflow in exponential
+     *
+     * @param[in] A matrix to be checked
+     */
+    int checkMinExp(const MatrixXd &A) {
+        // check for 300 and -300 so a product of such elements does not exceed the limit
+        if( A.minCoeff() < - 300) {
+            return(0);
+        } else {
+            return(1);
+        }
+    }
+
+    /*!
      * \fn check matrix (dim, min and max element)
      *
      * @param[in] A matrix to be checked
