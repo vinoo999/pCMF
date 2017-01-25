@@ -75,7 +75,7 @@ matrixHeatmap(data1$V, xlab="k = 1...K", ylab="j = 1...p")
 
 ####### TESTING ALGO
 
-ncomp=6
+ncomp=3
 
 alpha01 = matrix(1, nrow=n, ncol=ncomp)
 alpha02 = matrix(1, nrow=n, ncol=ncomp)
@@ -91,10 +91,10 @@ theta02 = matrix(1, nrow=p, ncol=ncomp)
 
 
 res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=300, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, ZI=TRUE, sparse=TRUE)
+                    iterMax=300, iterMin=100, epsilon=1e-4, algo="EM", verbose=FALSE, ZI=TRUE, sparse=TRUE)
 
 res2 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=100, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, ZI=TRUE, sparse=FALSE)
+                    iterMax=300, iterMin=100, epsilon=1e-4, algo="EM", verbose=FALSE, ZI=TRUE, sparse=FALSE)
 
 str(res1)
 
@@ -108,6 +108,11 @@ plot(res1$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type
 plot(res1$gap[-(1:10)], xlab="iteration", ylab="gap", col="blue", type="l")
 
 plot(res1$criteria_k$kDeviance, type="l")
+
+plot(res2$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
+plot(res2$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
+
+plot(res2$criteria_k$kDeviance, type="l")
 
 # graph
 U1 = res1$U[, res1$order$orderDeviance]

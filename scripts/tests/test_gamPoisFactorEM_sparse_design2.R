@@ -90,7 +90,7 @@ res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alp
                     iterMax=500, iterMin=100, epsilon=1e-4, algo="EM", verbose=FALSE, sparse=TRUE)
 
 res2 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=100, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=FALSE)
+                    iterMax=500, iterMin=100, epsilon=1e-4, algo="EM", verbose=TRUE, sparse=FALSE)
 
 str(res1)
 
