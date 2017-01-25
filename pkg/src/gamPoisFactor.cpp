@@ -262,11 +262,21 @@ namespace countMatrixFactor {
     * @return the current value (double)
     */
     double gamPoisFactor::computeELBO() {
-        intermediate::checkExp(m_ElogU);
-        intermediate::checkExp(m_ElogV);
+        // intermediate::checkExp(m_ElogU);
+        // intermediate::checkExp(m_ElogV);
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
-        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        // m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                double res = 0;
+                for(int k=0; k<m_K; k++) {
+                    res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
+                }
+                m_exp_ElogU_ElogV_k(i,j) = res;
+            }
+        }
+        intermediate::eraseZero(m_exp_ElogU_ElogV_k);
 
         // regarding Z
         // double res1 = (-1) * ( ( (m_X.cast<double>().array() + 1).mlgamma() ).sum() + ( m_lambda ).sum() );
@@ -355,46 +365,48 @@ namespace countMatrixFactor {
      */
     void gamPoisFactor::multinomParam() {
 
-        intermediate::checkExp(m_ElogU);
-        intermediate::checkExp(m_ElogV);
+        // intermediate::checkExp(m_ElogU);
+        // intermediate::checkExp(m_ElogV);
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
-        m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        // m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                double res = 0;
+                for(int k=0; k<m_K; k++) {
+                    res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
+                }
+                m_exp_ElogU_ElogV_k(i,j) = res;
+            }
+        }
+        intermediate::eraseZero(m_exp_ElogU_ElogV_k);
 
         // Rcpp::Rcout << "dim = " << sum_k.rows() << " x " << sum_k.cols()  << std::endl;
 
         // sum_j E[Z_{ijk}]
         // sum_i E[Z_{ijk}]
-        m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+        // m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        // m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
-        // test
-        // for(int i=0; i<m_N; i++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int j=0; j<m_P; j++) {
-        //             test += m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k (i,j);
-        //             // Rcpp::Rcout << "X(i,j) = " << m_X(i,j) << " / Z_{ijk} = " << m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k (i,j) << std::endl;
-        //         }
-        //
-        //         if(test != m_EZ_j(i,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
-        //         }
-        //     }
-        // }
-        //
-        // for(int j=0; j<m_P; j++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int i=0; i<m_N; i++) {
-        //             test += m_X(i,j) * std::exp(m_ElogU(i,k)) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k (i,j);
-        //         }
-        //
-        //         if(test != m_EZ_i(j,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
-        //         }
-        //     }
-        // }
+        for(int i=0; i<m_N; i++) {
+            for(int k = 0; k<m_K; k++) {
+                double res = 0;
+                for(int j=0; j<m_P; j++) {
+                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k (i,j);
+                }
+                m_EZ_j(i,k) = res;
+            }
+        }
+
+        for(int j=0; j<m_P; j++) {
+            for(int k = 0; k<m_K; k++) {
+                double res = 0;
+                for(int i=0; i<m_N; i++) {
+                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k (i,j);
+                }
+                m_EZ_i(j,k) = res;
+            }
+        }
     }
 
     /*!
