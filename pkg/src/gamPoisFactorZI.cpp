@@ -268,6 +268,15 @@ namespace countMatrixFactor {
     //--------------------------------------------//
 
     /*!
+     * \brief update rule for poisson rates in variational inference
+     */
+    void gamPoisFactorZI::poissonRate() {
+        m_lambda = m_probZI.array() * (m_EU * m_EV.transpose()).array();
+        // m_lambda = m_EU * m_EV.transpose();
+    }
+
+
+    /*!
      * \brief update rule for multinomial parameters in variational inference
      *
      * m_EZ_i_{jk} = sum_i pi_j * E[Z_{ijk}]
@@ -364,6 +373,8 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorZI::ZIproba() {
 
+        MatrixXd lambda = m_EU * m_EV.transpose();
+
         // Rcpp::Rcout << "m_probZI" << std::endl;
         for(int i= 0; i<m_N; i++) {
             for(int j=0; j<m_P; j++) {
@@ -376,7 +387,7 @@ namespace countMatrixFactor {
                         m_probZI(i,j) = 0;
                     } else {
                         // m_probZI(i,j) = intermediate::threshold(intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_lambda(i,j)),1E-12);
-                        m_probZI(i,j) = intermediate::expit( intermediate::logit(m_probZIprior(j)) - m_lambda(i,j));
+                        m_probZI(i,j) = intermediate::expit( intermediate::logit(m_probZIprior(j)) - lambda(i,j));
                     }
                 }
             }

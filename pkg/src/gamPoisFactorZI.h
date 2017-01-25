@@ -103,6 +103,9 @@ namespace countMatrixFactor {
         // parameter updates for standard variational //
         //--------------------------------------------//
 
+        // poisson rate
+        void poissonRate();
+
         // multinomial parameters
         void multinomParam();
 
