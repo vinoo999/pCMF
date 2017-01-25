@@ -154,11 +154,20 @@ namespace countMatrixFactor {
      * @return the current value (double)
      */
     double gamPoisFactorZI::computeELBO() {
-        intermediate::checkExp(m_ElogU);
-        intermediate::checkExp(m_ElogV);
+        // intermediate::checkExp(m_ElogU);
+        // intermediate::checkExp(m_ElogV);
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
-        m_exp_ElogU_ElogV_k =  m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        // m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                double res = 0;
+                for(int k=0; k<m_K; k++) {
+                    res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
+                }
+                m_exp_ElogU_ElogV_k(i,j) = res;
+            }
+        }
 
         double resFinal = 0;
 
@@ -172,7 +181,7 @@ namespace countMatrixFactor {
             for(int j=0; j<m_P; j++) {
                 for(int k=0; k<m_K; k++) {
                     if(m_exp_ElogU_ElogV_k(i,j) > 0) {
-                        omega(k) = std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        omega(k) = (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
                     } else {
                         omega(k) = 0;
                     }
@@ -180,7 +189,7 @@ namespace countMatrixFactor {
                 for(int k=0; k<m_K; k++) {
                     res1 += m_probZI(i,j) * (m_X(i,j) * omega(k) * (m_ElogU(i,k) + m_ElogV(j,k))
                                                      - m_EU(i,k) * m_EV(j,k));
-                    res2 += m_X(i,j) * omega(k) * ( m_ElogU(i,k) + m_ElogV(j,k) - std::log(m_exp_ElogU_ElogV_k(i,j)));
+                    res2 += m_X(i,j) * omega(k) * (m_exp_ElogU_ElogV_k(i,j) > 0 ? m_ElogU(i,k) + m_ElogV(j,k) - std::log(m_exp_ElogU_ElogV_k(i,j)) : 0);
                 }
             }
         }
@@ -284,44 +293,49 @@ namespace countMatrixFactor {
      */
     void gamPoisFactorZI::multinomParam() {
 
-        intermediate::checkExp(m_ElogU);
-        intermediate::checkExp(m_ElogV);
+        // intermediate::checkExp(m_ElogU);
+        // intermediate::checkExp(m_ElogV);
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
-        m_exp_ElogU_ElogV_k =  m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        // m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
+        for(int i=0; i<m_N; i++) {
+            for(int j=0; j<m_P; j++) {
+                double res = 0;
+                for(int k=0; k<m_K; k++) {
+                    res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
+                }
+                m_exp_ElogU_ElogV_k(i,j) = res;
+            }
+        }
 
         // sum_j E[Z_{ijk}] * p_{i,j}
         // sum_i E[Z_{ijk}] * p_{i,j}
-        m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
-        m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
+        // m_EZ_j = m_ElogU.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
+        // m_EZ_i = m_ElogV.mexp().array() * ( ((m_X.cast<double>().array() * m_probZI.msquare().array()) / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
-        // test
-        // for(int i=0; i<m_N; i++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int j=0; j<m_P; j++) {
-        //             test += m_probZI(i,j) * m_X(i,j) * std::exp(m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-        //         }
-        //         test *= std::exp(m_ElogU(i,k));
-        //
-        //         if(test != m_EZ_j(i,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_EZ_j = " <<  m_EZ_j(i,k) << std::endl;
-        //         }
-        //     }
-        // }
-        //
-        // for(int j=0; j<m_P; j++) {
-        //     for(int k = 0; k<m_K; k++) {
-        //         double test = 0;
-        //         for(int i=0; i<m_N; i++) {
-        //             test += m_probZI(i,j) * m_X(i,j) * std::exp(m_ElogU(i,k)) / m_exp_ElogU_ElogV_k(i,j);
-        //         }
-        //         test *= std::exp(m_ElogV(j,k));
-        //         if(test != m_EZ_i(j,k)) {
-        //             Rcpp::Rcout << "test = " << test << " m_EZ_i = " <<  m_EZ_i(j,k) << std::endl;
-        //         }
-        //     }
-        // }
+        for(int i=0; i<m_N; i++) {
+            for(int k = 0; k<m_K; k++) {
+                double res = 0;
+                for(int j=0; j<m_P; j++) {
+                    if(m_exp_ElogU_ElogV_k (i,j)>0) {
+                        res += m_probZI(i,j) * m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
+                    }
+                }
+                m_EZ_j(i,k) = res;
+            }
+        }
+
+        for(int j=0; j<m_P; j++) {
+            for(int k = 0; k<m_K; k++) {
+                double res = 0;
+                for(int i=0; i<m_N; i++) {
+                    if(m_exp_ElogU_ElogV_k (i,j)>0) {
+                        res += m_probZI(i,j) * m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
+                    }
+                }
+                m_EZ_i(j,k) = res;
+            }
+        }
     }
 
     /*!

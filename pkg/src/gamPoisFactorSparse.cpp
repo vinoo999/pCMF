@@ -174,7 +174,7 @@ namespace countMatrixFactor {
                 double res = 0;
                 for(int k=0; k<m_K; k++) {
                     if(m_S(j,k) > 0) {
-                        res += std::exp(m_ElogU(i,k) + m_ElogV(j,k));
+                        res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
                     }
                     // res += m_probSparse(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k));
                     // test(i,j) += std::exp(m_ElogU(i,k) + m_ElogV(j,k));
@@ -194,7 +194,7 @@ namespace countMatrixFactor {
             for(int j=0; j<m_P; j++) {
                 for(int k=0; k<m_K; k++) {
                     if(m_exp_ElogU_ElogV_k(i,j) > 0) {
-                        omega(k) = m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        omega(k) = m_S(j,k) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
                     } else {
                         omega(k) = 0;
                     }
@@ -287,7 +287,7 @@ namespace countMatrixFactor {
                 double res = 0;
                 for(int k=0; k<m_K; k++) {
                     if(m_S(j,k) > 0) {
-                        res += std::exp(m_ElogU(i,k) + m_ElogV(j,k));
+                        res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
                     }
                     // res += m_probSparse(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k));
                     // test(i,j) += std::exp(m_ElogU(i,k) + m_ElogV(j,k));
@@ -295,7 +295,6 @@ namespace countMatrixFactor {
                 m_exp_ElogU_ElogV_k(i,j) = res;
             }
         }
-
 
         // Rcpp::Rcout << "sum exp_ElogU_ElogV_k = " <<  m_exp_ElogU_ElogV_k << std::endl << std::endl;
 
@@ -318,7 +317,7 @@ namespace countMatrixFactor {
                     // test0 += m_X(i,j) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / test(i,j);
                     if(m_exp_ElogU_ElogV_k(i,j) > 0) {
                         // res += m_probSparse(j,k) * m_X(i,j) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
-                        res += m_probSparse(j,k) * m_X(i,j) * m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        res += m_probSparse(j,k) * m_X(i,j) * m_S(j,k) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
                     }
                 }
                 // Rcpp::Rcout << "value computed = " << res << std::endl;
@@ -338,7 +337,7 @@ namespace countMatrixFactor {
                     //     }
                     // }
                     if(m_exp_ElogU_ElogV_k(i,j) > 0) {
-                        res += m_probSparse(j,k) * m_X(i,j) * m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        res += m_probSparse(j,k) * m_X(i,j) * m_S(j,k) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
                     }
                 }
                 m_EZ_i(j,k) = res;
@@ -429,7 +428,7 @@ namespace countMatrixFactor {
 
                 for(int i=0; i<m_N; i++) {
                     if(m_exp_ElogU_ElogV_k(i,j)>0) {
-                        omega(i) = m_S(j,k) * std::exp(m_ElogU(i,k) + m_ElogV(j,k)) / m_exp_ElogU_ElogV_k(i,j);
+                        omega(i) = m_S(j,k) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
                     } else {
                         omega(i) = 0;
                     }
@@ -457,10 +456,10 @@ namespace countMatrixFactor {
                     // Rcpp::Rcout << "m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) = " << m_beta1cur(j,k) * std::log(m_beta2cur(j,k)) << std::endl;
                     // Rcpp::Rcout << "- m_beta2cur(j,k) * m_EV(j,k) = " << - m_beta2cur(j,k) * m_EV(j,k) << std::endl;
                     // Rcpp::Rcout << "- lgamma(m_beta1cur(j,k)) = " << - lgamma(m_beta1cur(j,k)) << std::endl  << std::endl;
-                    double res2 = (m_beta1cur(j,k) - 1) * m_ElogV(j,k)
-                                    + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
-                                    - m_beta2cur(j,k) * m_EV(j,k)
-                                    - lgamma(m_beta1cur(j,k));
+                    // double res2 = (m_beta1cur(j,k) - 1) * m_ElogV(j,k)
+                    //                 + m_beta1cur(j,k) * std::log(m_beta2cur(j,k))
+                    //                 - m_beta2cur(j,k) * m_EV(j,k)
+                    //                 - lgamma(m_beta1cur(j,k));
                     double res = res1; // + res2;
                     // Rcpp::Rcout << "from the Poisson = " <<  res1 << std::endl;
                     // Rcpp::Rcout << "from the Gamma = " <<  res2 << std::endl;

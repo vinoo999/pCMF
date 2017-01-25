@@ -392,7 +392,7 @@ namespace countMatrixFactor {
             for(int k = 0; k<m_K; k++) {
                 double res = 0;
                 for(int j=0; j<m_P; j++) {
-                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k (i,j);
+                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
                 }
                 m_EZ_j(i,k) = res;
             }
@@ -402,7 +402,7 @@ namespace countMatrixFactor {
             for(int k = 0; k<m_K; k++) {
                 double res = 0;
                 for(int i=0; i<m_N; i++) {
-                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k (i,j);
+                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
                 }
                 m_EZ_i(j,k) = res;
             }
