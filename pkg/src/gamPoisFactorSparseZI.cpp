@@ -297,7 +297,7 @@ namespace countMatrixFactor {
      * \brief update rule for poisson rates in variational inference
      */
     void gamPoisFactorSparseZI::poissonRate() {
-        m_lambda = m_EU * (m_S.array() * m_EV.array()).matrix().transpose();
+        m_lambda = m_probZI.array() * (m_EU * (m_probSparse.array() * m_EV.array()).matrix().transpose()).array();
     }
 
     /*!
