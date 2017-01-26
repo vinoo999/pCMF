@@ -3,6 +3,7 @@
 export(blockMatrix)
 export(blockMatrixGamma)
 export(dataGeneration)
+export(gamPoisFactorEM_Sparse_ZI_wrapper)
 export(gamPoisFactorEM_Sparse_wrapper)
 export(gamPoisFactorEM_ZI_wrapper)
 export(gamPoisFactorEM_wrapper)
