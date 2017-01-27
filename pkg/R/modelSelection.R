@@ -28,16 +28,41 @@ icl <- function(model, X) {
 
     K <- ncol(U)
 
-    alpha1 <- model$params$alpha1
-    alpha2 <- model$params$alpha2
+    # alpha1 <- model$params$alpha1
+    # alpha2 <- model$params$alpha2
+    #
+    # beta1 <- model$params$beta1
+    # beta2 <- model$params$beta2
 
-    beta1 <- model$params$beta1
-    beta2 <- model$params$beta2
+    alpha1 <- model$params$phi1
+    alpha2 <- model$params$phi2
+
+    beta1 <- model$params$theta1
+    beta2 <- model$params$theta2
 
     ### compute criterion
-    res <- poisLoglike(X, lambda) + gammaLoglike(U, alpha1, alpha2) + gammaLoglike(V, beta1, beta2) - K * log(n*p)
+    res1 <- poisLoglike(X, lambda) + gammaLoglike(U, alpha1, alpha2) + gammaLoglike(V, beta1, beta2) - ((K * (n+p))/2) * (log(n*p) + 2*log(2) + log(2*pi))
+    res2 <- poisLoglike(X, lambda) + gammaLoglike(U, alpha1, alpha2) + gammaLoglike(V, beta1, beta2)
 
-    return(res)
+    return(c(res1, res2))
+}
+
+
+bic <- function(model, X) {
+
+    n <- nrow(X)
+    p <- ncol(X)
+
+    U <- model$U
+    V <- model$V
+    lambda <- model$lambda
+
+    K <- ncol(U)
+
+    ### compute criterion
+    res1 <- poisLoglike(X, lambda) - K * (n+p) * log(n*p)
+
+    return(res1)
 }
 
 
