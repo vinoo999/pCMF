@@ -1,13 +1,13 @@
-Package: countMatrixFactor
+Package: cmf
 Type: Package
 Title: Factorization of Count Matrices
 Version: 0.5
-Date: 2016-04-22
+Date: 2017-02-02
 Author: Ghislain Durif
-Maintainer: Ghislain Durif <ghislain.durif@univ-lyon1.fr>
-Description: Routines for count matrices factorization. As PCA with gaussian
-    data, we provide a method that factorize matrices of count, taking into account
-    the specific distribution of such data.
+Maintainer: Ghislain Durif <gd.dev@libertymail.net>
+Description: Routines for count matrices factorization. Generalization of PCA
+    to zero-inflated and over-dispersed count data, based on Gamma-Poisson factor model
+    and variational inference
 License: GPL (>= 2)
 Imports:
     Rcpp (>= 0.11.6),
