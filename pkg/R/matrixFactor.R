@@ -49,12 +49,12 @@
 #' \item{Y}{Y}
 #'
 #' @export
-matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
-                        alpha1, alpha2, beta1, beta2,
-                        lambda = NULL, mu = NULL,
-                        iterMax=200, iterMin=1, epsilon=1e-5,
-                        order=0, stabRange=5, verbose=TRUE, sparse=FALSE, ZI=FALSE,
-                        algo="EM") {
+matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
+                         alpha1, alpha2, beta1, beta2,
+                         lambda = NULL, mu = NULL,
+                         iterMax=200, iterMin=1, epsilon=1e-5,
+                         order=0, stabRange=5, verbose=TRUE, sparse=FALSE, ZI=FALSE,
+                         algo="EM") {
 
     X = apply(X, c(1,2), as.integer)
 
@@ -110,7 +110,7 @@ matrixFactor = function(X, K, phi01, phi02, theta01, theta02,
         }
     }
 
-    class(results) = "countMatrixFactor"
+    class(results) = "cmf"
 
     return(results)
 
