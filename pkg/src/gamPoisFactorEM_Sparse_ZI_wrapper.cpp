@@ -56,7 +56,7 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //'
 //' @import Rcpp
 //' @import RcppEigen
-//' @useDynLib countMatrixFactor
+//' @useDynLib cmf
 //'
 //' @param X matrix n x p of counts
 //' @param K number of factors

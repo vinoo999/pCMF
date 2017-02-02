@@ -17,7 +17,7 @@
 ### MA 02111-1307, USA
 
 
-#' @title matrixFactor
+#' @title cmf
 #'
 #' @description
 #' R wrapper for Gamma-Poisson Factor model
@@ -32,7 +32,7 @@
 #' @seealso aaa
 #'
 #' @importFrom Rcpp evalCpp
-#' @useDynLib countMatrixFactor
+#' @useDynLib cmf
 #'
 #' @param X matrix n x p of counts
 #' @param K number of factors

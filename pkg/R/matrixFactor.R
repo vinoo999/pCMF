@@ -32,7 +32,7 @@
 #' @seealso aaa
 #'
 #' @importFrom Rcpp evalCpp
-#' @useDynLib countMatrixFactor
+#' @useDynLib cmf
 #'
 #' @param X matrix n x p of counts
 #' @param K number of factors
