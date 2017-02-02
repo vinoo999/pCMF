@@ -34,6 +34,5 @@ The matrix is constructed by blocks in rows and columns,
 the entries of each block are constant and specified in input
 }
 \author{
-Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+Ghislain Durif, \email{gd.dev@libertymail.net}
 }
-

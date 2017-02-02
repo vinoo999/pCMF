@@ -67,6 +67,5 @@ zero-inflated) Gamma Poisson Factor Model
  V ~ Gamma(beta)
 }
 \author{
-Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+Ghislain Durif, \email{gd.dev@libertymail.net}
 }
-

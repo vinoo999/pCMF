@@ -37,6 +37,5 @@ distribution of the form Gamma(1,alpha), i.e. Exponential(alpha).
 The parameter alpha is set for each block.
 }
 \author{
-Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+Ghislain Durif, \email{gd.dev@libertymail.net}
 }
-

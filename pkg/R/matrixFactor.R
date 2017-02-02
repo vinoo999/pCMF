@@ -26,7 +26,7 @@
 #' Factorization of count matrix
 #'
 #' @author
-#' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+#' Ghislain Durif, \email{gd.dev@libertymail.net}
 #'
 #'
 #' @seealso aaa

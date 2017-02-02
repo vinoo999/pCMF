@@ -40,10 +40,9 @@ R wrapper for Gamma-Poisson Factor model
 \details{
 Factorization of count matrix
 }
-\author{
-Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
-}
 \seealso{
 aaa
 }
-
+\author{
+Ghislain Durif, \email{gd.dev@libertymail.net}
+}
