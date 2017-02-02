@@ -49,7 +49,7 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //' Wrapper for Cpp function
 //'
 //' @author
-//' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+//' Ghislain Durif, \email{gd.dev@libertymail.net}
 //'
 //'
 //' @seealso aaa

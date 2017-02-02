@@ -27,7 +27,7 @@
 #' the entries of each block are constant and specified in input
 #'
 #' @author
-#' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+#' Ghislain Durif, \email{gd.dev@libertymail.net}
 #'
 #' @param nrow number of rows
 #' @param ncol number of columns

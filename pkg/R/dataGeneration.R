@@ -37,7 +37,7 @@
 #'  V ~ Gamma(beta)
 #'
 #' @author
-#' Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+#' Ghislain Durif, \email{gd.dev@libertymail.net}
 #'
 #' @param n number of observations (nb of rows)
 #' @param p number of variables (nb of columns)
