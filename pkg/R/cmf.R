@@ -50,6 +50,8 @@ cmf <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
                 verbose=TRUE, sparse=FALSE, ZI=FALSE) {
     
     ncomp <- K
+    n <- nrow(X)
+    p <- ncol(X)
     
     if(is.null(alpha1)) {
         alpha01 <- matrix(1, nrow=n, ncol=ncomp)
