@@ -1,4 +1,4 @@
 #### set working dir
-PROJECT=ountMatrixFactor
+PROJECT=cmf
 PROJECTDIR=source_code/$PROJECT
 WORKINGDIR=$HOME/$PROJECTDIR
