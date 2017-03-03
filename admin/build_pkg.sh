@@ -27,4 +27,4 @@ R CMD build $WORKDIR/pkg
 ls *.tar.gz | xargs -I {} cp {} $WORKDIR/sources
 
 ## cp source to pbil-deb
-ls *.tar.gz | xargs -I {} scp {} durif@pbil:/panhome/durif/source_code/countMatrixFactor/sources
+#ls *.tar.gz | xargs -I {} scp {} durif@pbil:/panhome/durif/source_code/countMatrixFactor/sources
