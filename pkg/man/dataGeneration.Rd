@@ -69,4 +69,3 @@ zero-inflated) Gamma Poisson Factor Model
 \author{
 Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
 }
-

@@ -39,11 +39,10 @@ Description
 \details{
 Wrapper for Cpp function
 }
-\author{
-Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
-}
 \seealso{
 aaa
 }
+\author{
+Ghislain Durif, \email{ghislain.durif@univ-lyon1.fr}
+}
 \keyword{internal}
-
