@@ -17,7 +17,7 @@
 // MA 02111-1307, USA
 
 /*!
-* \file gamPoisFactor_wrapper.cpp
+* \file wrapper_variational_GaP
 * \brief definition of wrapper (to call in R) for standard Gamma Poisson Factor Model
 * \author Ghislain Durif
 * \version 0.1
@@ -39,7 +39,7 @@ using Eigen::MatrixXd;                  // variable size matrix, double precisio
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
 
-//' @title gamPoisFactor_wrapper
+//' @title wrapper_variational_GaP
 //' @keywords internal
 //'
 //' @description
@@ -74,13 +74,13 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //'
 //' @export
 // [[Rcpp::export]]
-SEXP gamPoisFactor_wrapper(SEXP Xin, int K, bool ZI,
-                           SEXP phi01in, SEXP phi02in,
-                           SEXP theta01in, SEXP theta02in,
-                           SEXP alpha1in, SEXP alpha2in,
-                           SEXP beta1in, SEXP beta2in,
-                           int iterMax, int iterMin, double epsilon,
-                           int order, int stabRange, bool verbose) {
+SEXP wrapper_variational_GaP(SEXP Xin, int K, bool ZI,
+                             SEXP phi01in, SEXP phi02in,
+                             SEXP theta01in, SEXP theta02in,
+                             SEXP alpha1in, SEXP alpha2in,
+                             SEXP beta1in, SEXP beta2in,
+                             int iterMax, int iterMin, double epsilon,
+                             int order, int stabRange, bool verbose) {
 
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
     MatrixXd phi01 = Rcpp::as< Map<MatrixXd> >(phi01in);
