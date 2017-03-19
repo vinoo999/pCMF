@@ -17,7 +17,7 @@
 // MA 02111-1307, USA
 
 /*!
-* \file gamPoisFactorEM_ZI_wrapper.cpp
+* \file wrapper_varEM_sparse_GaP.cpp.cpp
 * \brief definition of wrapper (to call in R) for EM algo in Zero-Inflated Gamma Poisson Factor Model
 * \author Ghislain Durif
 * \version 0.1
@@ -39,7 +39,7 @@ using Eigen::MatrixXd;                  // variable size matrix, double precisio
 using Eigen::MatrixXi;                  // variable size matrix, integer
 using Eigen::VectorXd;                  // variable size vector, double precision
 
-//' @title gamPoisFactorEM_ZI_wrapper
+//' @title wrapper_varEM_sparse_GaP.cpp
 //' @keywords internal
 //'
 //' @description
@@ -74,13 +74,13 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //'
 //' @export
 // [[Rcpp::export]]
-SEXP gamPoisFactorEM_Sparse_wrapper(SEXP Xin, int K, bool ZI,
-                                    SEXP phi01in, SEXP phi02in,
-                                    SEXP theta01in, SEXP theta02in,
-                                    SEXP alpha1in, SEXP alpha2in,
-                                    SEXP beta1in, SEXP beta2in,
-                                    int iterMax, int iterMin, double epsilon,
-                                    int order, int stabRange, bool verbose) {
+SEXP wrapper_varEM_sparse_GaP.cpp(SEXP Xin, int K, bool ZI,
+                                  SEXP phi01in, SEXP phi02in,
+                                  SEXP theta01in, SEXP theta02in,
+                                  SEXP alpha1in, SEXP alpha2in,
+                                  SEXP beta1in, SEXP beta2in,
+                                  int iterMax, int iterMin, double epsilon,
+                                  int order, int stabRange, bool verbose) {
 
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
     MatrixXd phi01 = Rcpp::as< Map<MatrixXd> >(phi01in);
