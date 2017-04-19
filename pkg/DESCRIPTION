@@ -2,7 +2,7 @@ Package: cmf
 Type: Package
 Title: Factorization of Count Matrices
 Version: 0.5
-Date: 2017-02-02
+Date: 2017-04-19
 Author: Ghislain Durif
 Maintainer: Ghislain Durif <gd.dev@libertymail.net>
 Description: Routines for count matrices factorization. Generalization of PCA
