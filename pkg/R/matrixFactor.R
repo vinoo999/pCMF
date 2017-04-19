@@ -64,48 +64,46 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
         # print("EM ok")
         if(ZI) {
             if(sparse) {
-                results = gamPoisFactorEM_Sparse_ZI_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                                            alpha1, alpha2, beta1, beta2,
-                                                            iterMax, iterMin, epsilon,
-                                                            order, stabRange, verbose)
-            } else {
-                results = gamPoisFactorEM_ZI_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                                     alpha1, alpha2, beta1, beta2,
-                                                     iterMax, iterMin, epsilon,
-                                                     order, stabRange, verbose)
-            }
-        } else {
-            if(sparse) {
-                results = gamPoisFactorEM_Sparse_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                                         alpha1, alpha2, beta1, beta2,
-                                                         iterMax, iterMin, epsilon,
-                                                         order, stabRange, verbose)
-            } else {
-                results = gamPoisFactorEM_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                                  alpha1, alpha2, beta1, beta2,
-                                                  iterMax, iterMin, epsilon,
-                                                  order, stabRange, verbose)
-            }
-        }
-    }
-
-    if(algo == "variational") {
-        if(ZI) {
-            results = gamPoisFactorZI_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                              alpha1, alpha2, beta1, beta2,
-                                              iterMax, iterMin, epsilon,
-                                              order, stabRange, verbose)
-        } else {
-            if(sparse) {
-                results = gamPoisFactorSparse_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
+                results = wrapper_varEM_sparse_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                       alpha1, alpha2, beta1, beta2,
                                                       iterMax, iterMin, epsilon,
                                                       order, stabRange, verbose)
             } else {
-                results = gamPoisFactor_wrapper(X, K, ZI, phi01, phi02, theta01, theta02,
-                                                alpha1, alpha2, beta1, beta2,
-                                                iterMax, iterMin, epsilon,
-                                                order, stabRange, verbose)
+                results = wrapper_varEM_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                                               alpha1, alpha2, beta1, beta2,
+                                               iterMax, iterMin, epsilon,
+                                               order, stabRange, verbose)
+            }
+        } else {
+            if(sparse) {
+                results = wrapper_varEM_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                   alpha1, alpha2, beta1, beta2,
+                                                   iterMax, iterMin, epsilon,
+                                                   order, stabRange, verbose)
+            } else {
+                results = wrapper_varEM_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                                            alpha1, alpha2, beta1, beta2,
+                                            iterMax, iterMin, epsilon,
+                                            order, stabRange, verbose)
+            }
+        }
+    } else if(algo == "variational") {
+        if(ZI) {
+            results = wrapper_variational_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                 alpha1, alpha2, beta1, beta2,
+                                                 iterMax, iterMin, epsilon,
+                                                 order, stabRange, verbose)
+        } else {
+            if(sparse) {
+                results = wrapper_variational_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                         alpha1, alpha2, beta1, beta2,
+                                                         iterMax, iterMin, epsilon,
+                                                         order, stabRange, verbose)
+            } else {
+                results = wrapper_variational_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                                                  alpha1, alpha2, beta1, beta2,
+                                                  iterMax, iterMin, epsilon,
+                                                  order, stabRange, verbose)
             }
         }
     }
