@@ -35,6 +35,9 @@
 #include "intermediate.h"
 #include "loglikelihood.h"
 
+#include <omp.h>
+// [[Rcpp::plugins(openmp)]]
+
 #define mexp() unaryExpr(std::ptr_fun<double,double>(std::exp))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
 #define mlog() unaryExpr(std::ptr_fun<double,double>(std::log))
@@ -163,26 +166,43 @@ namespace countMatrixFactor {
 
         // Gamma variational parameter
         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
-        for(int k=0; k<m_K; k++) {
-            // local parameters
-            for(int i=0; i<m_N; i++) {
+        // omp_set_num_threads(4);
+        MatrixXd phi1cur = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi1);
+        MatrixXd phi2cur = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi2);
+
+        MatrixXd phi1old = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi1);
+        MatrixXd phi2old = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi2);
+        // local parameters
+        //#pragma omp parallel for shared(tmp_alpha1cur,tmp_alpha2cur,phi1cur,phi2cur,phi1old,phi2old) private(k)
+        for(int i=0; i<m_N; i++) {
+            for(int k=0; k<m_K; k++) {
                 double param1 = 0;
                 double param2 = 0;
                 estimParam(1000, tmp_alpha1cur(i,k), tmp_alpha2cur(i,k), param1, param2);
-                m_phi1cur(i,k) = param1;
-                m_phi1old(i,k) = param1;
-                m_phi2cur(i,k) = param2;
-                m_phi2old(i,k) = param2;
+                // this->m_phi1cur(i,k) = param1;
+                // this->m_phi1old(i,k) = param1;
+                // this->m_phi2cur(i,k) = param2;
+                // this->m_phi2old(i,k) = param2;
+                phi1cur(i,k) = param1;
+                phi1old(i,k) = param1;
+                phi2cur(i,k) = param2;
+                phi2old(i,k) = param2;
             }
-            // global parameters
-            for(int j=0; j<m_P; j++) {
+        }
+        m_phi1cur = phi1cur;
+        m_phi1old = phi1old;
+        m_phi2cur = phi2cur;
+        m_phi2old = phi2old;
+        // global parameters
+        for(int j=0; j<m_P; j++) {
+            for(int k=0; k<m_K; k++) {
                 double param1 = 0;
                 double param2 = 0;
                 estimParam(1000, tmp_beta1cur(j,k), tmp_beta2cur(j,k), param1, param2);
-                m_theta1cur(j,k) = param1;
-                m_theta1old(j,k) = param1;
-                m_theta2cur(j,k) = param2;
-                m_theta2old(j,k) = param2;
+                this->m_theta1cur(j,k) = param1;
+                this->m_theta1old(j,k) = param1;
+                this->m_theta2cur(j,k) = param2;
+                this->m_theta2old(j,k) = param2;
             }
         }
 
@@ -370,15 +390,39 @@ namespace countMatrixFactor {
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
         // m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
-        for(int i=0; i<m_N; i++) {
-            for(int j=0; j<m_P; j++) {
+        // for(int i=0; i<m_N; i++) {
+        //     for(int j=0; j<m_P; j++) {
+        //         double res = 0;
+        //         for(int k=0; k<m_K; k++) {
+        //             res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
+        //         }
+        //         m_exp_ElogU_ElogV_k(i,j) = res;
+        //     }
+        // }
+        // MatrixXd tmp = m_exp_ElogU_ElogV_k;
+        int i, j, k;
+        MatrixXi *X = &m_X;
+        MatrixXd *ElogU = &m_ElogU;
+        MatrixXd *ElogV = &m_ElogV;
+        MatrixXd *exp_ElogU_ElogV_k = &m_exp_ElogU_ElogV_k;
+        MatrixXd *EZ_i = &m_EZ_i;
+        MatrixXd *EZ_j = &m_EZ_j;
+        #if defined(_OPENMP)
+        #pragma omp parallel for private(j,k)
+        #endif
+        for(i=0; i<m_N; i++) {
+            for(j=0; j<m_P; j++) {
                 double res = 0;
-                for(int k=0; k<m_K; k++) {
-                    res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
+                for(k=0; k<m_K; k++) {
+                    res += (ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k) >= -300 ? std::exp(ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k)) : 0);
                 }
-                m_exp_ElogU_ElogV_k(i,j) = res;
+                exp_ElogU_ElogV_k->coeffRef(i,j) = res;
+                // if(tmp(i,j) != exp_ElogU_ElogV_k->coeffRef(i,j)) {
+                //     Rcpp::Rcout << "val1 = " << tmp(i,j) << " and val2 = " << exp_ElogU_ElogV_k->coeffRef(i,j) << std::endl;
+                // }
             }
         }
+
         intermediate::eraseZero(m_exp_ElogU_ElogV_k);
 
         // Rcpp::Rcout << "dim = " << sum_k.rows() << " x " << sum_k.cols()  << std::endl;
@@ -388,23 +432,46 @@ namespace countMatrixFactor {
         // m_EZ_j = m_ElogU.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix() * m_ElogV.mexp() ).array();
         // m_EZ_i = m_ElogV.mexp().array() * ( (m_X.cast<double>().array() / m_exp_ElogU_ElogV_k.array() ).matrix().transpose() * m_ElogU.mexp() ).array();
 
-        for(int i=0; i<m_N; i++) {
-            for(int k = 0; k<m_K; k++) {
+        // for(int i=0; i<m_N; i++) {
+        //     for(int k = 0; k<m_K; k++) {
+        //         double res = 0;
+        //         for(int j=0; j<m_P; j++) {
+        //             res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
+        //         }
+        //         m_EZ_j(i,k) = res;
+        //     }
+        // }
+        #if defined(_OPENMP)
+        #pragma omp parallel for private(j,k)
+        #endif
+        for(i=0; i<m_N; i++) {
+            for(k = 0; k<m_K; k++) {
                 double res = 0;
-                for(int j=0; j<m_P; j++) {
-                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
+                for(j=0; j<m_P; j++) {
+                    res += X->coeffRef(i,j) * (ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k) >= -300 ? std::exp(ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k)) : 0) / exp_ElogU_ElogV_k->coeffRef(i,j);
                 }
-                m_EZ_j(i,k) = res;
+                EZ_j->coeffRef(i,k) = res;
             }
         }
-
-        for(int j=0; j<m_P; j++) {
-            for(int k = 0; k<m_K; k++) {
+        // for(int j=0; j<m_P; j++) {
+        //     for(int k = 0; k<m_K; k++) {
+        //         double res = 0;
+        //         for(int i=0; i<m_N; i++) {
+        //             res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
+        //         }
+        //         m_EZ_i(j,k) = res;
+        //     }
+        // }
+        #if defined(_OPENMP)
+        #pragma omp parallel for private(i,k)
+        #endif
+        for(j=0; j<m_P; j++) {
+            for(k = 0; k<m_K; k++) {
                 double res = 0;
-                for(int i=0; i<m_N; i++) {
-                    res += m_X(i,j) * (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0) / m_exp_ElogU_ElogV_k(i,j);
+                for(i=0; i<m_N; i++) {
+                    res += X->coeffRef(i,j) * (ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k) >= -300 ? std::exp(ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k)) : 0) / exp_ElogU_ElogV_k->coeffRef(i,j);
                 }
-                m_EZ_i(j,k) = res;
+                EZ_i->coeffRef(j,k) = res;
             }
         }
     }
