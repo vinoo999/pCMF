@@ -172,7 +172,6 @@ namespace countMatrixFactor {
         //     }
         // }
         int i, j, k;
-        MatrixXi *X = &m_X;
         MatrixXd *ElogU = &m_ElogU;
         MatrixXd *ElogV = &m_ElogV;
         MatrixXd *exp_ElogU_ElogV_k = &m_exp_ElogU_ElogV_k;
