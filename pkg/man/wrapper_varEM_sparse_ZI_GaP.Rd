@@ -6,7 +6,7 @@
 \usage{
 wrapper_varEM_sparse_ZI_GaP(Xin, K, ZI, phi01in, phi02in, theta01in, theta02in,
   alpha1in, alpha2in, beta1in, beta2in, iterMax, iterMin, epsilon, order,
-  stabRange, verbose)
+  stabRange, verbose, ncores)
 }
 \arguments{
 \item{K}{number of factors}

@@ -7,7 +7,7 @@
 matrixFactor(X, K, phi01, phi02, theta01, theta02, alpha1, alpha2, beta1, beta2,
   lambda = NULL, mu = NULL, iterMax = 200, iterMin = 1,
   epsilon = 1e-05, order = 0, stabRange = 5, verbose = TRUE,
-  sparse = FALSE, ZI = FALSE, algo = "EM")
+  sparse = FALSE, ZI = FALSE, algo = "EM", ncores = 1)
 }
 \arguments{
 \item{X}{matrix n x p of counts}
