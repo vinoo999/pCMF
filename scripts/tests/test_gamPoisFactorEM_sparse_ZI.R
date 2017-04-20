@@ -1,8 +1,10 @@
 
 rm(list=ls())
 
-source("/home/durif/source_code/countMatrixFactor/set_working_dir.R")
+RDIR <- system("git rev-parse --show-toplevel", intern=TRUE)
+source(paste0(RDIR, "/set_working_dir.R"))
 source("sources/projectSources.R")
+
 
 # library(fields)
 
@@ -25,7 +27,7 @@ compos <- function(x, n, fun) {
 
 ## generating the data
 n = 100
-p = 100
+p = 1000
 K = 10
 
 nblockU = 2
@@ -89,50 +91,53 @@ phi02 = matrix(1, nrow=n, ncol=ncomp)
 theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
+time1 = system.time(res1 <- matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
+                                         iterMax=500, iterMin=100, epsilon=1e-4, algo="EM", verbose=FALSE, ZI=TRUE, sparse=TRUE, ncores=1))
 
-res1 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=300, iterMin=100, epsilon=1e-4, algo="EM", verbose=FALSE, ZI=TRUE, sparse=TRUE)
+time2 = system.time(res2 <- matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
+                                         iterMax=500, iterMin=100, epsilon=1e-4, algo="EM", verbose=FALSE, ZI=TRUE, sparse=TRUE, ncores=16))
 
-res2 = matrixFactor(data1$X, ncomp, phi01, phi02, theta01, theta02, alpha01, alpha02, beta01, beta02,
-                    iterMax=300, iterMin=100, epsilon=1e-4, algo="EM", verbose=FALSE, ZI=TRUE, sparse=FALSE)
+print(time1)
+print(time2)
 
-str(res1)
+# str(res1)
+#
+# print(res1$criteria_k$kDeviance)
+# myOrder = res1$order$orderDeviance
+# print(myOrder)
+#
+# # elbo
+# plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
+# plot(res1$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
+# plot(res1$gap[-(1:10)], xlab="iteration", ylab="gap", col="blue", type="l")
+#
+# plot(res1$criteria_k$kDeviance, type="l")
+#
+# plot(res2$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
+# plot(res2$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
+#
+# plot(res2$criteria_k$kDeviance, type="l")
+#
+# # graph
+# U1 = res1$U[, res1$order$orderDeviance]
+# U2 = res2$U[, res2$order$orderDeviance]
+# plot(U1, col=blockAlpha1$idRows[data1$orderInd])
+# plot(U2, col=blockAlpha1$idRows[data1$orderInd])
+#
+# matrixHeatmap(U1)
+# matrixHeatmap(U2)
+#
+# # selection
+# print(res2$params$theta1)
+#
+# matrixHeatmap(res1$sparseParams$sparseIndic[,myOrder])
+# matrixHeatmap(data1$beta1[data1$orderVar,]>1)
+# matrixHeatmap((res1$V * res1$sparseParams$sparseIndic)[,myOrder])
+# matrixHeatmap(res2$V[,myOrder])
+#
+#
+# # ZI indic
+# matrixHeatmap(data1$ZIind)
+# matrixHeatmap(res1$ZIparams$prob)
+# matrixHeatmap(data1$Xnzi)
 
-print(res1$criteria_k$kDeviance)
-myOrder = res1$order$orderDeviance
-print(myOrder)
-
-# elbo
-plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
-plot(res1$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
-plot(res1$gap[-(1:10)], xlab="iteration", ylab="gap", col="blue", type="l")
-
-plot(res1$criteria_k$kDeviance, type="l")
-
-plot(res2$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
-plot(res2$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
-
-plot(res2$criteria_k$kDeviance, type="l")
-
-# graph
-U1 = res1$U[, res1$order$orderDeviance]
-U2 = res2$U[, res2$order$orderDeviance]
-plot(U1, col=blockAlpha1$idRows[data1$orderInd])
-plot(U2, col=blockAlpha1$idRows[data1$orderInd])
-
-matrixHeatmap(U1)
-matrixHeatmap(U2)
-
-# selection
-print(res2$params$theta1)
-
-matrixHeatmap(res1$sparseParams$sparseIndic[,myOrder])
-matrixHeatmap(data1$beta1[data1$orderVar,]>1)
-matrixHeatmap((res1$V * res1$sparseParams$sparseIndic)[,myOrder])
-matrixHeatmap(res2$V[,myOrder])
-
-
-# ZI indic
-matrixHeatmap(data1$ZIind)
-matrixHeatmap(res1$ZIparams$prob)
-matrixHeatmap(data1$Xnzi)
