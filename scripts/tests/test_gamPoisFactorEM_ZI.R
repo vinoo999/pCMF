@@ -1,7 +1,8 @@
 
 rm(list=ls())
 
-source("/home/durif/source_code/countMatrixFactor/set_working_dir.R")
+RDIR <- system("git rev-parse --show-toplevel", intern=TRUE)
+source(paste0(RDIR, "/set_working_dir.R"))
 source("sources/projectSources.R")
 
 # library(fields)
@@ -12,7 +13,7 @@ source("sources/projectSources.R")
 
 ## generating the data
 n = 100
-p = 100
+p = 1000
 K = 10
 
 
@@ -33,7 +34,7 @@ prob1 = round(runif(p, 0.3, 0.7), digits=2)
 data1 = dataGeneration(n=n, p=p, K=K, alpha1=alpha1, alpha2=alpha2, beta1=beta1, beta2=beta2, ZI=TRUE, prob1=prob1)
 str(data1)
 
-cbind(apply(data1$X,2, function(x) sum(x!=0)), prob1)
+# cbind(apply(data1$X,2, function(x) sum(x!=0)), prob1)
 
 ## heatmap
 # matrixHeatmap(alpha1, xlab="k = 1...K", ylab="i = 1...n")
@@ -57,85 +58,97 @@ phi02 = matrix(1, nrow=n, ncol=ncomp)
 theta01 = matrix(1, nrow=p, ncol=ncomp)
 theta02 = matrix(1, nrow=p, ncol=ncomp)
 
-res1 = matrixFactor(data1$X, ncomp,
-                    phi01, phi02, theta01, theta02,
-                    alpha01, alpha02, beta01, beta02,
-                    iterMax=500, epsilon=1e-5, verbose=FALSE,
-                    ZI=TRUE, algo = "EM")
+time1 = system.time(res1 <- matrixFactor(data1$X, ncomp,
+                                         phi01, phi02, theta01, theta02,
+                                         alpha01, alpha02, beta01, beta02,
+                                         iterMax=500, epsilon=1e-5, verbose=FALSE,
+                                         ZI=TRUE, algo = "EM", ncores=1))
 
-str(res1)
+# str(res1)
+
+print(time1)
+
+time1 = system.time(res1 <- matrixFactor(data1$X, ncomp,
+                                         phi01, phi02, theta01, theta02,
+                                         alpha01, alpha02, beta01, beta02,
+                                         iterMax=500, epsilon=1e-5, verbose=FALSE,
+                                         ZI=TRUE, algo = "EM", ncores=16))
+
+# str(res1)
+
+print(time1)
 
 # myOrder = res1$order$orderExpVarU
-
-cbind(apply(data1$X,2,function(x) sum(x!=0)), prob1, res1$ZIparams$probPrior)
-
-
-# elbo
-plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
-plot(res1$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
-
-plot(res1$criteria_k$kDeviance, type="l")
-
-# graph
-U = res1$U[, res1$order$orderDeviance]
-plot(U, col=blockAlpha1$idRows)
-
-matrixHeatmap(U)
-
-# ZI indic
-matrixHeatmap(data1$ZIind)
-matrixHeatmap(res1$ZIparams$prob)
-matrixHeatmap(data1$Xnzi>0)
-
-## higher k
-ncomp=6
-
-alpha01 = matrix(1, nrow=n, ncol=ncomp)
-alpha02 = matrix(1, nrow=n, ncol=ncomp)
-
-beta01 = matrix(1, nrow=p, ncol=ncomp)
-beta02 = matrix(1, nrow=p, ncol=ncomp)
-
-phi01 = matrix(1, nrow=n, ncol=ncomp)
-phi02 = matrix(1, nrow=n, ncol=ncomp)
-
-theta01 = matrix(1, nrow=p, ncol=ncomp)
-theta02 = matrix(1, nrow=p, ncol=ncomp)
-
-res1 = matrixFactor(data1$Xnzi, ncomp,
-                    phi01, phi02, theta01, theta02,
-                    alpha01, alpha02, beta01, beta02,
-                    iterMax=500, epsilon=1e-5,
-                    ZI=TRUE, algo = "EM")
-
-res2 = matrixFactor(data1$Xnzi, ncomp,
-                    phi01, phi02, theta01, theta02,
-                    alpha01, alpha02, beta01, beta02,
-                    iterMax=500, epsilon=1e-5,
-                    ZI=FALSE, algo = "EM")
-
-# U
-matrixHeatmap(res1$U)
-matrixHeatmap(res2$U)
-# V
-matrixHeatmap(res1$V)
-matrixHeatmap(res2$V)
-
-# graph
-U = res2$U[, res2$order$orderDeviance]
-plot(U, col=blockAlpha1$idRows)
-
-### ordering
-orderInd <- sample.int(n,n)
-orderVar <- sample.int(p,p)
-X = data1$Xnzi[orderInd,]
-X = X[,orderVar]
-res2 = matrixFactor(X, ncomp,
-                    phi01, phi02, theta01, theta02,
-                    alpha01, alpha02, beta01, beta02,
-                    iterMax=500, epsilon=1e-5,
-                    ZI=FALSE, algo = "EM")
-
-# graph
-U = res2$U[, res2$order$orderDeviance]
-plot(U, col=blockAlpha1$idRows[orderInd])
+#
+# cbind(apply(data1$X,2,function(x) sum(x!=0)), prob1, res1$ZIparams$probPrior)
+#
+#
+# # elbo
+# plot(res1$logLikelihood$elbo[-(1:10)], xlab="iteration", ylab="elbo", col="blue", type="l")
+# plot(res1$normGap[-(1:10)], xlab="iteration", ylab="norm. gap", col="blue", type="l")
+#
+# plot(res1$criteria_k$kDeviance, type="l")
+#
+# # graph
+# U = res1$U[, res1$order$orderDeviance]
+# plot(U, col=blockAlpha1$idRows)
+#
+# matrixHeatmap(U)
+#
+# # ZI indic
+# matrixHeatmap(data1$ZIind)
+# matrixHeatmap(res1$ZIparams$prob)
+# matrixHeatmap(data1$Xnzi>0)
+#
+# ## higher k
+# ncomp=6
+#
+# alpha01 = matrix(1, nrow=n, ncol=ncomp)
+# alpha02 = matrix(1, nrow=n, ncol=ncomp)
+#
+# beta01 = matrix(1, nrow=p, ncol=ncomp)
+# beta02 = matrix(1, nrow=p, ncol=ncomp)
+#
+# phi01 = matrix(1, nrow=n, ncol=ncomp)
+# phi02 = matrix(1, nrow=n, ncol=ncomp)
+#
+# theta01 = matrix(1, nrow=p, ncol=ncomp)
+# theta02 = matrix(1, nrow=p, ncol=ncomp)
+#
+# res1 = matrixFactor(data1$Xnzi, ncomp,
+#                     phi01, phi02, theta01, theta02,
+#                     alpha01, alpha02, beta01, beta02,
+#                     iterMax=500, epsilon=1e-5,
+#                     ZI=TRUE, algo = "EM")
+#
+# res2 = matrixFactor(data1$Xnzi, ncomp,
+#                     phi01, phi02, theta01, theta02,
+#                     alpha01, alpha02, beta01, beta02,
+#                     iterMax=500, epsilon=1e-5,
+#                     ZI=FALSE, algo = "EM")
+#
+# # U
+# matrixHeatmap(res1$U)
+# matrixHeatmap(res2$U)
+# # V
+# matrixHeatmap(res1$V)
+# matrixHeatmap(res2$V)
+#
+# # graph
+# U = res2$U[, res2$order$orderDeviance]
+# plot(U, col=blockAlpha1$idRows)
+#
+# ### ordering
+# orderInd <- sample.int(n,n)
+# orderVar <- sample.int(p,p)
+# X = data1$Xnzi[orderInd,]
+# X = X[,orderVar]
+# res2 = matrixFactor(X, ncomp,
+#                     phi01, phi02, theta01, theta02,
+#                     alpha01, alpha02, beta01, beta02,
+#                     iterMax=500, epsilon=1e-5,
+#                     ZI=FALSE, algo = "EM")
+#
+# # graph
+# U = res2$U[, res2$order$orderDeviance]
+# plot(U, col=blockAlpha1$idRows[orderInd])
