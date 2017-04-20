@@ -4,7 +4,8 @@
 
 rm(list=ls())
 
-source("/home/durif/source_code/countMatrixFactor/set_working_dir.R")
+RDIR <- system("git rev-parse --show-toplevel", intern=TRUE)
+source(paste0(RDIR, "/set_working_dir.R"))
 source("sources/projectSources.R")
 
 
