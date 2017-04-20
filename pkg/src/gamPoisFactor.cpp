@@ -292,8 +292,6 @@ namespace countMatrixFactor {
         MatrixXd *ElogU = &m_ElogU;
         MatrixXd *ElogV = &m_ElogV;
         MatrixXd *exp_ElogU_ElogV_k = &m_exp_ElogU_ElogV_k;
-        MatrixXd *EZ_i = &m_EZ_i;
-        MatrixXd *EZ_j = &m_EZ_j;
         #if defined(_OPENMP)
         #pragma omp parallel for private(j,k)
         #endif
