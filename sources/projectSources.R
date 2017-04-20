@@ -21,14 +21,16 @@ project.sources = function(subpath="pkg") {
     ## list of R files
     file.list = system(paste0("cd ", src.path, " && git ls-files | grep \"\\\\.cpp\""), intern=TRUE)
 
-    fileToCompile = c("gamPoisFactor_wrapper.cpp",
-                      # "gamPoisFactorPen_wrapper.cpp",
-                      "gamPoisFactorEM_wrapper.cpp",
-                      # "gamPoisFactorZI_wrapper.cpp",
-                      "gamPoisFactorEM_ZI_wrapper.cpp",
-                      # "gamPoisFactorSparse_wrapper.cpp",
-                      "gamPoisFactorEM_Sparse_wrapper.cpp",
-                      "gamPoisFactorEM_Sparse_ZI_wrapper.cpp")
+    fileToCompile = c("wrapper_varEM_GaP.cpp",
+                      "wrapper_varEM_sparse_GaP.cpp",
+                      "wrapper_varEM_sparse_ZI_GaP.cpp",
+                      "wrapper_varEM_ZI_GaP.cpp",
+                      "wrapper_variational_GaP.cpp",
+                      "wrapper_variational_sparse_GaP.cpp",
+                      "wrapper_variational_ZI_GaP.cpp"
+                      )
+
+    # fileToCompile = c("wrapper_varEM_sparse_ZI_GaP.cpp")
 
     file.list = file.list[file.list %in% fileToCompile]
 
