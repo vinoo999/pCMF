@@ -166,12 +166,7 @@ namespace countMatrixFactor {
 
         // Gamma variational parameter
         Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
-        // omp_set_num_threads(4);
-        MatrixXd phi1cur = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi1);
-        MatrixXd phi2cur = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi2);
 
-        MatrixXd phi1old = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi1);
-        MatrixXd phi2old = MatrixXd::Zero(m_N,m_K); //MatrixXd(phi2);
         // local parameters
         //#pragma omp parallel for shared(tmp_alpha1cur,tmp_alpha2cur,phi1cur,phi2cur,phi1old,phi2old) private(k)
         for(int i=0; i<m_N; i++) {
@@ -179,20 +174,12 @@ namespace countMatrixFactor {
                 double param1 = 0;
                 double param2 = 0;
                 estimParam(1000, tmp_alpha1cur(i,k), tmp_alpha2cur(i,k), param1, param2);
-                // this->m_phi1cur(i,k) = param1;
-                // this->m_phi1old(i,k) = param1;
-                // this->m_phi2cur(i,k) = param2;
-                // this->m_phi2old(i,k) = param2;
-                phi1cur(i,k) = param1;
-                phi1old(i,k) = param1;
-                phi2cur(i,k) = param2;
-                phi2old(i,k) = param2;
+                this->m_phi1cur(i,k) = param1;
+                this->m_phi1old(i,k) = param1;
+                this->m_phi2cur(i,k) = param2;
+                this->m_phi2old(i,k) = param2;
             }
         }
-        m_phi1cur = phi1cur;
-        m_phi1old = phi1old;
-        m_phi2cur = phi2cur;
-        m_phi2old = phi2old;
         // global parameters
         for(int j=0; j<m_P; j++) {
             for(int k=0; k<m_K; k++) {
@@ -288,7 +275,6 @@ namespace countMatrixFactor {
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
         // m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
         int i, j, k;
-        MatrixXi *X = &m_X;
         MatrixXd *ElogU = &m_ElogU;
         MatrixXd *ElogV = &m_ElogV;
         MatrixXd *exp_ElogU_ElogV_k = &m_exp_ElogU_ElogV_k;
