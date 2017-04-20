@@ -47,23 +47,23 @@
 #' @export
 cmf <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
                 iterMax=200, iterMin=100, epsilon=1e-5,
-                verbose=TRUE, sparse=FALSE, ZI=FALSE) {
-    
+                verbose=TRUE, sparse=FALSE, ZI=FALSE, ncores=1) {
+
     ncomp <- K
     n <- nrow(X)
     p <- ncol(X)
-    
+
     if(is.null(alpha1)) {
         alpha01 <- matrix(1, nrow=n, ncol=ncomp)
         alpha02 <- matrix(1, nrow=n, ncol=ncomp)
-        
+
         beta01 <- matrix(1, nrow=p, ncol=ncomp)
         beta02 <- matrix(1, nrow=p, ncol=ncomp)
     }
 
     phi01 <- matrix(1, nrow=n, ncol=ncomp)
     phi02 <- matrix(1, nrow=n, ncol=ncomp)
-    
+
     theta01 <- matrix(1, nrow=p, ncol=ncomp)
     theta02 <- matrix(1, nrow=p, ncol=ncomp)
 
@@ -72,7 +72,7 @@ cmf <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
                             alpha1=alpha01, alpha2=alpha02, beta1=beta01, beta2=beta02,
                             iterMax=iterMax, iterMin=iterMin, epsilon=1e-5,
                             order=0, stabRange=5, verbose=verbose, sparse=sparse, ZI=ZI,
-                            algo="EM")
+                            algo="EM", ncores=ncores)
 
     class(results) = "cmf"
 
