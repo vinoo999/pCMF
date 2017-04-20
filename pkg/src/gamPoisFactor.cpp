@@ -287,13 +287,23 @@ namespace countMatrixFactor {
 
         // sum_k exp(E[log(U_{ik})]) * exp(E[log(V_{jk})])
         // m_exp_ElogU_ElogV_k = m_ElogU.mexp() * m_ElogV.mexp().transpose();
-        for(int i=0; i<m_N; i++) {
-            for(int j=0; j<m_P; j++) {
+        int i, j, k;
+        MatrixXi *X = &m_X;
+        MatrixXd *ElogU = &m_ElogU;
+        MatrixXd *ElogV = &m_ElogV;
+        MatrixXd *exp_ElogU_ElogV_k = &m_exp_ElogU_ElogV_k;
+        MatrixXd *EZ_i = &m_EZ_i;
+        MatrixXd *EZ_j = &m_EZ_j;
+        #if defined(_OPENMP)
+        #pragma omp parallel for private(j,k)
+        #endif
+        for(i=0; i<m_N; i++) {
+            for(j=0; j<m_P; j++) {
                 double res = 0;
-                for(int k=0; k<m_K; k++) {
-                    res += (m_ElogU(i,k) + m_ElogV(j,k) >= -300 ? std::exp(m_ElogU(i,k) + m_ElogV(j,k)) : 0);
+                for(k=0; k<m_K; k++) {
+                    res += (ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k) >= -300 ? std::exp(ElogU->coeffRef(i,k) + ElogV->coeffRef(j,k)) : 0);
                 }
-                m_exp_ElogU_ElogV_k(i,j) = res;
+                exp_ElogU_ElogV_k->coeffRef(i,j) = res;
             }
         }
         intermediate::eraseZero(m_exp_ElogU_ElogV_k);
