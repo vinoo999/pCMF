@@ -30,6 +30,9 @@
 #include "variationalEM.h"
 #include "gamPoisFactorZI.h"
 
+#include <omp.h>
+// [[Rcpp::plugins(openmp)]]
+
 using namespace countMatrixFactor;
 
 
@@ -80,7 +83,7 @@ SEXP wrapper_varEM_ZI_GaP(SEXP Xin, int K, bool ZI,
                           SEXP alpha1in, SEXP alpha2in,
                           SEXP beta1in, SEXP beta2in,
                           int iterMax, int iterMin, double epsilon,
-                          int order, int stabRange, bool verbose) {
+                          int order, int stabRange, bool verbose, int ncores) {
 
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
     MatrixXd phi01 = Rcpp::as< Map<MatrixXd> >(phi01in);
@@ -94,6 +97,12 @@ SEXP wrapper_varEM_ZI_GaP(SEXP Xin, int K, bool ZI,
 
     int n = X.rows();
     int p = X.cols();
+
+    // parallelizing
+#if defined(_OPENMP)
+    omp_set_num_threads(ncores);
+    Eigen::initParallel();
+#endif
 
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;

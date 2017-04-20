@@ -99,10 +99,10 @@ SEXP wrapper_varEM_GaP(SEXP Xin, int K, bool ZI,
     int p = X.cols();
 
     // parallelizing
-    #if defined(_OPENMP)
+#if defined(_OPENMP)
     omp_set_num_threads(ncores);
     Eigen::initParallel();
-    #endif
+#endif
 
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;

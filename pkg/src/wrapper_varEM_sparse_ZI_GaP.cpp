@@ -30,6 +30,9 @@
 #include "variationalEM.h"
 #include "gamPoisFactorSparseZI.h"
 
+#include <omp.h>
+// [[Rcpp::plugins(openmp)]]
+
 using namespace countMatrixFactor;
 
 
@@ -74,14 +77,14 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //'
 //' @export
 // [[Rcpp::export]]
-SEXP wrapper_varEM_sparse_ZI_GaP(SEXP Xin, int K, bool ZI, 
-                                 SEXP phi01in, SEXP phi02in, 
-                                 SEXP theta01in, SEXP theta02in, 
-                                 SEXP alpha1in, SEXP alpha2in, 
-                                 SEXP beta1in, SEXP beta2in, 
-                                 int iterMax, int iterMin, double epsilon, 
-                                 int order, int stabRange, bool verbose) {
-    
+SEXP wrapper_varEM_sparse_ZI_GaP(SEXP Xin, int K, bool ZI,
+                                 SEXP phi01in, SEXP phi02in,
+                                 SEXP theta01in, SEXP theta02in,
+                                 SEXP alpha1in, SEXP alpha2in,
+                                 SEXP beta1in, SEXP beta2in,
+                                 int iterMax, int iterMin, double epsilon,
+                                 int order, int stabRange, bool verbose, int ncores) {
+
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
     MatrixXd phi01 = Rcpp::as< Map<MatrixXd> >(phi01in);
     MatrixXd phi02 = Rcpp::as< Map<MatrixXd> >(phi02in);
@@ -94,6 +97,12 @@ SEXP wrapper_varEM_sparse_ZI_GaP(SEXP Xin, int K, bool ZI,
 
     int n = X.rows();
     int p = X.cols();
+
+    // parallelizing
+#if defined(_OPENMP)
+    omp_set_num_threads(ncores);
+    Eigen::initParallel();
+#endif
 
     // declaration of object gamPoisFactorStandard
     Rcpp::Rcout << "Declaration" << std::endl;
