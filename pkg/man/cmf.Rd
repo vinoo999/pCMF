@@ -6,7 +6,7 @@
 \usage{
 cmf(X, K, alpha1 = NULL, alpha2 = NULL, beta1 = NULL, beta2 = NULL,
   iterMax = 200, iterMin = 100, epsilon = 1e-05, verbose = TRUE,
-  sparse = FALSE, ZI = FALSE)
+  sparse = FALSE, ZI = FALSE, ncores = 1)
 }
 \arguments{
 \item{X}{matrix n x p of counts}
