@@ -14,3 +14,4 @@ MD5
 *.tar.gz
 
 install/*
+installDir
