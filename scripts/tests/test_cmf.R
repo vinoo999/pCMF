@@ -1,9 +1,14 @@
 
-library(cmf)
 
 ######################
 ### Cpp version
 ######################
+
+rm(list=ls())
+
+RDIR <- system("git rev-parse --show-toplevel", intern=TRUE)
+source(paste0(RDIR, "/set_working_dir.R"))
+library(cmf, lib.loc=paste0(WORKINGDIR, "/", myLib))
 
 ## generating the data
 n = 100
@@ -39,7 +44,7 @@ matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ncomp=2
 
-res1 <- cmf(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=FALSE)
+res1 <- cmf(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=FALSE, ncores = 16)
 
 str(res1)
 
