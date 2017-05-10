@@ -42,7 +42,7 @@ matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ####### TESTING ALGO
 
-ncomp=2
+ncomp=10
 
 res1 <- cmf(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=FALSE, ncores = 16)
 
@@ -54,7 +54,7 @@ plot(res1$logLikelihood$elbo, xlab="iteration", ylab="elbo", col="blue", type="l
 # convergence criterion
 plot(res1$normGap[-1], xlab="iteration", ylab="norm. gap", col="blue", type="l")
 
-plot(res1$criteria_k$kDeviance, type="l")
+plot(res1$criteria_k$kDeviance, type="l", ylab="deviance")
 
 # individuals
 U = res1$U[, res1$order$orderDeviance]
