@@ -1,6 +1,6 @@
 ### Copyright 2017-02 Ghislain DURIF
 ###
-### This file is part of the `cmf' library for R and related languages.
+### This file is part of the `pCMF' library for R and related languages.
 ### It is made available under the terms of the GNU General Public
 ### License, version 2, or at your option, any later version,
 ### incorporated herein by reference.
@@ -17,7 +17,7 @@
 ### MA 02111-1307, USA
 
 
-#' @title cmf
+#' @title pCMF
 #'
 #' @description
 #' R wrapper for Gamma-Poisson Factor model
@@ -32,7 +32,7 @@
 #' @seealso aaa
 #'
 #' @importFrom Rcpp evalCpp
-#' @useDynLib cmf
+#' @useDynLib pCMF
 #'
 #' @param X matrix n x p of counts
 #' @param K number of factors
@@ -45,7 +45,7 @@
 #' \item{Y}{Y}
 #'
 #' @export
-cmf <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
+pCMF <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
                 iterMax=200, iterMin=100, epsilon=1e-5,
                 verbose=TRUE, sparse=FALSE, ZI=FALSE, ncores=1) {
 
@@ -74,7 +74,7 @@ cmf <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
                             order=0, stabRange=5, verbose=verbose, sparse=sparse, ZI=ZI,
                             algo="EM", ncores=ncores)
 
-    class(results) = "cmf"
+    class(results) = "pCMF"
 
     return(results)
 

@@ -1,6 +1,6 @@
 // Copyright 2016-04 Ghislain Durif
 //
-// This file is part of the `cmf' library for R and related languages.
+// This file is part of the `pCMF' library for R and related languages.
 // It is made available under the terms of the GNU General Public
 // License, version 2, or at your option, any later version,
 // incorporated herein by reference.
@@ -59,7 +59,7 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //'
 //' @import Rcpp
 //' @import RcppEigen
-//' @useDynLib cmf
+//' @useDynLib pCMF
 //'
 //' @param X matrix n x p of counts
 //' @param K number of factors

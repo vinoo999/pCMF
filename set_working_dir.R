@@ -1,5 +1,5 @@
 #### set working dir
-PROJECT="cmf"
+PROJECT="pCMF"
 HOME=Sys.getenv("HOME")
 PROJECTDIR=paste0("source_code", "/", PROJECT)
 WORKINGDIR=paste0(HOME, "/", PROJECTDIR)

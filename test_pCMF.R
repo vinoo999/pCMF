@@ -1,5 +1,5 @@
 
-library(cmf)
+library(pCMF)
 
 ######################
 ### Cpp version
@@ -39,7 +39,7 @@ matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ncomp=2
 
-res1 <- cmf(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=TRUE, sparse=FALSE, ZI=FALSE)
+res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=TRUE, sparse=FALSE, ZI=FALSE)
 
 str(res1)
 

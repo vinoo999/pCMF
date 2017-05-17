@@ -1,3 +1,3 @@
 #!/bin/bash
 
-R CMD check cmf_0.5.tar.gz
+R CMD check pCMF_0.5.tar.gz

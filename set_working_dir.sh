@@ -1,4 +1,4 @@
 #### set working dir
-PROJECT=cmf
+PROJECT=pCMF
 PROJECTDIR=source_code/$PROJECT
 WORKINGDIR=$HOME/$PROJECTDIR

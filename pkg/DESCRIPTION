@@ -1,4 +1,4 @@
-Package: cmf
+Package: pCMF
 Type: Package
 Title: Factorization of Count Matrices
 Version: 0.5

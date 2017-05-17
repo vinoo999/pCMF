@@ -1,6 +1,6 @@
 ### Copyright 2016-04 Ghislain DURIF
 ###
-### This file is part of the `cmf' library for R and related languages.
+### This file is part of the `pCMF' library for R and related languages.
 ### It is made available under the terms of the GNU General Public
 ### License, version 2, or at your option, any later version,
 ### incorporated herein by reference.
@@ -32,7 +32,7 @@
 #' @seealso aaa
 #'
 #' @importFrom Rcpp evalCpp
-#' @useDynLib cmf
+#' @useDynLib pCMF
 #'
 #' @param X matrix n x p of counts
 #' @param K number of factors
@@ -108,7 +108,7 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
         }
     }
 
-    class(results) = "cmf"
+    class(results) = "pCMF"
 
     return(results)
 

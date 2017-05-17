@@ -1,6 +1,6 @@
 // Copyright 2016-08 Ghislain Durif
 //
-// This file is part of the `cmf' library for R and related languages.
+// This file is part of the `pCMF' library for R and related languages.
 // It is made available under the terms of the GNU General Public
 // License, version 2, or at your option, any later version,
 // incorporated herein by reference.
