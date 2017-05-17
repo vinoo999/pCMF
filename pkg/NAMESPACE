@@ -2,10 +2,10 @@
 
 export(blockMatrix)
 export(blockMatrixGamma)
-export(pCMF)
 export(dataGeneration)
 export(matrixFactor)
 export(matrixHeatmap)
+export(pCMF)
 export(wrapper_varEM_GaP)
 export(wrapper_varEM_ZI_GaP)
 export(wrapper_varEM_sparse_GaP)
