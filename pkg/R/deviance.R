@@ -115,7 +115,6 @@ dev <- function(model, X) {
 #'
 #' @return value of the Poisson log-likelihood
 #'
-#' @export
 poisLogLike = function(X, lambda) {
     X.ij = as.vector(X)
     lambda.ij = as.vector(lambda)
