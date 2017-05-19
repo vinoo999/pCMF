@@ -42,7 +42,7 @@ matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ####### TESTING ALGO
 
-ncomp=10
+ncomp=2
 
 res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=FALSE, ncores = 16)
 
@@ -59,5 +59,7 @@ plot(res1$criteria_k$kDeviance, type="l", ylab="deviance")
 # individuals
 U = res1$U[, res1$order$orderDeviance]
 plot(U[,1:2], col=blockAlpha1$idRows)
+plot(log(U[,1:2]+1), col=blockAlpha1$idRows)
+
 
 matrixHeatmap(U)
