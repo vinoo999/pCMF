@@ -45,7 +45,9 @@ getU <- function(model) {
     if(class(model) != "pCMF")
         stop("wrong model in input")
 
-    return(model$U)
+    U <- as.matrix(model$U[,model$order$orderDeviance])
+
+    return(U)
 
 }
 
@@ -78,6 +80,8 @@ getV <- function(model) {
     if(class(model) != "pCMF")
         stop("wrong model in input")
 
-    return(model$V)
+    V <- as.matrix(model$V[,model$order$orderDeviance])
+
+    return(V)
 
 }
