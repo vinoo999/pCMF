@@ -39,7 +39,7 @@ matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ncomp=2
 
-res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=TRUE, sparse=FALSE, ZI=FALSE)
+res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=TRUE, sparse=FALSE, ZI=FALSE, ncores=1)
 
 str(res1)
 
