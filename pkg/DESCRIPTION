@@ -5,9 +5,9 @@ Version: 0.6
 Date: 2017-04-19
 Author: Ghislain Durif
 Maintainer: Ghislain Durif <gd.dev@libertymail.net>
-Description: Routines for count matrices factorization. Generalization of PCA
-    to zero-inflated and over-dispersed count data, based on Gamma-Poisson factor model
-    and variational inference
+Description: Routines for probabilistic count matrices factorization (pCMF). 
+    Generalization of PCA to zero-inflated and over-dispersed count data, 
+    based on Gamma-Poisson factor model and variational inference framework.
 License: GPL (>= 2)
 Imports:
     Rcpp (>= 0.11.6),
