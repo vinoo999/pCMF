@@ -1,16 +1,14 @@
 
 library(pCMF)
 
-######################
-### Cpp version
-######################
+##########################
+### Example of pCMF use
+##########################
 
-## generating the data
+## data specifications
 n = 100
-p = 100
+p = 500
 K = 10
-
-
 
 ## need of a priori values for gamma distribution
 signalBlock = matrix(c(1,3,4,2), nrow=2, ncol=2)
@@ -39,7 +37,7 @@ matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ncomp=2
 
-res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=TRUE, sparse=FALSE, ZI=FALSE, ncores=1)
+res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=TRUE, sparse=FALSE, ZI=FALSE, ncores=16)
 
 str(res1)
 
@@ -52,7 +50,10 @@ plot(res1$normGap[-1], xlab="iteration", ylab="norm. gap", col="blue", type="l")
 plot(res1$criteria_k$kDeviance, type="l")
 
 # individuals
-U = res1$U[, res1$order$orderDeviance]
-plot(U[,1:2], col=blockAlpha1$idRows)
+U <- getU(res1)
+plot(U, col=blockAlpha1$idRows)
 
 matrixHeatmap(U)
+
+# percentage of explained deviance
+expDev(res1, X)
