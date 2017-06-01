@@ -49,30 +49,39 @@ plot(res1$normGap[-1], xlab="iteration", ylab="norm. gap", col="blue", type="l")
 
 plot(res1$criteria_k$kDeviance, type="l")
 
-# representation of individuals (matrix U)
+### INDIVIDUALS
+
+# representation of individuals in log space (matrix logU)
 U <- getU(res1)
 plot(U, col=blockAlpha1$idRows)
 
-# representation of individuals in log space (matrix logU)
-logU <- getLogU(res1)
-plot(logU, col=blockAlpha1$idRows)
+# heatmap
+matrixHeatmap(U)
+
+# representation of individuals (matrix U)
+U <- getU(res1, log_representation=FALSE)
+plot(U, col=blockAlpha1$idRows)
 
 # heatmap
 matrixHeatmap(U)
-matrixHeatmap(logU)
 
+### VARIABLES
 
-# representation of variables (matrix V)
+# representation of variables in log space (matrix logV)
 V <- getV(res1)
 plot(V, col=blockBeta1$idRows)
 
-# representation of variables in log space (matrix logV)
-logV <- getLogV(res1)
-plot(logV, col=blockBeta1$idRows)
+# heatmap
+matrixHeatmap(V)
+
+# representation of variables (matrix V)
+V <- getV(res1, log_representation=FALSE)
+plot(V, col=blockBeta1$idRows)
 
 # heatmap
 matrixHeatmap(V)
-matrixHeatmap(logV)
+
+
 
 # percentage of explained deviance
 expDev(res1, X)
