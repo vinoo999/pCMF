@@ -36,3 +36,4 @@ the entries of each block are constant and specified in input
 \author{
 Ghislain Durif, \email{gd.dev@libertymail.net}
 }
+\keyword{internal}

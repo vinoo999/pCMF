@@ -39,3 +39,4 @@ The parameter alpha is set for each block.
 \author{
 Ghislain Durif, \email{gd.dev@libertymail.net}
 }
+\keyword{internal}
