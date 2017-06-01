@@ -17,6 +17,7 @@
 ### MA 02111-1307, USA
 
 #' @title blockMatrix
+#' @keywords internal
 #'
 #' @description
 #' Generation by block with gamma distribution,
@@ -44,6 +45,8 @@
 #' \item{signalBlock}{see input parameters}
 #' \item{idRows}{vector indicating the division of rows into blocks}
 #' \item{idRows}{vector indicating the division of columns into blocks}
+#'
+#' @importFrom stats rexp
 #'
 #' @export
 blockMatrixGamma = function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) {

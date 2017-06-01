@@ -69,6 +69,8 @@
 #' \item{rate0}{vector of Bernoulli probability for zero-inflation, enforce the ZI probabibility
 #' to depend on the count mean, the higher the smaller probability (default is NULL)}
 #'
+#' @importFrom stats rpois rbinom rgamma
+#'
 #' @export
 dataGeneration <- function(n, p, K, alpha1, alpha2, beta1, beta2, ZI=FALSE, prob1=NULL, rate0=NULL, reorder=FALSE) {
 

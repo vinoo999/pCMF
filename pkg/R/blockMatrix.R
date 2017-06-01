@@ -17,6 +17,7 @@
 ### MA 02111-1307, USA
 
 #' @title blockMatrix
+#' @keywords internal
 #'
 #' @description
 #' Generation by block with gamma distribution,
