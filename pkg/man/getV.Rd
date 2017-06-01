@@ -4,11 +4,15 @@
 \alias{getV}
 \title{getV}
 \usage{
-getV(model)
+getV(model, log_representation = TRUE)
 }
 \arguments{
 \item{model}{a Gamma-Poisson factor model output by the
 function \code{\link{pCMF}}}
+
+\item{log_representation}{boolean, indicating if the representation is in
+the natural geometry associated to the Gamma distribution (log) or in the
+Euclidean space, default is TRUE}
 }
 \value{
 the matrix V of variables \(features\) contributions to the lower
@@ -18,6 +22,10 @@ dimensional sub-space
 Getter for the matrix V in the Gamma-Poisson Factor model
 }
 \details{
+Rrepresentation of individuals in in the lower
+dimensional sub-space in the Euclidean geometry, corresponding to the
+matrix U, or in the geometry related to the Gamma distribution in the
+exponential family (log), corresponding to matrix logU
 see pCMF function output
 }
 \seealso{
