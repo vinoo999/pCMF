@@ -320,7 +320,7 @@ namespace countMatrixFactor {
             if(this->m_verbose==true) {
                 Rcpp::Rcout << "################" << std::endl;
                 Rcpp::Rcout << "iter " << this->m_iter << std::endl;
-                Rcpp::Rcout << "globalIter " << m_globalIter << std::endl;
+                // Rcpp::Rcout << "globalIter " << m_globalIter << std::endl;
             }
 
             // E-step
