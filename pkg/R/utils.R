@@ -23,6 +23,11 @@
 #' Getter for the matrix U in the Gamma-Poisson Factor model
 #'
 #' @details
+#' Rrepresentation of individuals in in the lower
+#' dimensional sub-space in the Euclidean geometry, corresponding to the
+#' matrix U, or in the geometry related to the Gamma distribution in the
+#' exponential family (log), corresponding to matrix logU
+#'
 #' see pCMF function output
 #'
 #' @author
@@ -35,17 +40,24 @@
 #'
 #' @param model a Gamma-Poisson factor model output by the
 #' function \code{\link{pCMF}}
+#' @param log_representation boolean, indicating if the representation is in
+#' the natural geometry associated to the Gamma distribution (log) or in the
+#' Euclidean space, default is TRUE
 #'
 #' @return the matrix U of individuals coordinates in the lower
 #' dimensional sub-space
 #'
 #' @export
-getU <- function(model) {
+getU <- function(model, log_representation=TRUE) {
 
     if(class(model) != "pCMF")
         stop("wrong model in input")
 
-    U <- as.matrix(model$U[,model$order$orderDeviance])
+    if(log_representation) {
+        U <- as.matrix(model$stats$ElogU[,model$order$orderDeviance])
+    } else {
+        U <- as.matrix(model$U[,model$order$orderDeviance])
+    }
 
     return(U)
 
@@ -58,6 +70,10 @@ getU <- function(model) {
 #' Getter for the matrix V in the Gamma-Poisson Factor model
 #'
 #' @details
+#' Rrepresentation of individuals in in the lower
+#' dimensional sub-space in the Euclidean geometry, corresponding to the
+#' matrix U, or in the geometry related to the Gamma distribution in the
+#' exponential family (log), corresponding to matrix logU
 #' see pCMF function output
 #'
 #' @author
@@ -70,89 +86,25 @@ getU <- function(model) {
 #'
 #' @param model a Gamma-Poisson factor model output by the
 #' function \code{\link{pCMF}}
+#' @param log_representation boolean, indicating if the representation is in
+#' the natural geometry associated to the Gamma distribution (log) or in the
+#' Euclidean space, default is TRUE
+#'
 #'
 #' @return the matrix V of variables \(features\) contributions to the lower
 #' dimensional sub-space
 #'
 #' @export
-getV <- function(model) {
+getV <- function(model, log_representation=TRUE) {
 
     if(class(model) != "pCMF")
         stop("wrong model in input")
 
-    V <- as.matrix(model$V[,model$order$orderDeviance])
-
-    return(V)
-
-}
-
-
-#' @title getLogU
-#'
-#' @description
-#' Getter for the log of matrix U in the Gamma-Poisson Factor model
-#'
-#' @details
-#' see pCMF function output
-#'
-#' @author
-#' Ghislain Durif, \email{gd.dev@libertymail.net}
-#'
-#'
-#' @seealso \code{\link{pCMF}}
-#'
-#' @useDynLib pCMF
-#'
-#' @param model a Gamma-Poisson factor model output by the
-#' function \code{\link{pCMF}}
-#'
-#' @return the matrix logU of individuals coordinates in the lower
-#' dimensional sub-space in the geometry related to the Gamma distribution
-#' in the exponential family (log)
-#'
-#' @export
-getLogU <- function(model) {
-
-    if(class(model) != "pCMF")
-        stop("wrong model in input")
-
-    U <- as.matrix(model$stats$ElogU[,model$order$orderDeviance])
-
-    return(U)
-
-}
-
-
-#' @title getLogV
-#'
-#' @description
-#' Getter for the log of matrix V in the Gamma-Poisson Factor model
-#'
-#' @details
-#' see pCMF function output
-#'
-#' @author
-#' Ghislain Durif, \email{gd.dev@libertymail.net}
-#'
-#'
-#' @seealso \code{\link{pCMF}}
-#'
-#' @useDynLib pCMF
-#'
-#' @param model a Gamma-Poisson factor model output by the
-#' function \code{\link{pCMF}}
-#'
-#' @return the matrix V of variables \(features\) contributions to the lower
-#' dimensional sub-space in the geometry related to the Gamma distribution
-#' in the exponential family (log)
-#'
-#' @export
-getLogV <- function(model) {
-
-    if(class(model) != "pCMF")
-        stop("wrong model in input")
-
-    V <- as.matrix(model$stats$ElogV[,model$order$orderDeviance])
+    if(log_representation) {
+        V <- as.matrix(model$stats$ElogV[,model$order$orderDeviance])
+    } else {
+        V <- as.matrix(model$V[,model$order$orderDeviance])
+    }
 
     return(V)
 
