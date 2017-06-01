@@ -85,3 +85,75 @@ getV <- function(model) {
     return(V)
 
 }
+
+
+#' @title getLogU
+#'
+#' @description
+#' Getter for the log of matrix U in the Gamma-Poisson Factor model
+#'
+#' @details
+#' see pCMF function output
+#'
+#' @author
+#' Ghislain Durif, \email{gd.dev@libertymail.net}
+#'
+#'
+#' @seealso \code{\link{pCMF}}
+#'
+#' @useDynLib pCMF
+#'
+#' @param model a Gamma-Poisson factor model output by the
+#' function \code{\link{pCMF}}
+#'
+#' @return the matrix logU of individuals coordinates in the lower
+#' dimensional sub-space in the geometry related to the Gamma distribution
+#' in the exponential family (log)
+#'
+#' @export
+getLogU <- function(model) {
+
+    if(class(model) != "pCMF")
+        stop("wrong model in input")
+
+    U <- as.matrix(model$stats$ElogU[,model$order$orderDeviance])
+
+    return(U)
+
+}
+
+
+#' @title getLogV
+#'
+#' @description
+#' Getter for the log of matrix V in the Gamma-Poisson Factor model
+#'
+#' @details
+#' see pCMF function output
+#'
+#' @author
+#' Ghislain Durif, \email{gd.dev@libertymail.net}
+#'
+#'
+#' @seealso \code{\link{pCMF}}
+#'
+#' @useDynLib pCMF
+#'
+#' @param model a Gamma-Poisson factor model output by the
+#' function \code{\link{pCMF}}
+#'
+#' @return the matrix V of variables \(features\) contributions to the lower
+#' dimensional sub-space in the geometry related to the Gamma distribution
+#' in the exponential family (log)
+#'
+#' @export
+getLogV <- function(model) {
+
+    if(class(model) != "pCMF")
+        stop("wrong model in input")
+
+    V <- as.matrix(model$stats$ElogV[,model$order$orderDeviance])
+
+    return(V)
+
+}
