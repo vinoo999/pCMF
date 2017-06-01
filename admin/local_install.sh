@@ -15,5 +15,8 @@ VERSION=`cat $WORKDIR/Version`
 SRCDIR="$WORKDIR/sources"
 SRC="$SRCDIR/pCMF_${VERSION}.tar.gz"
 
+## remove former version
+rm -r $INSTALLDIR/pCMF
+
 ## INSTALLATION
 R CMD INSTALL --library=$INSTALLDIR $SRC
