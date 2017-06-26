@@ -140,7 +140,7 @@ graphU <- function(model, axes, labels=NULL, log_representation=TRUE,
 #'
 #' @useDynLib pCMF
 #'
-#' @importFrom ggplot2 ggplot geom_point theme element_line element_blank
+#' @import ggplot2
 #'
 #' @param model a Gamma-Poisson factor model output by the
 #' function \code{\link{pCMF}}
@@ -163,7 +163,7 @@ matrixPlot <- function(mat, axes=c(1:2), labels=NULL,
 
     ## check input
     Kmax <- max(axes)
-    if(Kmax <= ncol(mat)) {
+    if(Kmax > ncol(mat)) {
         stop("'axes' argument is not compatible with 'mat' dimension")
     }
     if(!is.null(labels)) {
@@ -173,13 +173,15 @@ matrixPlot <- function(mat, axes=c(1:2), labels=NULL,
     }
 
     ## format the data
-    dataToPlot <- data.frame(comp1=mat[,axes[1]], comp2=mat[,axes[1]])
-    if(!is.null(labels)) {
-        dataToPlot$labels <- labels
-    }
+    dataToPlot <- data.frame(comp1=mat[,axes[1]], comp2=mat[,axes[2]])
 
     ## graph representation
-    g <- ggplot(dataToPlot, aes(x=comp1, y=comp2, color=labels))
+    if(!is.null(labels)) {
+        dataToPlot$labels <- labels
+        g <- ggplot(dataToPlot, aes(x=comp1, y=comp2, color=labels))
+    } else {
+        g <- ggplot(dataToPlot, aes(x=comp1, y=comp2))
+    }
     g <- g + geom_point()
     if(edit_theme) {
         g <- g + theme(legend.text=element_text(size=14),
