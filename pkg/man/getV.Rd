@@ -22,7 +22,7 @@ dimensional sub-space
 Getter for the matrix V in the Gamma-Poisson Factor model
 }
 \details{
-Rrepresentation of individuals in in the lower
+Rrepresentation of variables in the lower
 dimensional sub-space in the Euclidean geometry, corresponding to the
 matrix U, or in the geometry related to the Gamma distribution in the
 exponential family (log), corresponding to matrix logU
