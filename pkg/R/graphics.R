@@ -41,8 +41,6 @@
 #'
 #' @useDynLib pCMF
 #'
-#' @importFrom ggplot2
-#'
 #' @param model a Gamma-Poisson factor model output by the
 #' function \code{\link{pCMF}}
 #' @param axes a vector of 2 indexes corresponding to the 2 axes to represent
@@ -91,8 +89,6 @@ graphU <- function(model, axes, labels=NULL, log_representation=TRUE,
 #' @seealso \code{\link{pCMF}}
 #'
 #' @useDynLib pCMF
-#'
-#' @importFrom ggplot2
 #'
 #' @param model a Gamma-Poisson factor model output by the
 #' function \code{\link{pCMF}}
@@ -144,7 +140,7 @@ graphU <- function(model, axes, labels=NULL, log_representation=TRUE,
 #'
 #' @useDynLib pCMF
 #'
-#' @importFrom ggplot2
+#' @importFrom ggplot2 ggplot geom_point theme
 #'
 #' @param model a Gamma-Poisson factor model output by the
 #' function \code{\link{pCMF}}
@@ -166,7 +162,7 @@ matrixPlot <- function(mat, axes=c(1:2), labels=NULL,
                        edit_theme=TRUE, graph=TRUE) {
 
     ## check input
-    Kmax = max(axes)
+    Kmax <- max(axes)
     if(Kmax <= ncol(mat)) {
         stop("'axes' argument is not compatible with 'mat' dimension")
     }
@@ -179,26 +175,26 @@ matrixPlot <- function(mat, axes=c(1:2), labels=NULL,
     ## format the data
     dataToPlot <- data.frame(comp1=mat[,axes[1]], comp2=mat[,axes[1]])
     if(!is.null(labels)) {
-        dataToPlot$labels = labels
+        dataToPlot$labels <- labels
     }
 
     ## graph representation
-    g = ggplot(dataToPlot, aes(x=comp1, y=comp2, color=labels))
-    g = g + geom_point()
+    g <- ggplot(dataToPlot, aes(x=comp1, y=comp2, color=labels))
+    g <- g + geom_point()
     if(edit_theme) {
-        g = g + theme(legend.text=element_text(size=14),
+        g <- g + theme(legend.text=element_text(size=14),
                         legend.title=element_text(size=14),
                         axis.text.x=element_text(size=10),
                         axis.title.x=element_text(size=14),
-                        axis.title.y = element_text(size=14),
-                        axis.text.y= element_text(size=10),
+                        axis.title.y=element_text(size=14),
+                        axis.text.y=element_text(size=10),
                         strip.text.x=element_text(size=14),
                         strip.text.y=element_text(size=14),
                         plot.title=element_text(size=14))
-        g = g + theme(panel.background = element_rect(fill = "white", colour = "black"),
-                        panel.grid.major=element_line(color = "grey90"),
-                        panel.grid.minor= element_line(color="grey90"),
-                        strip.background = element_blank())
+        g <- g + theme(panel.background=element_rect(fill="white", colour="black"),
+                        panel.grid.major=element_line(color="grey90"),
+                        panel.grid.minor=element_line(color="grey90"),
+                        strip.background=element_blank())
     }
     ## plot graph ?
     if(graph) {
