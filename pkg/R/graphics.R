@@ -140,7 +140,7 @@ graphU <- function(model, axes, labels=NULL, log_representation=TRUE,
 #'
 #' @useDynLib pCMF
 #'
-#' @importFrom ggplot2 ggplot geom_point theme
+#' @importFrom ggplot2 ggplot geom_point theme element_line element_blank
 #'
 #' @param model a Gamma-Poisson factor model output by the
 #' function \code{\link{pCMF}}
