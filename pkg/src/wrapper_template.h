@@ -143,14 +143,16 @@ namespace countMatrixFactor {
             myRandom::rInt32(candidateSeeds, nbInit, rng);
 
             // store best SEED id and score
-            int bestSeed = 0;
+            uint32_t bestSeed = 0;
             int bestSeedId = 0;
             double bestELBO = - std::numeric_limits<double>::max();
 
             // LOOP OVER MULTI-INITIALIZATION
             for(int initId=0; initId<nbInit; initId++) {
 
-                Rcpp::Rcout << "Seed " << initId << std::endl;
+                if(verbose) {
+                    Rcpp::Rcout << "Seed " << initId << std::endl;
+                }
 
                 // set seed
                 rng.seed(candidateSeeds[initId]);
@@ -177,7 +179,7 @@ namespace countMatrixFactor {
                 tmpBeta2 = beta2.array() + tmpBeta2.array();
 
                 // declaration of object model
-                Rcpp::Rcout << "1) Declaration / ";
+                // Rcpp::Rcout << "1) Declaration / ";
                 algo<model> myModel(iterMaxInit, 1, order,
                                     stabRange, epsilon, 0,
                                     n, p, K, X,
@@ -186,11 +188,11 @@ namespace countMatrixFactor {
                                     tmpBeta1, tmpBeta2);
 
                 // initialization
-                Rcpp::Rcout << "2) Init / ";
+                // Rcpp::Rcout << "2) Init / ";
                 myModel.Init(rng);
 
                 // computations
-                Rcpp::Rcout << "3) Algo" << std::endl;
+                // Rcpp::Rcout << "3) Algo" << std::endl;
                 myModel.algorithm();
 
                 // get ELBO
@@ -203,18 +205,12 @@ namespace countMatrixFactor {
                     bestSeedId = initId;
                 }
 
-                Rcpp::Rcout << "ELBO = " << currentELBO << std::endl;
-                Rcpp::Rcout << "seed = " << candidateSeeds[initId] << std::endl;
-
             }
 
             delete[] candidateSeeds;
 
             // set seed
             rng.seed(bestSeed);
-
-            Rcpp::Rcout << "bestELBO = " << bestELBO << std::endl;
-            Rcpp::Rcout << "bestSeed = " << bestSeed << std::endl;
 
         }
 
