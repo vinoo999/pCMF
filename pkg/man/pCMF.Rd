@@ -6,7 +6,8 @@
 \usage{
 pCMF(X, K, alpha1 = NULL, alpha2 = NULL, beta1 = NULL, beta2 = NULL,
   iterMax = 200, iterMin = 100, epsilon = 1e-05, verbose = TRUE,
-  sparse = FALSE, ZI = FALSE, ncores = 1)
+  sparse = FALSE, ZI = FALSE, ncores = 1, nbInit = 1,
+  iterMaxInit = 50, noise = 0.5, seed = NULL)
 }
 \arguments{
 \item{X}{matrix n x p of counts}

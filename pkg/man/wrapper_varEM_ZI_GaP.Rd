@@ -6,20 +6,45 @@
 \usage{
 wrapper_varEM_ZI_GaP(Xin, K, ZI, phi01in, phi02in, theta01in, theta02in,
   alpha1in, alpha2in, beta1in, beta2in, iterMax, iterMin, epsilon, order,
-  stabRange, verbose, ncores)
+  stabRange, verbose, ncores, nbInit, iterMaxInit, noise, seed)
 }
 \arguments{
-\item{K}{number of factors}
+\item{K}{dimension of the latent subspace}
 
-\item{X}{matrix n x p of counts}
+\item{ZI}{boolean, indicating if the model is zero-inflated}
 
-\item{phi01}{n x K, initial values of first parameter of Gamma distribution on U}
+\item{iterMax}{maximum number of iterations}
 
-\item{phi02}{n x K, initial values of second parameter of Gamma distribution on U}
+\item{iterMin}{minimum number of iterations}
 
-\item{theta01}{n x K, initial values of first parameter of Gamma distribution on V}
+\item{epsilon}{precision for comparison when assessing convergence}
 
-\item{theta02}{n x K, initial values of second parameter of Gamma distribution on V}
+\item{order}{derivative order on normalized gap to assess convergence
+(0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)}
+
+\item{stabRange}{range of stability (number of iterations where parameter values are stable to confirm convergence)}
+
+\item{verbose}{boolean indicating verbosity in the output}
+
+\item{ncores}{number of cores to use for multi-threading}
+
+\item{nbInit}{number of initialization to try}
+
+\item{iterMaxInit}{number of iteration to for each initialization in multi-initialization case (nbInit > 1)}
+
+\item{noise}{nosie level (between 0 and 1) for multi-init case}
+
+\item{seed}{for RNG (-1 means no seed)}
+
+\item{X}{n x p, count data matrix}
+
+\item{phi1}{n x K, initial values of first parameter of Gamma distribution on U}
+
+\item{phi2}{n x K, initial values of second parameter of Gamma distribution on U}
+
+\item{theta1}{n x K, initial values of first parameter of Gamma distribution on V}
+
+\item{theta2}{n x K, initial values of second parameter of Gamma distribution on V}
 
 \item{alpha1}{n x K, initial values of first parameter of Gamma prior on U}
 
