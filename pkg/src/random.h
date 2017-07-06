@@ -59,18 +59,18 @@ namespace myRandom {
 
 
     // generate random sample from Gamma distribution
-    void rGamma(VectorXd &vec, int n, double param1, double param2, RNGType rng);
+    void rGamma(VectorXd &vec, int n, double param1, double param2, RNGType &rng);
 
 
     // generate random sample of unsigned int32 integers
-    void rInt32(uint32_t* vec, int n, RNGType rng);
+    void rInt32(uint32_t* vec, int n, RNGType &rng);
 
     // generate random sample from uniform distribution
-    void rUnif(VectorXd &vec, int n, double param1, double param2, RNGType rng);
+    void rUnif(VectorXd &vec, int n, double param1, double param2, RNGType &rng);
 
     // generate random sample from uniform distribution
     void rUnif(MatrixXd &mat, int nrow, int ncol,
-               const MatrixXd &param1, const MatrixXd &param2, RNGType rng);
+               const MatrixXd &param1, const MatrixXd &param2, RNGType &rng);
 
 }
 

@@ -55,7 +55,7 @@ namespace myRandom {
      * \return a Boost rrandom generator
      */
     RNGType rngInit() {
-        RNGType rng(std::time(0));
+        RNGType rng(static_cast<unsigned int>(std::time(0)));
         return rng;
     }
 
@@ -86,11 +86,11 @@ namespace myRandom {
      * \param[in] param1 rate Gamma parameter
      * \param[in] rng Random Number Generator from boost
      */
-    void rGamma(VectorXd &vec, int n, double param1, double param2, RNGType rng) {
+    void rGamma(VectorXd &vec, int n, double param1, double param2, RNGType &rng) {
 
         // Gamma generator
         gamma_distribution<> myGamma(param1, 1/param2);
-        variate_generator< RNGType, gamma_distribution<> >generator(rng, myGamma);
+        variate_generator< RNGType &, gamma_distribution<> >generator(rng, myGamma);
 
         // n is assumed to be the length of vector vec
         for(int ind=0; ind<n; ind++) {
@@ -107,11 +107,11 @@ namespace myRandom {
      * \param[in] n number of values to generate
      * \param[in] rng Random Number Generator from boost
      */
-    void rInt32(uint32_t* vec, int n, RNGType rng) {
+    void rInt32(uint32_t* vec, int n, RNGType &rng) {
 
         // integer generator
         uniform_int_distribution<> candidate(0, std::numeric_limits<uint32_t>::max());
-        variate_generator< RNGType, uniform_int_distribution<> >generator(rng, candidate);
+        variate_generator< RNGType &, uniform_int_distribution<> >generator(rng, candidate);
 
         // n is assumed to be the length of vector vec
         for(int ind=0; ind<n; ind++) {
@@ -133,11 +133,11 @@ namespace myRandom {
      * \param[in] param1 max uniform parameter
      * \param[in] rng Random Number Generator from boost
      */
-    void rUnif(VectorXd &vec, int n, double param1, double param2, RNGType rng) {
+    void rUnif(VectorXd &vec, int n, double param1, double param2, RNGType &rng) {
 
         // Uniform generator
         uniform_real_distribution<> myUnif(param1, param2);
-        variate_generator< RNGType, uniform_real_distribution<> >generator(rng, myUnif);
+        variate_generator< RNGType &, uniform_real_distribution<> >generator(rng, myUnif);
 
         // n is assumed to be the length of vector vec
         for(int ind=0; ind<n; ind++) {
@@ -163,7 +163,7 @@ namespace myRandom {
      * \param[in] rng Random Number Generator from boost
      */
     void rUnif(MatrixXd &mat, int nrow, int ncol,
-               const MatrixXd &param1, const MatrixXd &param2, RNGType rng) {
+               const MatrixXd &param1, const MatrixXd &param2, RNGType &rng) {
 
         // nrow and ncol are assumed to be consistent with the dimension of the different input matrices
         for(int rowInd=0; rowInd<nrow; rowInd++) {
@@ -171,7 +171,7 @@ namespace myRandom {
                 // Uniform generator
                 uniform_real_distribution<> myUnif(param1(rowInd, colInd),
                                                    param2(rowInd, colInd));
-                variate_generator< RNGType, uniform_real_distribution<> >generator(rng, myUnif);
+                variate_generator< RNGType &, uniform_real_distribution<> >generator(rng, myUnif);
                 mat(rowInd, colInd) = generator();
             }
         }
