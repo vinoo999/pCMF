@@ -29,6 +29,7 @@
 
 #include <Rcpp.h>
 #include <RcppEigen.h>
+#include "random.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -177,7 +178,7 @@ namespace countMatrixFactor {
     public:
 
         // Initialization of model
-        void Init();
+        void Init(myRandom::RNGType rng);
 
         // run algorithm
         void algorithm();
@@ -362,8 +363,8 @@ namespace countMatrixFactor {
      * @tparam model a gamma Poisson factor model
      */
     template <typename model>
-    void variational<model>::Init() {
-        m_model.Init();
+    void variational<model>::Init(myRandom::RNGType rng) {
+        m_model.Init(rng);
     }
 
     /*!
