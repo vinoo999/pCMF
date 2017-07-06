@@ -54,11 +54,14 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
                          lambda = NULL, mu = NULL,
                          iterMax=200, iterMin=1, epsilon=1e-5,
                          order=0, stabRange=5, verbose=TRUE, sparse=FALSE, ZI=FALSE,
-                         algo="EM", ncores=1) {
+                         algo="EM", ncores=1,
+                         nbInit=1, iterMaxInit=50, noise=0.5, seed=NULL) {
 
     X = apply(X, c(1,2), as.integer)
 
     results = NULL
+
+    seed = ifelse(!is.null(seed), seed, -1)
 
     if(algo == "EM") {
         # print("EM ok")
@@ -67,24 +70,28 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
                 results = wrapper_varEM_sparse_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                       alpha1, alpha2, beta1, beta2,
                                                       iterMax, iterMin, epsilon,
-                                                      order, stabRange, verbose, ncores)
+                                                      order, stabRange, verbose, ncores,
+                                                      nbInit, iterMaxInit, noise, seed)
             } else {
                 results = wrapper_varEM_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                alpha1, alpha2, beta1, beta2,
                                                iterMax, iterMin, epsilon,
-                                               order, stabRange, verbose, ncores)
+                                               order, stabRange, verbose, ncores,
+                                               nbInit, iterMaxInit, noise, seed)
             }
         } else {
             if(sparse) {
                 results = wrapper_varEM_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                    alpha1, alpha2, beta1, beta2,
                                                    iterMax, iterMin, epsilon,
-                                                   order, stabRange, verbose, ncores)
+                                                   order, stabRange, verbose, ncores,
+                                                   nbInit, iterMaxInit, noise, seed)
             } else {
                 results = wrapper_varEM_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                             alpha1, alpha2, beta1, beta2,
                                             iterMax, iterMin, epsilon,
-                                            order, stabRange, verbose, ncores)
+                                            order, stabRange, verbose, ncores,
+                                            nbInit, iterMaxInit, noise, seed)
             }
         }
     } else if(algo == "variational") {
@@ -92,18 +99,21 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
             results = wrapper_variational_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                  alpha1, alpha2, beta1, beta2,
                                                  iterMax, iterMin, epsilon,
-                                                 order, stabRange, verbose, ncores)
+                                                 order, stabRange, verbose, ncores,
+                                                 nbInit, iterMaxInit, noise, seed)
         } else {
             if(sparse) {
                 results = wrapper_variational_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                          alpha1, alpha2, beta1, beta2,
                                                          iterMax, iterMin, epsilon,
-                                                         order, stabRange, verbose, ncores)
+                                                         order, stabRange, verbose, ncores,
+                                                         nbInit, iterMaxInit, noise, seed)
             } else {
                 results = wrapper_variational_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                   alpha1, alpha2, beta1, beta2,
                                                   iterMax, iterMin, epsilon,
-                                                  order, stabRange, verbose, ncores)
+                                                  order, stabRange, verbose, ncores,
+                                                  nbInit, iterMaxInit, noise, seed)
             }
         }
     }
