@@ -32,6 +32,7 @@
 #include "gamPoisFactorSparse.h"
 #include "gamDistrib.h"
 #include "intermediate.h"
+#include "random.h"
 
 #include <omp.h>
 // [[Rcpp::plugins(openmp)]]
@@ -85,7 +86,7 @@ namespace countMatrixFactor {
     /*!
     * \brief Initialization of sufficient statistics
     */
-    void gamPoisFactorSparse::Init() {
+    void gamPoisFactorSparse::Init(myRandom::RNGType rng) {
 
         // // Gamma prior parameter (to avoid scaling issue)
         // m_alpha2cur = m_alpha2cur.array() * std::sqrt(m_K);
@@ -102,7 +103,8 @@ namespace countMatrixFactor {
             for(int i=0; i<m_N; i++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(1000, m_alpha1cur(i,k), m_alpha2cur(i,k), param1, param2);
+                estimParam(1000, m_alpha1cur(i,k), m_alpha2cur(i,k),
+                           param1, param2, rng);
                 m_phi1cur(i,k) = param1;
                 m_phi1old(i,k) = param1;
                 m_phi2cur(i,k) = param2;
@@ -112,7 +114,8 @@ namespace countMatrixFactor {
             for(int j=0; j<m_P; j++) {
                 double param1 = 0;
                 double param2 = 0;
-                estimParam(1000, m_beta1cur(j,k), m_beta2cur(j,k), param1, param2);
+                estimParam(1000, m_beta1cur(j,k), m_beta2cur(j,k),
+                           param1, param2, rng);
                 m_theta1cur(j,k) = param1;
                 m_theta1old(j,k) = param1;
                 m_theta2cur(j,k) = param2;

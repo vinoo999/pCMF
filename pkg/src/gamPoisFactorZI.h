@@ -30,6 +30,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include "gamPoisFactor.h"
+#include "random.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 using Eigen::MatrixXd;                  // variable size matrix, double precision
@@ -86,7 +87,7 @@ namespace countMatrixFactor {
     public:
 
         // initialization
-        void Init();
+        void Init(myRandom::RNGType rng);
 
         // create list with results to be return
         void returnObject(Rcpp::List &results);
