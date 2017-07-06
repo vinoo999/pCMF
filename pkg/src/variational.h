@@ -191,6 +191,9 @@ namespace countMatrixFactor {
         // compute factor order
         void computeOrder();
 
+        // get ELBO value
+        double getELBO();
+
     protected :
 
         //-------------------//
@@ -345,6 +348,14 @@ namespace countMatrixFactor {
     // DESTRUCTOR
     template <typename model>
     variational<model>::~variational() {}
+
+    /*!
+     * \brief getter for current ELBO value
+     */
+    template <typename model>
+    double variational<model>::getELBO() {
+        return m_elbo(m_nbIter);
+    }
 
     /*!
      * \brief Initialization of sufficient statistics
