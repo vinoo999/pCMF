@@ -71,9 +71,10 @@ pCMF <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
     results <- matrixFactor(X=X, K=ncomp,
                             phi01=phi01, phi02=phi02, theta01=theta01, theta02=theta02,
                             alpha1=alpha01, alpha2=alpha02, beta1=beta01, beta2=beta02,
-                            iterMax=iterMax, iterMin=iterMin, epsilon=1e-5,
+                            iterMax=iterMax, iterMin=iterMin, epsilon=epsilon,
                             order=0, stabRange=5, verbose=verbose, sparse=sparse, ZI=ZI,
-                            algo="EM", ncores=ncores)
+                            algo="EM", ncores=ncores,
+                            nbInit=nbInit, iterMaxInit=iterMaxInit, noise=noise, seed=seed)
 
     class(results) = "pCMF"
 
