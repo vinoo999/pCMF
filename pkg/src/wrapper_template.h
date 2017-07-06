@@ -128,7 +128,7 @@ namespace countMatrixFactor {
 #endif
 
         // random seed state
-        myRandom::RNGType rng(std::time(0));
+        myRandom::RNGType rng(static_cast<unsigned int>(std::time(0)));
         if(seed >= 0) {
             rng.seed(seed);
         }
