@@ -64,6 +64,9 @@ namespace myRandom {
     // generate random sample of unsigned int32 integers
     void rInt32(uint32_t* vec, int n, RNGType rng);
 
+    // generate random sample from uniform distribution
+    void rUnif(VectorXd &vec, int n, double param1, double param2, RNGType rng);
+
 }
 
 #endif // myRANDOM_H
