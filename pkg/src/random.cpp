@@ -43,6 +43,7 @@ using boost::random::uniform_real_distribution;
 using boost::random::variate_generator;
 
 // [[Rcpp::depends(RcppEigen)]]
+using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
 
@@ -141,6 +142,38 @@ namespace myRandom {
         // n is assumed to be the length of vector vec
         for(int ind=0; ind<n; ind++) {
             vec(ind) = generator();
+        }
+    }
+
+
+    /*!
+     * \function rUnif
+     * \brief generate random sample from uniform distribution
+     *
+     * Simulate n repetition of Uniform(param1, param2)
+     *
+     * Note: param1 = min, param2 = max with parameter pair (param1, param2) for each
+     * drawning
+     *
+     * \param[out] mat matrix to store the simulated values
+     * \param[in] nrow number of rows in the matrix mat
+     * \param[in] ncol number of cols in the matrix mat
+     * \param[in] param1 min uniform parameter
+     * \param[in] param1 max uniform parameter
+     * \param[in] rng Random Number Generator from boost
+     */
+    void rUnif(MatrixXd &mat, int nrow, int ncol,
+               const MatrixXd &param1, const MatrixXd &param2, RNGType rng) {
+
+        // nrow and ncol are assumed to be consistent with the dimension of the different input matrices
+        for(int rowInd=0; rowInd<nrow; rowInd++) {
+            for(int colInd=0; colInd<ncol; colInd++) {
+                // Uniform generator
+                uniform_real_distribution<> myUnif(param1(rowInd, colInd),
+                                                   param2(rowInd, colInd));
+                variate_generator< RNGType, uniform_real_distribution<> >generator(rng, myUnif);
+                mat(rowInd, colInd) = generator();
+            }
         }
     }
 

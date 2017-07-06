@@ -35,6 +35,7 @@
 using boost::random::mt19937;
 
 // [[Rcpp::depends(RcppEigen)]]
+using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
 
@@ -66,6 +67,10 @@ namespace myRandom {
 
     // generate random sample from uniform distribution
     void rUnif(VectorXd &vec, int n, double param1, double param2, RNGType rng);
+
+    // generate random sample from uniform distribution
+    void rUnif(MatrixXd &mat, int nrow, int ncol,
+               const MatrixXd &param1, const MatrixXd &param2, RNGType rng);
 
 }
 
