@@ -29,6 +29,7 @@
 #include <cstdio>
 #include "variational.h"
 #include "gamPoisFactorZI.h"
+#include "wrapper_template.h"
 
 #include <omp.h>
 // [[Rcpp::plugins(openmp)]]
@@ -61,16 +62,29 @@ using Eigen::VectorXd;                  // variable size vector, double precisio
 //' @import RcppEigen
 //' @useDynLib pCMF
 //'
-//' @param X matrix n x p of counts
-//' @param K number of factors
-//' @param phi01 n x K, initial values of first parameter of Gamma distribution on U
-//' @param phi02 n x K, initial values of second parameter of Gamma distribution on U
-//' @param theta01 n x K, initial values of first parameter of Gamma distribution on V
-//' @param theta02 n x K, initial values of second parameter of Gamma distribution on V
+//' @param X n x p, count data matrix
+//' @param K dimension of the latent subspace
+//' @param ZI boolean, indicating if the model is zero-inflated
+//' @param phi1 n x K, initial values of first parameter of Gamma distribution on U
+//' @param phi2 n x K, initial values of second parameter of Gamma distribution on U
+//' @param theta1 n x K, initial values of first parameter of Gamma distribution on V
+//' @param theta2 n x K, initial values of second parameter of Gamma distribution on V
 //' @param alpha1 n x K, initial values of first parameter of Gamma prior on U
 //' @param alpha2 n x K, initial values of second parameter of Gamma prior on U
 //' @param beta1 n x K, initial values of first parameter of Gamma prior on V
 //' @param beta2 n x K, initial values of second parameter of Gamma prior on V
+//' @param iterMax maximum number of iterations
+//' @param iterMin minimum number of iterations
+//' @param epsilon precision for comparison when assessing convergence
+//' @param order derivative order on normalized gap to assess convergence
+//' (0 is the current value, 1 the first order empirical derivative, 2 the second order empirical derivative)
+//' @param stabRange range of stability (number of iterations where parameter values are stable to confirm convergence)
+//' @param verbose boolean indicating verbosity in the output
+//' @param ncores number of cores to use for multi-threading
+//' @param nbInit number of initialization to try
+//' @param iterMaxInit number of iteration to for each initialization in multi-initialization case (nbInit > 1)
+//' @param noise nosie level (between 0 and 1) for multi-init case
+//' @param seed for RNG (-1 means no seed)
 //'
 //' @return return
 //' \item{Y}{Y}
@@ -83,7 +97,8 @@ SEXP wrapper_variational_ZI_GaP(SEXP Xin, int K, bool ZI,
                                 SEXP alpha1in, SEXP alpha2in,
                                 SEXP beta1in, SEXP beta2in,
                                 int iterMax, int iterMin, double epsilon,
-                                int order, int stabRange, bool verbose, int ncores) {
+                                int order, int stabRange, bool verbose, int ncores,
+                                int nbInit, int iterMaxInit, double noise, int seed) {
 
     MatrixXi X = Rcpp::as< Map<MatrixXi> >(Xin);
     MatrixXd phi01 = Rcpp::as< Map<MatrixXd> >(phi01in);
@@ -95,40 +110,13 @@ SEXP wrapper_variational_ZI_GaP(SEXP Xin, int K, bool ZI,
     MatrixXd beta1 = Rcpp::as< Map<MatrixXd> >(beta1in);
     MatrixXd beta2 = Rcpp::as< Map<MatrixXd> >(beta2in);
 
-    int n = X.rows();
-    int p = X.cols();
-
-    // parallelizing
-#if defined(_OPENMP)
-    omp_set_num_threads(ncores);
-    Eigen::initParallel();
-#endif
-
-    // declaration of object gamPoisFactorStandard
-    Rcpp::Rcout << "Declaration" << std::endl;
-    variational<gamPoisFactorZI> myModel(iterMax, iterMin, order,
-                                         stabRange, epsilon, verbose,
-                                         n, p, K, X,
-                                         phi01, phi02, theta01, theta02,
-                                         alpha1, alpha2, beta1, beta2);
-
-    // initialization
-    Rcpp::Rcout << "Initialization" << std::endl;
-    myModel.Init();
-
-    // computations
-    Rcpp::Rcout << "Algorithm" << std::endl;
-    myModel.algorithm();
-
-    // factor order
-    Rcpp::Rcout << "factor order" << std::endl;
-    myModel.computeOrder();
-
-    // returns
-    Rcpp::Rcout << "Output" << std::endl;
-    Rcpp::List results;
-    myModel.returnObject(results);
-
-    return results;
+    return wrapper_template<gamPoisFactorZI, variational>(X, K, ZI,
+                                                          phi01, phi02,
+                                                          theta01, theta02,
+                                                          alpha1, alpha2,
+                                                          beta1, beta2,
+                                                          iterMax, iterMin, epsilon,
+                                                          order, stabRange, verbose, ncores,
+                                                          nbInit, iterMaxInit, noise, seed);
 
 }

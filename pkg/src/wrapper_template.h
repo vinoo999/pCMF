@@ -30,6 +30,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <cstdio>
+#include <ctime>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -90,9 +91,8 @@ namespace countMatrixFactor {
      * \param seed for RNG (-1 means no seed)
      *
      */
-    template<template<typename> typename algo, typename model>
-    SEXP wrapper_template(model* myModel,
-                          const MatrixXi &X, int K, bool ZI,
+    template<typename model, template<typename> class algo>
+    SEXP wrapper_template(const MatrixXi &X, int K, bool ZI,
                           const MatrixXd &phi01, const MatrixXd &phi02,
                           const MatrixXd &theta01, const MatrixXd &theta02,
                           const MatrixXd &alpha1, const MatrixXd &alpha2,
@@ -107,9 +107,8 @@ namespace countMatrixFactor {
     //------------------------------------------------------------------------//
 
 
-    template<template<typename> typename algo, typename model>
-    SEXP wrapper_template(model* myModel,
-                          const MatrixXi &X, int K, bool ZI,
+    template<typename model, template<typename> class algo>
+    SEXP wrapper_template(const MatrixXi &X, int K, bool ZI,
                           const MatrixXd &phi01, const MatrixXd &phi02,
                           const MatrixXd &theta01, const MatrixXd &theta02,
                           const MatrixXd &alpha1, const MatrixXd &alpha2,
@@ -129,7 +128,7 @@ namespace countMatrixFactor {
 #endif
 
         // random seed state
-        myRandom::RNGType rng = myRandom::rngInit();
+        myRandom::RNGType rng(std::time(0));
         if(seed >= 0) {
             rng.seed(seed);
         }
@@ -146,7 +145,7 @@ namespace countMatrixFactor {
             // store best SEED id and score
             int bestSeed = 0;
             int bestSeedId = 0;
-            double bestElbo = - std::numeric_limits<double>::max();
+            double bestELBO = - std::numeric_limits<double>::max();
 
             // LOOP OVER MULTI-INITIALIZATION
             for(int initId=0; initId<nbInit; initId++) {

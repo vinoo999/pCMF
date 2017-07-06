@@ -27,9 +27,9 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include <cstdio>
-#include "wrapper_template.h"
 #include "variationalEM.h"
 #include "gamPoisFactor.h"
+#include "wrapper_template.h"
 
 #include <omp.h>
 // [[Rcpp::plugins(openmp)]]
@@ -110,7 +110,7 @@ SEXP wrapper_varEM_GaP(SEXP Xin, int K, bool ZI,
     MatrixXd beta1 = Rcpp::as< Map<MatrixXd> >(beta1in);
     MatrixXd beta2 = Rcpp::as< Map<MatrixXd> >(beta2in);
 
-    return wrapper_template<variationalEM, gamPoisFactor>(X, K, ZI,
+    return wrapper_template<gamPoisFactor, variationalEM>(X, K, ZI,
                                                           phi01, phi02,
                                                           theta01, theta02,
                                                           alpha1, alpha2,
