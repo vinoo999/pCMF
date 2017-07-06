@@ -178,7 +178,7 @@ namespace countMatrixFactor {
     public:
 
         // Initialization of model
-        void Init(myRandom::RNGType rng);
+        void Init(myRandom::RNGType &rng);
 
         // run algorithm
         void algorithm();
@@ -363,7 +363,7 @@ namespace countMatrixFactor {
      * @tparam model a gamma Poisson factor model
      */
     template <typename model>
-    void variational<model>::Init(myRandom::RNGType rng) {
+    void variational<model>::Init(myRandom::RNGType &rng) {
         m_model.Init(rng);
     }
 

@@ -92,7 +92,7 @@ namespace countMatrixFactor {
     /*!
     * \brief Initialization of sufficient statistics
     */
-    void gamPoisFactorSparseZI::Init(myRandom::RNGType rng) {
+    void gamPoisFactorSparseZI::Init(myRandom::RNGType &rng) {
 
         // // Gamma prior parameter (to avoid scaling issue)
         // m_alpha2cur = m_alpha2cur.array() * std::sqrt(m_K);

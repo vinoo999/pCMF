@@ -98,7 +98,7 @@ namespace countMatrixFactor {
     public:
 
         // initialization
-        void Init(myRandom::RNGType rng);
+        void Init(myRandom::RNGType &rng);
 
         // create list with results to be return
         void returnObject(Rcpp::List &results);

@@ -143,7 +143,7 @@ namespace countMatrixFactor {
     /*!
      * \brief Initialization of sufficient statistics
      */
-    void gamPoisFactor::Init(myRandom::RNGType rng) {
+    void gamPoisFactor::Init(myRandom::RNGType &rng) {
 
         // Gamma prior parameter (to avoid scaling issue)
         m_alpha1cur = m_alpha1cur.array() / std::sqrt(m_K);

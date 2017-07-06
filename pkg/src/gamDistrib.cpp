@@ -112,7 +112,7 @@ namespace countMatrixFactor {
      */
     void estimParam(double n, double param1, double param2,
                     double &param1e, double &param2e,
-                    myRandom::RNGType rng) {
+                    myRandom::RNGType &rng) {
         VectorXd sample(n);
         myRandom::rGamma(sample, n, param1, param2, rng);
         double mean = sample.mean();
