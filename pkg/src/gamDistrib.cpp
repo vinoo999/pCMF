@@ -29,6 +29,7 @@
 #include <math.h>
 #include <boost/math/special_functions/digamma.hpp>
 #include "gamDistrib.h"
+#include "random.h"
 
 #define mdigamma() unaryExpr(std::ptr_fun<double,double>(digamma))
 #define mlgamma() unaryExpr(std::ptr_fun<double,double>(lgamma))
@@ -109,11 +110,13 @@ namespace countMatrixFactor {
      * @param[out] param1e estimation of shape parameter
      * @param[out] param2e estimation of rate parameter
      */
-    void estimParam(double n, double param1, double param2, double &param1e, double &param2e) {
-        Rcpp::NumericVector sample = Rcpp::rgamma(n, param1, param2);
-        VectorXd sample2 = Rcpp::as<Map<VectorXd> >(sample);
-        double mean = sample2.mean();
-        double var = sample2.msquare().mean() - std::pow(mean,2);
+    void estimParam(double n, double param1, double param2,
+                    double &param1e, double &param2e,
+                    myRandom::RNGType rng) {
+        VectorXd sample(n);
+        myRandom::rGamma(sample, n, param1, param2, rng);
+        double mean = sample.mean();
+        double var = sample.msquare().mean() - std::pow(mean,2);
         param1e = std::pow(mean,2) / var;
         param2e = mean / var;
     }
