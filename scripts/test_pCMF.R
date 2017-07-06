@@ -44,7 +44,8 @@ matrixHeatmap(data1$U, xlab="k = 1...K", ylab="i = 1...n")
 
 ncomp <- 2
 
-res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=FALSE, ncores=16)
+res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=TRUE, ncores=16,
+             nbInit=10, iterMaxInit=30, noise=0.5, seed=NULL)
 
 str(res1)
 
@@ -67,3 +68,14 @@ graphU(res1, axes=1:2, labels=factor(blockAlpha1$idRows),
        log_representation=TRUE, edit_theme=TRUE, graph=TRUE)
 
 matrixHeatmap(U)
+
+
+## test multi init
+layout(matrix(1:10, nrow=2))
+for(i in 1:10) {
+    res1 <- pCMF(X, ncomp, iterMax=500, iterMin=100, epsilon=1e-3, verbose=FALSE, ncores=16,
+                 nbInit=10, iterMaxInit=30, noise=0.5, seed=NULL)
+    U <- getU(res1, log_representation=FALSE)
+    plot(U, col=blockAlpha1$idRows)
+
+}
