@@ -166,7 +166,7 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "X = " << m_X << std::endl << std::endl;
 
         // Gamma variational parameter
-        Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
+        //Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
 
         // local parameters
         //#pragma omp parallel for shared(tmp_alpha1cur,tmp_alpha2cur,phi1cur,phi2cur,phi1old,phi2old) private(k)
@@ -197,7 +197,7 @@ namespace countMatrixFactor {
         }
 
         // sufficient statistics
-        Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
+        //Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
         Egam(m_phi1cur, m_phi2cur, m_EU);
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
         Egam(m_theta1cur, m_theta2cur, m_EV);

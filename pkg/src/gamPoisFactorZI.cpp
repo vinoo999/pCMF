@@ -87,7 +87,7 @@ namespace countMatrixFactor {
         m_beta1cur = m_beta1cur.array() / std::sqrt(m_K);
 
         // Gamma variational parameter
-        Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
+        //Rcpp::Rcout << "Init: Gamma variational parameter" << std::endl;
         for(int k=0; k<m_K; k++) {
             // local parameters
             for(int i=0; i<m_N; i++) {
@@ -136,7 +136,7 @@ namespace countMatrixFactor {
         // Rcpp::Rcout << "m_probZI = " << m_probZI.leftCols(15) << std::endl;
 
         // sufficient statistics
-        Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
+        //Rcpp::Rcout << "Init: sufficient statistics" << std::endl;
         Egam(m_phi1cur, m_phi2cur, m_EU);
         Elgam(m_phi1cur, m_phi2cur, m_ElogU);
         Egam(m_theta1cur, m_theta2cur, m_EV);
