@@ -151,7 +151,7 @@ namespace countMatrixFactor {
             for(int initId=0; initId<nbInit; initId++) {
 
                 if(verbose) {
-                    Rcpp::Rcout << "Seed " << initId << std::endl;
+                    Rcpp::Rcout << "Seed " << initId+1 << std::endl;
                 }
 
                 // set seed
