@@ -28,7 +28,7 @@ Rscript --verbose $WORKDIR/admin/computeMD5sum.R $WORKDIR
 R CMD build $WORKDIR/pkg
 
 ## cp to src
-ls *.tar.gz | xargs -I {} cp {} $WORKDIR/sources
+cp $WORKDIR/admin/pCMF_${VERSION}.tar.gz $WORKDIR/sources
 
 ## cp source to pbil-deb
 #ls *.tar.gz | xargs -I {} scp {} durif@pbil:/panhome/durif/source_code/pCMF/sources
