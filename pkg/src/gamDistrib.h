@@ -46,7 +46,7 @@ namespace countMatrixFactor {
     void entropyGam(const MatrixXd &param1, const MatrixXd &param2, MatrixXd &res);
 
     // estimate shape and rate parameters
-    void estimParam(double n, double param1, double param2, double &param1e, double &param2e, myRandom::RNGType &rng);
+    void estimParam(int n, double param1, double param2, double &param1e, double &param2e, myRandom::RNGType &rng);
 
 }
 

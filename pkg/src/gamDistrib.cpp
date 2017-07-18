@@ -110,7 +110,7 @@ namespace countMatrixFactor {
      * @param[out] param1e estimation of shape parameter
      * @param[out] param2e estimation of rate parameter
      */
-    void estimParam(double n, double param1, double param2,
+    void estimParam(int n, double param1, double param2,
                     double &param1e, double &param2e,
                     myRandom::RNGType &rng) {
         VectorXd sample(n);
