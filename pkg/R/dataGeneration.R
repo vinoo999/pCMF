@@ -43,9 +43,9 @@
 #' @param p number of variables (nb of columns)
 #' @param K number of latent factors (dimension of latent subspace)
 #' @param alpha1 matrix n x K, first parameters for the prior distribution on U
-#' @param alpĥa2 matrix n x K, second parameters for the prior distribution on U
+#' @param alpa2 matrix n x K, second parameters for the prior distribution on U
 #' @param beta1 matrix n x K, first parameters for the prior distribution on V
-#' @param beta2 matrix n x K, second parameters for the prior distribution on U
+#' @param beta2 matrix n x K, second parameters for the prior distribution on V
 #' @param ZI boolean, indicating if the data are zero-inflated (default is FALSE)
 #' @param prob1 vector of Bernoulli probability for zero-inflation (default is NULL),
 #' length p, one probability per variable, probability to not get a drop-out event
@@ -60,7 +60,7 @@
 #' \item{p}{number of variables (or columns in X)}
 #' \item{K}{number of latent factors (dimension of latent subspace)}
 #' \item{alpha1}{matrix n x K, first parameters for the prior distribution on U}
-#' \item{alpĥa2}{matrix n x K, second parameters for the prior distribution on U}
+#' \item{alpa2}{matrix n x K, second parameters for the prior distribution on U}
 #' \item{beta1}{matrix n x K, first parameters for the prior distribution on V}
 #' \item{beta2}{matrix n x K, second parameters for the prior distribution on U}
 #' \item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
