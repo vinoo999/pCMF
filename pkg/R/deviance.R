@@ -51,9 +51,9 @@ expDev <- function(model, X) {
 
     lambda0 <- matrix(rep(apply(X,2,mean), times=n),nrow=n, ncol=p, byrow=TRUE)
 
-    res1 = poisLogLike(X, lambda)
-    res2 = poisLogLike(X, X)
-    res0 = poisLogLike(X, lambda0)
+    res1 <- poisLogLike(X, lambda)
+    res2 <- poisLogLike(X, X)
+    res0 <- poisLogLike(X, lambda0)
 
     return((res1-res0)/(res2-res0))
 }
@@ -88,8 +88,8 @@ dev <- function(model, X) {
 
     lambda <- model$lambda
 
-    res1 = poisLogLike(X, lambda)
-    res2 = poisLogLike(X, X)
+    res1 <- poisLogLike(X, lambda)
+    res2 <- poisLogLike(X, X)
 
     return(-2*(res1 - res2))
 }
@@ -115,10 +115,10 @@ dev <- function(model, X) {
 #'
 #' @return value of the Poisson log-likelihood
 #'
-poisLogLike = function(X, lambda) {
-    X.ij = as.vector(X)
-    lambda.ij = as.vector(lambda)
-    lambda.ij.nnull = ifelse(lambda.ij<1E-12, 1, lambda.ij)
+poisLogLike <- function(X, lambda) {
+    X.ij <- as.vector(X)
+    lambda.ij <- as.vector(lambda)
+    lambda.ij.nnull <- ifelse(lambda.ij<1E-12, 1, lambda.ij)
 
     return(sum(X.ij * log(lambda.ij.nnull) - lambda.ij - lfactorial(X.ij)))
 }

@@ -76,7 +76,7 @@ pCMF <- function(X, K, alpha1=NULL, alpha2=NULL, beta1=NULL, beta2=NULL,
                             algo="EM", ncores=ncores,
                             nbInit=nbInit, iterMaxInit=iterMaxInit, noise=noise, seed=seed)
 
-    class(results) = "pCMF"
+    class(results) <- "pCMF"
 
     return(results)
 

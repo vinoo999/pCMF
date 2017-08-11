@@ -57,23 +57,23 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
                          algo="EM", ncores=1,
                          nbInit=1, iterMaxInit=50, noise=0.5, seed=NULL) {
 
-    X = apply(X, c(1,2), as.integer)
+    X <- apply(X, c(1,2), as.integer)
 
-    results = NULL
+    results <- NULL
 
-    seed = ifelse(!is.null(seed), seed, -1)
+    seed <- ifelse(!is.null(seed), seed, -1)
 
     if(algo == "EM") {
         # print("EM ok")
         if(ZI) {
             if(sparse) {
-                results = wrapper_varEM_sparse_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                results <- wrapper_varEM_sparse_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                       alpha1, alpha2, beta1, beta2,
                                                       iterMax, iterMin, epsilon,
                                                       order, stabRange, verbose, ncores,
                                                       nbInit, iterMaxInit, noise, seed)
             } else {
-                results = wrapper_varEM_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                results <- wrapper_varEM_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                alpha1, alpha2, beta1, beta2,
                                                iterMax, iterMin, epsilon,
                                                order, stabRange, verbose, ncores,
@@ -81,13 +81,13 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
             }
         } else {
             if(sparse) {
-                results = wrapper_varEM_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                results <- wrapper_varEM_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                    alpha1, alpha2, beta1, beta2,
                                                    iterMax, iterMin, epsilon,
                                                    order, stabRange, verbose, ncores,
                                                    nbInit, iterMaxInit, noise, seed)
             } else {
-                results = wrapper_varEM_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                results <- wrapper_varEM_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                             alpha1, alpha2, beta1, beta2,
                                             iterMax, iterMin, epsilon,
                                             order, stabRange, verbose, ncores,
@@ -96,20 +96,20 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
         }
     } else if(algo == "variational") {
         if(ZI) {
-            results = wrapper_variational_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+            results <- wrapper_variational_ZI_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                  alpha1, alpha2, beta1, beta2,
                                                  iterMax, iterMin, epsilon,
                                                  order, stabRange, verbose, ncores,
                                                  nbInit, iterMaxInit, noise, seed)
         } else {
             if(sparse) {
-                results = wrapper_variational_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                results <- wrapper_variational_sparse_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                          alpha1, alpha2, beta1, beta2,
                                                          iterMax, iterMin, epsilon,
                                                          order, stabRange, verbose, ncores,
                                                          nbInit, iterMaxInit, noise, seed)
             } else {
-                results = wrapper_variational_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
+                results <- wrapper_variational_GaP(X, K, ZI, phi01, phi02, theta01, theta02,
                                                   alpha1, alpha2, beta1, beta2,
                                                   iterMax, iterMin, epsilon,
                                                   order, stabRange, verbose, ncores,
@@ -118,7 +118,7 @@ matrixFactor <- function(X, K, phi01, phi02, theta01, theta02,
         }
     }
 
-    class(results) = "pCMF"
+    class(results) <- "pCMF"
 
     return(results)
 

@@ -178,9 +178,9 @@ matrixPlot <- function(mat, axes=c(1:2), labels=NULL,
     ## graph representation
     if(!is.null(labels)) {
         dataToPlot$labels <- labels
-        g <- ggplot(dataToPlot, aes(x=comp1, y=comp2, color=labels))
+        g <- ggplot(dataToPlot, aes(x=quote(comp1), y=quote(comp2), color=labels))
     } else {
-        g <- ggplot(dataToPlot, aes(x=comp1, y=comp2))
+        g <- ggplot(dataToPlot, aes(x=quote(comp1), y=quote(comp2)))
     }
     g <- g + geom_point()
     if(edit_theme) {

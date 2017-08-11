@@ -49,7 +49,7 @@
 #' @importFrom stats rexp
 #'
 #' @export
-blockMatrixGamma = function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) {
+blockMatrixGamma <- function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) {
 
     ###### verification on input paramters
     if((ncol < nColBlock) || (nrow < nRowBlock)) {
@@ -60,7 +60,7 @@ blockMatrixGamma = function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) 
         if(nRowBlock != nColBlock) {
             stop("message from blockMatrix: consider supplying signalBlock in input")
         } else {
-            signalBlock=diag(2.9, nRowBlock)+0.1
+            signalBlock<-diag(2.9, nRowBlock)+0.1
         }
     } else {
         if((nrow(signalBlock) != nRowBlock) || (ncol(signalBlock) != nColBlock)) {
@@ -68,28 +68,28 @@ blockMatrixGamma = function(nrow, ncol, nRowBlock, nColBlock, signalBlock=NULL) 
         }
     }
 
-    mat = matrix(NA, nrow=nrow, ncol=ncol)
+    mat <- matrix(NA, nrow=nrow, ncol=ncol)
 
     ###### significant blocks
 
     # identification of the blocks in rows and columns
-    id.rowblock = 1:nRowBlock
-    id.colblock = 1:nColBlock
+    id.rowblock <- 1:nRowBlock
+    id.colblock <- 1:nColBlock
 
     # assignation to a blocks for each row and columns
-    idRows = sort(rep(id.rowblock, length=nrow))
-    idCols = sort(rep(id.colblock, length=ncol))
+    idRows <- sort(rep(id.rowblock, length=nrow))
+    idCols <- sort(rep(id.colblock, length=ncol))
 
     ###### construction of the matrix (by blocks)
     for(rowBlock in id.rowblock) {
         for(colBlock in id.colblock) {
-            rowsBlock = (1:nrow)[idRows ==  rowBlock]
-            nrowsBlock = length(rowsBlock)
-            colsBlock = (1:ncol)[idCols ==  colBlock]
-            ncolsBlock = length(colsBlock)
-            blockSize = nrowsBlock * ncolsBlock
+            rowsBlock <- (1:nrow)[idRows ==  rowBlock]
+            nrowsBlock <- length(rowsBlock)
+            colsBlock <- (1:ncol)[idCols ==  colBlock]
+            ncolsBlock <- length(colsBlock)
+            blockSize <- nrowsBlock * ncolsBlock
 
-            mat[rowsBlock, colsBlock] = matrix(rexp(blockSize, rate=1/signalBlock[rowBlock, colBlock]), nrow=nrowsBlock, ncol=ncolsBlock) #matrix(signalBlock[rowBlock, colBlock], nrow=nrowsBlock, ncol=ncolsBlock)
+            mat[rowsBlock, colsBlock] <- matrix(rexp(blockSize, rate=1/signalBlock[rowBlock, colBlock]), nrow=nrowsBlock, ncol=ncolsBlock) #matrix(signalBlock[rowBlock, colBlock], nrow=nrowsBlock, ncol=ncolsBlock)
         }
     }
 
