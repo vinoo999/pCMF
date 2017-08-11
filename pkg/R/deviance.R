@@ -17,7 +17,7 @@
 ### MA 02111-1307, USA
 
 
-#' @title expDev
+#' @title expDeviance
 #'
 #' @description
 #' Get the percentage of deviance explained by a Gamma-Poisson Factor model
@@ -40,7 +40,7 @@
 #' dimensional sub-space
 #'
 #' @export
-expDev <- function(model, X) {
+expDeviance <- function(model, X) {
 
     ## computation of the deviance percentage
 
@@ -59,7 +59,7 @@ expDev <- function(model, X) {
 }
 
 
-#' @title dev
+#' @title deviance
 #'
 #' @description
 #' Get the associated to a Gamma-Poisson Factor model
@@ -82,7 +82,7 @@ expDev <- function(model, X) {
 #' dimensional sub-space
 #'
 #' @export
-dev <- function(model, X) {
+deviance <- function(model, X) {
 
     ## computation of the deviance
 
