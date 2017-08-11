@@ -60,7 +60,7 @@
 #' \item{p}{number of variables (or columns in X)}
 #' \item{K}{number of latent factors (dimension of latent subspace)}
 #' \item{alpha1}{matrix n x K, first parameters for the prior distribution on U}
-#' \item{alpa2}{matrix n x K, second parameters for the prior distribution on U}
+#' \item{alpha2}{matrix n x K, second parameters for the prior distribution on U}
 #' \item{beta1}{matrix n x K, first parameters for the prior distribution on V}
 #' \item{beta2}{matrix n x K, second parameters for the prior distribution on U}
 #' \item{ZI}{boolean, indicating if the data are zero-inflated (default is FALSE)}
