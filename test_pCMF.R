@@ -84,4 +84,4 @@ matrixHeatmap(V)
 
 
 # percentage of explained deviance
-expDev(res1, X)
+expDeviance(res1, X)
